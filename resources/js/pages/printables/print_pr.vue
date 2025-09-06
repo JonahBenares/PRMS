@@ -35,14 +35,14 @@
 				<table class="w-full text-sm !border-b border-x">
 					<tbody>
 						<tr>
-							<td class="border-x px-1" width="">Company</td>
-							<td class="border-x px-1" width="37.5%">CENPRI</td>
+							<td class="border-x px-1" width="">Location</td>
+							<td class="border-x px-1" width="37.5%">Plant Site</td>
 							<td class="border-x px-1" width="">Department</td>
 							<td class="border-x px-1" width="37.5%">Purchasing Department</td>
 						</tr>
 						<tr>
-							<td class="border px-1" width="">Purchase Request</td>
-							<td class="border px-1" width="37.5%">Plant Site</td>
+							<td class="border px-1" width="">Purchase Number</td>
+							<td class="border px-1" width="37.5%">PR-9892-CNPR-SITE</td>
 							<td class="border px-1" width="">Department Code</td>
 							<td class="border px-1" width="37.5%">PUR-1200</td>
 						</tr>
@@ -56,7 +56,7 @@
 							<td class="border px-1" width="">Date Issued</td>
 							<td class="border px-1" width="37.5%">10/10/25</td>
 							<td class="border px-1" width="">Urgency</td>
-							<td class="border px-1" width="35%">1</td>
+							<td class="border px-1" width="35%">1 - Week</td>
 						</tr>
 						<tr>
 							<td class="border px-1" width="">Purpose</td>
@@ -74,7 +74,7 @@
 							<td class="!border-x !border-b font-semibold px-1 text-center" width="3%">#</td>
 							<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">Qty</td>
 							<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">UOM</td>
-							<td class="!border-x !border-b font-semibold px-1" width="15%">Part No.</td>
+							<td class="!border-x !border-b font-semibold px-1" width="15%">Item Code</td>
 							<td class="!border-x !border-b font-semibold px-1">Description</td>
 							<td class="!border-x !border-b font-semibold px-1" width="8%">WH Stock</td>
 							<td class="!border-x !border-b font-semibold px-1" width="10%">Date Needed</td>
@@ -87,39 +87,7 @@
 							<td class="align-top !border-x !border-b px-1 text-center"> pc/s</td>
 							<td class="align-top !border-x !border-b px-1">55844-28823</td>
 							<td class="align-top !border-x !border-b">
-								<span class="px-2 font-semibold">Sample item</span>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Category:</span>
-									sample
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Brand:</span>
-									sample
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Model:</span>
-									sample
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Size:</span>
-									sample
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Color:</span>
-									sample
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Material:</span>
-									sample
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Unit:</span>
-									sample
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Serial:</span>
-									sample
-								</div>
+								<span class="px-2 font-semibold">Sample item - PRT03399;Category;Brand;Model;Size;Color;Material;Unit;Serial</span>
 							</td>
 							<td class="align-top !border-x !border-b px-1"></td>
 							<td class="align-top !border-x !border-b px-1 text-center">10/10/25</td>
@@ -207,10 +175,10 @@
 				</div>
 				<div class="mt-4 flex justify-end flex-wrap gap-2">
 					<!-- Instead of <a>, we use buttons that trigger modal -->
-					<a href="form_pr" class="inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium border border-blue-300 text-blue-900 hover:bg-blue-100">
+					<a href="/user/dashboard" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
 						Back
 					</a>
-					<a href="print_pr" class="inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50">
+					<a href="/user/print_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50/user/">
 						Save & Export
 					</a>
 				</div>

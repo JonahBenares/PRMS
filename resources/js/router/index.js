@@ -3,7 +3,8 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import notFound from '../pages/notFound.vue'
 import login from '../pages/login.vue'
-import home from '../pages/home.vue'
+import home from '../pages/user/dashboard.vue'
+import dashboard from '../pages/admin/dashboard.vue'
 import print_pr from '../pages/printables/print_pr.vue'
 
 
@@ -13,11 +14,15 @@ const routes = [
         component: login,
     },
     {
-        path:'/form_pr',
+        path:'/user/dashboard',
         component: home,
     },
     {
-        path:'/print_pr',
+        path:'/admin/dashboard',
+        component: dashboard,
+    },
+    {
+        path:'/user/print_pr',
         component: print_pr,
     },
     {

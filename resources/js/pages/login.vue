@@ -43,21 +43,13 @@
         </div>
 
         <!-- Submit Button -->
-        <a href="/form_pr"
-          type="submit"
-          class="w-full py-2 rounded-lg bg-blue-600 text-white text-center font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
-        >
-          Log In
-        </a>
-
-        <!-- <button
+        <button
           type="submit"
           class="w-full py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
         >
           Log In
-        </button> -->
+        </button>
       </form>
-      
 
       <!-- Divider -->
       <div class="flex items-center my-6">
@@ -77,22 +69,33 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const email = ref("");
 const password = ref("");
 const remember = ref(false);
 
 const handleLogin = () => {
-  // Example login logic
-  console.log("Logging in with:", {
+  // Mock role check
+  let role = "user"; // default role
+
+  if (email.value === "admin@example.com") {
+    role = "admin";
+  }
+
+  console.log("Mock login:", {
     email: email.value,
     password: password.value,
     remember: remember.value,
+    role,
   });
 
-  // 🔑 If using Laravel Sanctum:
-  // await axios.post("/login", { email: email.value, password: password.value })
-  //   .then(() => router.push("/dashboard"))
-  //   .catch(err => console.error(err));
+  // Redirect based on role
+  if (role === "admin") {
+    router.push("/admin/dashboard");
+  } else {
+    router.push("/user/dashboard");
+  }
 };
 </script>
