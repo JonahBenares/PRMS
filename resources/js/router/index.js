@@ -6,6 +6,7 @@ import login from '../pages/login.vue'
 import home from '../pages/user/dashboard.vue'
 import dashboard from '../pages/admin/dashboard.vue'
 import print_pr from '../pages/printables/print_pr.vue'
+import pr_list from '../pages/user/pr_list.vue'
 
 
 const routes = [
@@ -24,6 +25,10 @@ const routes = [
     {
         path:'/user/print_pr',
         component: print_pr,
+    },
+    {
+        path:'/user/pr_list',
+        component: pr_list,
     },
     {
         path:'/:pathMatch(.*)*',

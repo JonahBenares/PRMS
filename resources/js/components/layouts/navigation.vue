@@ -8,7 +8,7 @@
 
 			<!-- Desktop Menu (with Profile inside) -->
 			<nav class="flex items-center space-x-6 hidden md:flex">
-			<a href="#" class="hover:text-blue-500">PR List</a>
+			<a href="/user/pr_list" class="hover:text-blue-500">PR List</a>
 			<!-- <a href="#" class="hover:text-blue-500">About</a>
 			<a href="#" class="hover:text-blue-500">Services</a>
 			<a href="#" class="hover:text-blue-500">Contact</a> -->

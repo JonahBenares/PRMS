@@ -16,7 +16,7 @@
             @click="requestsOpen = !requestsOpen"
             class="w-full flex items-center justify-between px-6 py-2 rounded-lg hover:bg-gray-100 focus:outline-none"
         >
-            <span>Requests</span>
+            <span>Masterfile</span>
             <svg
             :class="{ 'rotate-180': requestsOpen }"
             class="w-4 h-4 transform transition-transform"
@@ -32,9 +32,14 @@
         <!-- Submenu -->
         <transition name="fade">
             <div v-if="requestsOpen" class="ml-6 mt-1 flex flex-col space-y-1">
-            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">PR List</a>
-            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">PO List</a>
-            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">Completed</a>
+            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">Items</a>
+            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">Department</a>
+            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">Purpose</a>
+            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">Enduse</a>
+            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">Employees</a>
+            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">Users</a>
+            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">Location</a>
+            <a href="#" class="px-4 py-2 text-sm rounded-lg hover:bg-gray-100">Company</a>
             </div>
         </transition>
         </div>
