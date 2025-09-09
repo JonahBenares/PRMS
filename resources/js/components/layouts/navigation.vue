@@ -4,39 +4,63 @@
     <header class="fixed top-0 w-full z-50 bg-white backdrop-blur-md text-gray-700 shadow-sm">
 		<div class="max-w-7xl mx-auto px-8 py-4 flex justify-between items-center">
 			<!-- Logo -->
-			<div class="text-xl font-bold">PRMS</div>
+			<div class="text-2xl font-extrabold">PRMS</div>
 
 			<!-- Desktop Menu (with Profile inside) -->
-			<nav class="flex items-center space-x-6 hidden md:flex">
-			<a href="/user/pr_list" class="hover:text-blue-500">PR List</a>
-			<!-- <a href="#" class="hover:text-blue-500">About</a>
-			<a href="#" class="hover:text-blue-500">Services</a>
-			<a href="#" class="hover:text-blue-500">Contact</a> -->
+			<nav class="flex items-center hidden md:flex">
+				<a href="/pr_list" class="text-gray-400 hover:text-gray-600 px-3 py-1.5 rounded-md font-medium">Dashboard</a>
+				<a href="/pr_list" class="text-gray-400 hover:text-gray-600 px-3 py-1.5 rounded-md font-medium">PR List</a>
 
-			<!-- Profile Dropdown -->
-			<div class="relative">
-				<button @click="profileOpen = !profileOpen" class="flex items-center space-x-2 focus:outline-none">
-				<img src="https://i.pravatar.cc/40" alt="Profile" class="w-8 h-8 rounded-full">
-				<span class="font-medium">John Doe</span>
-				<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2"
-					viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-				</svg>
+				<!-- Masterfile dropdown -->
+				<div class="relative" ref="masterfileRef">
+				<button
+					@click.stop="toggleMasterfile"
+					class="flex items-center space-x-1 text-gray-400 hover:text-gray-600 px-3 py-1.5 rounded-md font-medium focus:outline-none"
+				>
+					<span>Masterfile</span>
+					<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
 				</button>
 
-				<!-- Dropdown -->
 				<transition name="fade">
-				<div
+					<div
+					v-if="masterfileOpen"
+					@click.stop
+					class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden z-50"
+					>
+					<a href="/masterfile/items" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Items</a>
+					<a href="/masterfile/departments" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Departments</a>
+					<a href="/masterfile/users" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Enduse</a>
+					<a href="/masterfile/users" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Purpose</a>
+					</div>
+				</transition>
+				</div>
+
+				<!-- Profile dropdown -->
+				<div class="relative ml-6" ref="profileRef">
+				<button @click.stop="toggleProfile" class="flex items-center space-x-2 focus:outline-none">
+					<img src="https://i.pravatar.cc/40" alt="Profile" class="w-8 h-8 rounded-full" />
+					<span class="font-bold">John Doe</span>
+					<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+					</svg>
+				</button>
+
+				<transition name="fade">
+					<div
 					v-if="profileOpen"
-					class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden"
-				>
+					@click.stop
+					class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden z-50"
+					>
 					<a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
 					<a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Change Password</a>
 					<a href="/" class="block px-4 py-2 text-red-600 hover:bg-gray-100">Logout</a>
-				</div>
+					</div>
 				</transition>
-			</div>
+				</div>
 			</nav>
+
 
 			<!-- Mobile Toggle Button -->
 			<button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden">
@@ -77,10 +101,39 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted  } from "vue";
 
 const mobileMenuOpen = ref(false);
+const masterfileOpen = ref(false);
 const profileOpen = ref(false);
+
+// element refs for click-outside detection
+const masterfileRef = ref(null);
+const profileRef = ref(null);
+
+function toggleMasterfile() {
+  masterfileOpen.value = !masterfileOpen.value;
+  // close other dropdown(s) if needed
+  if (masterfileOpen.value) profileOpen.value = false;
+}
+function toggleProfile() {
+  profileOpen.value = !profileOpen.value;
+  if (profileOpen.value) masterfileOpen.value = false;
+}
+
+// small composable: call callback when clicking outside elementRef
+function useClickOutside(elementRef, callback) {
+  const handler = (e) => {
+    const el = elementRef.value;
+    if (!el) return;
+    if (!el.contains(e.target)) callback();
+  };
+  onMounted(() => document.addEventListener('click', handler));
+  onUnmounted(() => document.removeEventListener('click', handler));
+}
+
+useClickOutside(masterfileRef, () => (masterfileOpen.value = false));
+useClickOutside(profileRef, () => (profileOpen.value = false));
 
 // Close profile dropdown when clicking outside
 onMounted(() => {

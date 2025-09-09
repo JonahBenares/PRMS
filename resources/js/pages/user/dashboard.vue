@@ -2,7 +2,14 @@
 	<navigation>
 		<section class="items-center justify-center py-8">
 			<div class="w-full bg-white shadow-lg rounded-lg p-8 max-w-6xl mx-auto">
-				<h2 class="text-xl font-semibold mb-2 ">PR FORM</h2>
+				<div class="flex justify-start">
+					<div>
+						<h2 class="text-xl font-semibold mb-2 ">PR FORM</h2>
+					</div>
+					<div class="px-2 mt-1">
+						<span class="text-emerald-500 text-white  font-semibold">Revise</span>
+					</div>
+				</div>
 				<table class="w-full text-sm !border-b border-x">
 					<tbody>
 						<tr>

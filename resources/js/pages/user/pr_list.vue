@@ -1,160 +1,205 @@
-<template> 
-	<navigation>
+<template>
+    <navigation>
 		<section class="items-center justify-center py-8">
-			<div class="w-full bg-white shadow-lg rounded-lg p-8 max-w-6xl mx-auto">
+			<div class="bg-white rounded-lg shadow-lg max-w-6xl mx-auto">
 				<!-- Header -->
-				<div class="flex justify-between items-center mb-4">
-					<h2 class="text-xl font-semibold">PR List</h2>
-					<button
-						class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700"
-					>
-						<PlusIcon class="h-5 w-5" /> New PR
-					</button>
-				</div>
-
-				<!-- Search -->
-				<div class="mb-4">
-					<input
-						v-model="search"
-						type="text"
-						placeholder="Search PR..."
-						class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-					/>
+				<div class="px-6 py-4 flex justify-between items-center mb-4 bg-white border-b rounded-t-lg">
+					<h2 class="text-lg font-semibold">PR List</h2>
+					<a
+						href="/create_pr"
+						class="flex text-sm items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+						>
+						<PlusIcon class="w-5 h-5 mr-1" />
+						Create New
+					</a>
 				</div>
 
 				<!-- Table -->
-				<div class="overflow-x-auto">
-					<table class="min-w-full text-sm border rounded-lg">
-						<thead class="bg-gray-100">
-							<tr>
-								<th class="px-4 py-2 text-left cursor-pointer" @click="sort('number')">PR Number</th>
-								<th class="px-4 py-2 text-left cursor-pointer" @click="sort('requestor')">Requestor</th>
-								<th class="px-4 py-2 text-left cursor-pointer" @click="sort('date')">Date</th>
-								<th class="px-4 py-2 text-left cursor-pointer" @click="sort('status')">Status</th>
-								<th class="px-4 py-2 text-left">Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr
-								v-for="pr in paginatedItems"
-								:key="pr.id"
-								class="border-t hover:bg-gray-50"
-							>
-								<td class="px-4 py-2">{{ pr.number }}</td>
-								<td class="px-4 py-2">{{ pr.requestor }}</td>
-								<td class="px-4 py-2">{{ pr.date }}</td>
-								<td class="px-4 py-2">
-									<span
-										:class="[
-											'px-2 py-1 rounded text-xs font-medium',
-											pr.status === 'Approved' ? 'bg-green-100 text-green-700' :
-											pr.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-											'bg-red-100 text-red-700'
-										]"
-									>
-										{{ pr.status }}
-									</span>
-								</td>
-								<td class="px-4 py-2">
-									<button class="text-blue-600 hover:underline text-sm">View</button>
-								</td>
-							</tr>
-							<tr v-if="filteredItems.length === 0">
-								<td colspan="5" class="px-4 py-6 text-center text-gray-500">No PR found</td>
-							</tr>
-						</tbody>
+				<div class="px-6 pt-2 pb-6">
+					<table
+					id="itemTable"
+					class="min-w-full text-sm text-left text-gray-700 border border-gray-200 rounded-lg overflow-hidden"
+					>
+					<thead class="bg-gray-100 text-gray-900 font-semibold">
+						<tr>
+						<td class="px-4 py-2 cursor-pointer" width="10%">PR No</td>
+						<td class="px-4 py-2 cursor-pointer" width="15%">Department</td>
+						<td class="px-4 py-2 cursor-pointer" width="15%">Purpose</td>
+						<td class="px-4 py-2 cursor-pointer" width="15%">Enduse</td>
+						<td class="px-4 py-2 cursor-pointer" width="1%"></td>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-200">
+						<tr
+						v-for="item in items"
+						:key="item.id"
+						class="hover:bg-gray-50"
+						>
+						<td class="px-4 py-2 align-top">{{ item.prNo }}</td>
+						<td class="px-4 py-2 align-top">{{ item.department }}</td>
+						<td class="px-4 py-2 align-top">{{ item.purpose }}</td>
+						<td class="px-4 py-2 align-top">{{ item.enduse }}</td>
+						<td class="px-4 py-2 align-top flex justify-end space-x-1">
+							<a href="print_pr" class="flex items-center justify-center px-1 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+								<EyeIcon class="w-4 h-4" />
+							</a>
+							<button @click="openEditModal(item)" title="Revise PR" class="flex items-center justify-center px-1 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600" >
+								<ArrowPathIcon class="w-4 h-4" />
+							</button>
+							<button @click="openDeleteModal(item)" class="flex items-center justify-center px-1 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600" >
+								<TrashIcon class="w-4 h-4" />
+							</button>
+						</td>
+						</tr>
+					</tbody>
 					</table>
 				</div>
+			</div>
 
-				<!-- Pagination -->
-				<div class="flex justify-between items-center mt-4">
-					<p class="text-sm text-gray-600">
-						Showing {{ startIndex + 1 }}–{{ endIndex }} of {{ filteredItems.length }}
-					</p>
-					<div class="flex gap-2">
-						<button
-							:disabled="currentPage === 1"
-							@click="currentPage--"
-							class="px-3 py-1 border rounded-lg text-sm disabled:opacity-50"
-						>
-							Prev
-						</button>
-						<button
-							:disabled="currentPage === totalPages"
-							@click="currentPage++"
-							class="px-3 py-1 border rounded-lg text-sm disabled:opacity-50"
-						>
-							Next
-						</button>
+				<!-- Add/Edit Modal -->
+			<div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+				<div class="bg-white rounded-lg w-96 p-6">
+					<h3 class="text-lg font-semibold mb-4">{{ isEdit ? 'Edit Item' : 'Add Item' }}</h3>
+					<div class="flex flex-col gap-3">
+					<input v-model="modalItem.code" placeholder="Item Code" class="border px-3 py-2 rounded"/>
+					<input v-model="modalItem.name" placeholder="Item Name" class="border px-3 py-2 rounded"/>
+					<input v-model="modalItem.category" placeholder="Category" class="border px-3 py-2 rounded"/>
+					</div>
+					<div class="flex justify-end gap-2 mt-4">
+					<button @click="closeModal" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+					<button @click="saveItem" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">{{ isEdit ? 'Update' : 'Add' }}</button>
 					</div>
 				</div>
 			</div>
+
+			<div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+				<div class="bg-white rounded-2xl shadow-lg w-96 p-6 text-center">
+					<!-- Warning Icon -->
+					<div class="flex justify-center mb-4">
+					<ExclamationTriangleIcon class="w-12 h-12 text-red-600" />
+					</div>
+
+					<!-- Title -->
+					<h3 class="text-lg font-semibold text-gray-800 mb-2">
+					Confirm Deletion
+					</h3>
+
+					<!-- Message -->
+					<p class="text-gray-600">
+					Are you sure you want to delete 
+					<strong class="text-gray-900">{{ modalItem.name }}</strong>?
+					</p>
+
+					<!-- Action Buttons -->
+					<div class="flex justify-center gap-3 mt-6">
+					<button 
+						@click="closeDeleteModal" 
+						class="flex items-center gap-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+					>
+						<XMarkIcon class="w-5 h-5" />
+						Cancel
+					</button>
+
+					<button 
+						@click="deleteItem" 
+						class="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+					>
+						<TrashIcon class="w-5 h-5" />
+						Delete
+					</button>
+					</div>
+				</div>
+			</div>
+
+
 		</section>
-	</navigation>
+    </navigation>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { PlusIcon } from "@heroicons/vue/24/solid";
+import { ref, onMounted, reactive } from "vue";
+import $ from "jquery";
+import "datatables.net";
+import { TrashIcon, EyeIcon, PlusIcon, ArrowPathIcon,  ExclamationTriangleIcon, XMarkIcon} from '@heroicons/vue/24/solid';
 import navigation from "@/components/layouts/navigation.vue";
 
-// Sample Data
-const prs = ref([
-	{ id: 1, number: "PR-1001", requestor: "John Doe", date: "2025-09-01", status: "Pending" },
-	{ id: 2, number: "PR-1002", requestor: "Jane Smith", date: "2025-09-02", status: "Approved" },
-	{ id: 3, number: "PR-1003", requestor: "Mark Lee", date: "2025-09-03", status: "Rejected" },
-	{ id: 4, number: "PR-1004", requestor: "Alice Brown", date: "2025-09-04", status: "Pending" },
-	{ id: 5, number: "PR-1005", requestor: "Chris Evans", date: "2025-09-05", status: "Approved" },
+// Table data
+
+const items = ref([
+  { 
+    id: 1, 
+    prNo: "PR-001", 
+    department: "Finance", 
+    purpose: "To allocate additional budget for upcoming quarterly projects including vendor payments and operational expenses.", 
+    enduse: "For use in company-wide operational activities covering logistics, utilities, and essential supplies." 
+  },
+  { 
+    id: 2, 
+    prNo: "PR-002", 
+    department: "Human Resources", 
+    purpose: "To support the recruitment drive for filling multiple key positions in management and technical departments.", 
+    enduse: "For onboarding new employees, covering training, orientation, and initial workplace setup requirements." 
+  },
+  { 
+    id: 3, 
+    prNo: "PR-003", 
+    department: "Information Technology", 
+    purpose: "To upgrade the internal IT infrastructure including servers, cloud systems, and cybersecurity measures.", 
+    enduse: "For ensuring smooth company operations, data protection, and future scalability of IT resources." 
+  },
 ]);
 
-// Search
-const search = ref("");
+// Modals
+const showModal = ref(false);
+const showDeleteModal = ref(false);
+const isEdit = ref(false);
+const modalItem = reactive({ id: null, code: "", name: "", category: "" });
 
-// Sorting
-const sortKey = ref("");
-const sortAsc = ref(true);
-const sort = (key) => {
-	if (sortKey.value === key) {
-		sortAsc.value = !sortAsc.value;
-	} else {
-		sortKey.value = key;
-		sortAsc.value = true;
-	}
+const openAddModal = () => {
+  isEdit.value = false;
+  Object.assign(modalItem, { id: null, code: "", name: "", category: "" });
+  showModal.value = true;
 };
 
-// Filter + Sort
-const filteredItems = computed(() => {
-	let result = prs.value.filter(
-		(pr) =>
-			pr.number.toLowerCase().includes(search.value.toLowerCase()) ||
-			pr.requestor.toLowerCase().includes(search.value.toLowerCase()) ||
-			pr.status.toLowerCase().includes(search.value.toLowerCase())
-	);
+const openEditModal = (item) => {
+  isEdit.value = true;
+  Object.assign(modalItem, item);
+  showModal.value = true;
+};
 
-	if (sortKey.value) {
-		result = result.sort((a, b) => {
-			const valA = a[sortKey.value].toString().toLowerCase();
-			const valB = b[sortKey.value].toString().toLowerCase();
-			if (valA < valB) return sortAsc.value ? -1 : 1;
-			if (valA > valB) return sortAsc.value ? 1 : -1;
-			return 0;
-		});
-	}
+const closeModal = () => showModal.value = false;
 
-	return result;
+const saveItem = () => {
+  if (isEdit.value) {
+    const index = items.findIndex(i => i.id === modalItem.id);
+    if (index !== -1) items[index] = { ...modalItem };
+  } else {
+    items.push({ ...modalItem, id: Date.now() });
+  }
+  showModal.value = false;
+};
+
+const openDeleteModal = (item) => {
+  Object.assign(modalItem, item);
+  showDeleteModal.value = true;
+};
+
+const closeDeleteModal = () => showDeleteModal.value = false;
+
+const deleteItem = () => {
+  const index = items.findIndex(i => i.id === modalItem.id);
+  if (index !== -1) items.splice(index, 1);
+  showDeleteModal.value = false;
+};
+
+onMounted(() => {
+  $('#itemTable').DataTable({
+    dom: "<'flex justify-between items-center mb-4'lf>t<'flex justify-end items-center mt-4'p>",
+    language: {
+      search: "",
+      searchPlaceholder: "Search items...",
+      lengthMenu: "_MENU_ entries per page",
+    },
+  });
 });
-
-// Pagination
-const currentPage = ref(1);
-const perPage = 3;
-const totalPages = computed(() => Math.ceil(filteredItems.value.length / perPage));
-
-const paginatedItems = computed(() => {
-	const start = (currentPage.value - 1) * perPage;
-	const end = start + perPage;
-	return filteredItems.value.slice(start, end);
-});
-
-const startIndex = computed(() => (currentPage.value - 1) * perPage);
-const endIndex = computed(() => Math.min(startIndex.value + perPage, filteredItems.value.length));
 </script>

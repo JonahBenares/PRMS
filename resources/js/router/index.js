@@ -4,9 +4,10 @@ import { createRouter, createWebHistory } from "vue-router";
 import notFound from '../pages/notFound.vue'
 import login from '../pages/login.vue'
 import home from '../pages/user/dashboard.vue'
-import dashboard from '../pages/admin/dashboard.vue'
-import print_pr from '../pages/printables/print_pr.vue'
 import pr_list from '../pages/user/pr_list.vue'
+import print_pr from '../pages/printables/print_pr.vue'
+import item_list from '../pages/user/masterfile/item_list.vue'
+import item_add from '../pages/user/masterfile/item_add.vue'
 
 
 const routes = [
@@ -15,20 +16,24 @@ const routes = [
         component: login,
     },
     {
-        path:'/user/dashboard',
+        path:'/create_pr',
         component: home,
     },
     {
-        path:'/admin/dashboard',
-        component: dashboard,
-    },
-    {
-        path:'/user/print_pr',
+        path:'/print_pr',
         component: print_pr,
     },
     {
-        path:'/user/pr_list',
+        path:'/pr_list',
         component: pr_list,
+    },
+    {
+        path:'/masterfile/items',
+        component: item_list,
+    },
+    {
+        path:'/masterfile/items/add',
+        component: item_add,
     },
     {
         path:'/:pathMatch(.*)*',

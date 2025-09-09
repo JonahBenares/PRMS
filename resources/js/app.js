@@ -1,10 +1,14 @@
 import './bootstrap';
-import '../css/app.css'
+import '../css/app.css';
 
-import { createApp } from 'vue'
-import app from './pages/app.vue'
-import router from './router/index.js'
+import $ from 'jquery';
+window.$ = window.jQuery = $;
+
+import 'datatables.net'; // core only, no CSS
 
 
-// import { TailwindPagination } from 'laravel-vue-pagination';
-createApp(app).use(router).mount("#app")
+import { createApp } from 'vue';
+import app from './pages/app.vue';
+import router from './router/index.js';
+
+createApp(app).use(router).mount("#app");

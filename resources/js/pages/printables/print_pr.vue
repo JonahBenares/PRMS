@@ -2,7 +2,8 @@
 	<navigation>
 		<!-- Form Section -->
 		<section class="items-center justify-center py-8">
-			<div class="w-full pb-4 max-w-6xl mx-auto">
+			<!-- this is for the form -->
+			<!-- <div class="w-full pb-4 max-w-6xl mx-auto">
 				<div class="rounded-lg border border-amber-200 bg-amber-50/80 p-4 sm:p-5 shadow-lg flex items-start gap-3">
 					<div class="flex-1 min-w-0">
 						<div>
@@ -16,7 +17,7 @@
 						<XMarkIcon class="w-5 h-5" />
 					</button>
 				</div>
-			</div>
+			</div> -->
 			<div class="w-full bg-white shadow-lg rounded-xl p-8 max-w-6xl mx-auto">
 				<table class="border w-full">
 					<tbody>
@@ -86,8 +87,9 @@
 							<td class="align-top !border-x !border-b px-1 text-center">25</td>
 							<td class="align-top !border-x !border-b px-1 text-center"> pc/s</td>
 							<td class="align-top !border-x !border-b px-1">55844-28823</td>
-							<td class="align-top !border-x !border-b">
-								<span class="px-2 font-semibold">Sample item - PRT03399;Category;Brand;Model;Size;Color;Material;Unit;Serial</span>
+							<td class="align-top !border-x !border-b px-1">
+								<span class="font-semibold">Sample item - PRT03399;</span>
+								<span class="">Category;Brand;Model;Size;Color;Material;Unit;Serial</span>
 							</td>
 							<td class="align-top !border-x !border-b px-1"></td>
 							<td class="align-top !border-x !border-b px-1 text-center">10/10/25</td>
@@ -173,14 +175,20 @@
 						</tbody>
 					</table>
 				</div>
-				<div class="mt-4 flex justify-end flex-wrap gap-2">
-					<!-- Instead of <a>, we use buttons that trigger modal -->
-					<a href="/user/dashboard" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
-						Back
-					</a>
-					<a href="/user/print_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50/user/">
-						Save & Export
-					</a>
+				<div class="mt-4 flex justify-between flex-wrap gap-2">
+					<div>
+						<a href="/create_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-emerald-600 text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50/">
+							Revise
+						</a>
+					</div>
+					<div class="flex justify-between flex-wrap gap-2">
+						<a href="/create_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
+							Back
+						</a>
+						<a href="/print_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50/">
+							Save & Export
+						</a>
+					</div>
 				</div>
 			</div>
 		</section>

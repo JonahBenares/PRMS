@@ -5,7 +5,13 @@ export default {
     "./resources/**/*.vue",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Open Sans', 'sans-serif'], // Custom sans-serif font
+        serif: ['Merriweather', 'serif'], // Custom serif font
+        display: ['Oswald', 'sans-serif'], // Adding a new custom font family
+      },
+    },
   },
   plugins: [],
 }
