@@ -8,6 +8,7 @@ import pr_list from '../pages/user/pr_list.vue'
 import print_pr from '../pages/printables/print_pr.vue'
 import item_list from '../pages/user/masterfile/item_list.vue'
 import item_add from '../pages/user/masterfile/item_add.vue'
+import item_edit from '../pages/user/masterfile/item_edit.vue'
 
 
 const routes = [
@@ -34,6 +35,10 @@ const routes = [
     {
         path:'/masterfile/items/add',
         component: item_add,
+    },
+    {
+        path:'/masterfile/items/edit',
+        component: item_edit,
     },
     {
         path:'/:pathMatch(.*)*',

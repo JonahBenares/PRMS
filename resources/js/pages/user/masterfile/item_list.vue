@@ -34,16 +34,15 @@
 						:key="item.id"
 						class="hover:bg-gray-50"
 						>
-						<td class="px-4 py-2 align-top">{{ item.code }}</td>
+						<td class="px-4 py-2 align-top w-5">{{ item.code }}</td>
 						<td class="px-4 py-2 align-top">{{ item.name }}</td>
 						<td class="px-4 py-2 align-top">{{ item.category }}</td>
 						<td class="px-4 py-2 align-top flex items-center space-x-1">
-							<button
-							@click="openEditModal(item)"
-							class="flex items-center justify-center px-1 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
-							>
-							<PencilSquareIcon class="w-4 h-4" />
-							</button>
+							<a href="/masterfile/items/edit"
+								class="flex items-center justify-center px-1 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+								>
+								<PencilSquareIcon class="w-4 h-4" />
+							</a>
 							<button
 							@click="openDeleteModal(item)"
 							class="flex items-center justify-center px-1 py-1 bg-red-500 text-white rounded-lg hover:bg-red-700"
@@ -97,9 +96,9 @@ import navigation from "@/components/layouts/navigation.vue";
 
 // Table data
 const items = reactive([
-  { id: 1, code: "234", name: "54676", category: "5675" },
-  { id: 2, code: "234", name: "54676", category: "5675" },
-  { id: 3, code: "234", name: "54676", category: "5675" },
+  { id: 1, code: "234", name: "Sample item - PRT03399; Category;Brand;Model;Size;Color;Material;Unit;Serial", category: "5675" },
+  { id: 2, code: "234", name: "Sample item - PRT03399; Category;Brand;Model;Size;Color;Material;Unit;Serial", category: "5675" },
+  { id: 3, code: "234", name: "Sample item - PRT03399; Category;Brand;Model;Size;Color;Material;Unit;Serial", category: "5675" },
 ]);
 
 // Modals

@@ -4,7 +4,7 @@
 			<div class="bg-white rounded-lg shadow-lg max-w-6xl mx-auto">
 				<!-- Header -->
 				<div class="px-6 py-4 flex justify-between items-center mb-4 bg-white border-b rounded-t-lg">
-                    <h2 class="text-lg font-semibold">Add Item</h2>
+                    <h2 class="text-lg font-semibold">Edit Item</h2>
                     <a href="/masterfile/items"
                         class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700 transition">
                         Show List
@@ -209,7 +209,7 @@
                         Save As Draft
                         </button>
                         <button class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-6 py-2 rounded-md shadow">
-                        Save
+                        Edit
                         </button>
                     </div>
 

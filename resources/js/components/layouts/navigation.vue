@@ -7,15 +7,15 @@
 			<div class="text-2xl font-extrabold">PRMS</div>
 
 			<!-- Desktop Menu (with Profile inside) -->
-			<nav class="flex items-center hidden md:flex">
-				<a href="/pr_list" class="text-gray-400 hover:text-gray-600 px-3 py-1.5 rounded-md font-medium">Dashboard</a>
-				<a href="/pr_list" class="text-gray-400 hover:text-gray-600 px-3 py-1.5 rounded-md font-medium">PR List</a>
+			<nav class="flex items-center hidden md:flex text-sm">
+				<a href="/create_pr" class="text-gray-500 hover:text-gray-600 px-3 py-1.5 rounded-md font-medium">Dashboard</a>
+				<a href="/pr_list" class="text-gray-500 hover:text-gray-600 px-3 py-1.5 rounded-md font-medium">PR List</a>
 
 				<!-- Masterfile dropdown -->
 				<div class="relative" ref="masterfileRef">
 				<button
 					@click.stop="toggleMasterfile"
-					class="flex items-center space-x-1 text-gray-400 hover:text-gray-600 px-3 py-1.5 rounded-md font-medium focus:outline-none"
+					class="flex items-center space-x-1 text-gray-500 hover:text-gray-600 px-3 py-1.5 rounded-md font-medium focus:outline-none"
 				>
 					<span>Masterfile</span>
 					<svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
