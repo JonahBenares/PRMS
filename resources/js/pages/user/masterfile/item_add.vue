@@ -19,54 +19,46 @@
                             <select class="w-full border rounded-md px-2 py-2 text-sm">
                                 <option>Select Sub Category</option>
                             </select>
-                            </div>
-                            <div>
+                        </div>
+                        <div>
                             <label class="block text-xs text-gray-500 uppercase mb-1">Category</label>
                             <input type="text" class="w-full border rounded-md px-2 py-2 text-sm" placeholder="Category" readonly>
                         </div>
                     </div>
 
                     <!-- Item Description / Location / Warehouse -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
                         <div class="md:col-span-2">
-                        <label class="block text-xs text-gray-500 uppercase mb-1">Item Description</label>
-                        <input type="text" class="w-full border rounded-md px-2 py-2 text-sm" placeholder="Item Description">
-                        </div>
-                        <div>
-                        <label class="block text-xs text-gray-500 uppercase mb-1">Location</label>
-                        <select class="w-full border rounded-md px-2 py-2 text-sm">
-                            <option>Select Location</option>
-                        </select>
-                        </div>
-                        <div>
-                        <label class="block text-xs text-gray-500 uppercase mb-1">Warehouse</label>
-                        <select class="w-full border rounded-md px-2 py-2 text-sm">
-                            <option>Select Warehouse</option>
-                        </select>
+                            <label class="block text-xs text-gray-500 uppercase mb-1">Item Description</label>
+                            <input type="text" class="w-full border rounded-md px-2 py-2 text-sm" placeholder="Item Description">
                         </div>
                     </div>
 
                     <!-- Rack / Group / Reorder / Beginning -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-                        <div>
-                        <label class="block text-xs text-gray-500 uppercase mb-1">Rack</label>
-                        <select class="w-full border rounded-md px-2 py-2 text-sm">
-                            <option>Select Rack</option>
-                        </select>
+                         <div>
+                            <label class="block text-xs text-gray-500 uppercase mb-1">Location</label>
+                            <select class="w-full border rounded-md px-2 py-2 text-sm">
+                                <option>Select Location</option>
+                            </select>
                         </div>
                         <div>
-                        <label class="block text-xs text-gray-500 uppercase mb-1">Group</label>
-                        <select class="w-full border rounded-md px-2 py-2 text-sm">
-                            <option>Select Group</option>
-                        </select>
+                            <label class="block text-xs text-gray-500 uppercase mb-1">Warehouse</label>
+                            <select class="w-full border rounded-md px-2 py-2 text-sm">
+                                <option>Select Warehouse</option>
+                            </select>
                         </div>
                         <div>
-                        <label class="block text-xs text-gray-500 uppercase mb-1">Reorder Point</label>
-                        <input type="text" class="w-full border rounded-md px-2 py-2 text-sm" placeholder="Reorder Point">
+                            <label class="block text-xs text-gray-500 uppercase mb-1">Rack</label>
+                            <select class="w-full border rounded-md px-2 py-2 text-sm">
+                                <option>Select Rack</option>
+                            </select>
                         </div>
                         <div>
-                        <label class="block text-xs text-gray-500 uppercase mb-1">Beginning Balance</label>
-                        <input type="text" class="w-full border rounded-md px-2 py-2 text-sm" placeholder="Beginning Balance">
+                            <label class="block text-xs text-gray-500 uppercase mb-1">Group</label>
+                            <select class="w-full border rounded-md px-2 py-2 text-sm">
+                                <option>Select Group</option>
+                            </select>
                         </div>
                     </div>
 
@@ -92,72 +84,65 @@
                             <table class="w-full border-collapse">
                                 <tbody>
                                     <tr class="border-b">
+                                        <td class="bg-gray-100 font-medium px-2">Brand</td>
+                                        <td colspan="5" class="p-0">
+                                            <input
+                                            v-model="variant.brand"
+                                            type="text"
+                                            class="w-full rounded px-2 py-1 focus:ring focus:ring-blue-200"
+                                            />
+                                        </td>
+
+                                    </tr>
+
+                                    <tr class="border-b">
                                         <td class="bg-gray-100 font-medium w-24 px-2">Item Code</td>
                                         <td class="w-1/4">
                                         <input v-model="variant.itemCode" type="text" class="w-full rounded px-2 py-1" />
                                         </td>
-                                        <td class="bg-gray-100 font-medium px-2">Brand</td>
-                                        <td colspan="3">
-                                        <input v-model="variant.brand" type="text" class="w-full rounded px-2 py-1" />
+                                        <td class="bg-gray-100 font-medium w-24 px-2">Part No.</td>
+                                        <td>
+                                            <input v-model="variant.type" type="text" class="w-full rounded px-2 py-1" />
                                         </td>
+                                        <td class="bg-gray-100 font-medium w-24 px-2">Type</td>
+                                        <td>
+                                            <input v-model="variant.type" type="text" class="w-full rounded px-2 py-1" />
+                                        </td>
+                                        
                                     </tr>
 
                                     <tr class="border-b">
-                                        <td class="bg-gray-100 font-medium w-24 px-2">Type</td>
-                                        <td>
-                                        <input v-model="variant.type" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
                                         <td class="bg-gray-100 font-medium w-24 px-2">Model</td>
                                         <td>
-                                        <input v-model="variant.model" type="text" class="w-full rounded px-2 py-1" />
+                                            <input v-model="variant.model" type="text" class="w-full rounded px-2 py-1" />
                                         </td>
                                         <td class="bg-gray-100 font-medium px-2">Size</td>
                                         <td>
-                                        <input v-model="variant.size" type="text" class="w-full rounded px-2 py-1" />
+                                            <input v-model="variant.size" type="text" class="w-full rounded px-2 py-1" />
+                                        </td>
+                                        <td class="bg-gray-100 font-medium px-2">Color</td>
+                                        <td>
+                                            <input v-model="variant.color" type="text" class="w-full rounded px-2 py-1" />
                                         </td>
                                     </tr>
 
-                                    <tr class="border-b">
-                                        <td class="bg-gray-100 font-medium px-2">Color</td>
-                                        <td>
-                                        <input v-model="variant.color" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
+                                    <tr>
                                         <td class="bg-gray-100 font-medium px-2">Material</td>
                                         <td>
-                                        <input v-model="variant.material" type="text" class="w-full rounded px-2 py-1" />
+                                            <input v-model="variant.material" type="text" class="w-full rounded px-2 py-1" />
                                         </td>
                                         <td class="bg-gray-100 font-medium px-2">Serial</td>
                                         <td>
-                                        <input v-model="variant.serial" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td class="bg-gray-100 font-medium px-2">Expiration</td>
-                                        <td>
-                                        <input v-model="variant.expiration" type="date" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                        <td class="bg-gray-100 font-medium px-2">Barcode</td>
-                                        <td>
-                                        <input v-model="variant.barcode" type="text" class="w-full rounded px-2 py-1" />
+                                            <input v-model="variant.serial" type="text" class="w-full rounded px-2 py-1" />
                                         </td>
                                         <td class="bg-gray-100 font-medium px-2">UOM</td>
-                                        <td class="flex items-center space-x-2">
-                                        <select v-model="variant.uom" class="w-full rounded px-2 py-1">
-                                            <option>Unit</option>
-                                            <option>Box</option>
-                                            <option>Pack</option>
-                                        </select>
-                                        <button
-                                            @click="deleteVariant(index)"
-                                            class="bg-red-500 hover:bg-red-600 text-white rounded p-2"
-                                        >
-                                            <TrashIcon class="w-4 h-4" />
-                                        </button>
+                                        <td class="">
+                                            <input v-model="variant.uom" type="text" class="w-full rounded px-2 py-1" />
+                                        
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="6">
+                                        <td colspan="6" class="border-t">
                                             
 
                                             <!-- Images -->
@@ -194,6 +179,18 @@
                                                     </div>
                                                 </div>
                                                 </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="6" class="border-t items-right">
+                                            <div class="flex justify-end">
+                                                <button
+                                                    @click="deleteVariant(index)"
+                                                    class="bg-red-500 hover:bg-red-600 text-white rounded p-1 mx-2"
+                                                    >
+                                                    <TrashIcon class="w-4 h-4" />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -240,7 +237,7 @@ const variants = ref([
     serial: "",
     expiration: "",
     barcode: "",
-    uom: "Unit",
+    uom: "",
   },
 ]);
 
@@ -257,7 +254,7 @@ const addVariant = () => {
     serial: "",
     expiration: "",
     barcode: "",
-    uom: "Unit",
+    uom: "",
   });
 };
 
