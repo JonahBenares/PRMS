@@ -9,6 +9,13 @@ import print_pr from '../pages/printables/print_pr.vue'
 import item_list from '../pages/user/masterfile/item_list.vue'
 import item_add from '../pages/user/masterfile/item_add.vue'
 import item_edit from '../pages/user/masterfile/item_edit.vue'
+import department_list from '../pages/user/masterfile/department.vue'
+import purpose_list from '../pages/user/masterfile/purpose.vue'
+import enduse_list from '../pages/user/masterfile/enduse.vue'
+import employee_list from '../pages/user/masterfile/employee.vue'
+import users_list from '../pages/user/masterfile/users.vue'
+import location_list from '../pages/user/masterfile/location.vue'
+import company_list from '../pages/user/masterfile/company.vue'
 
 
 const routes = [
@@ -39,6 +46,34 @@ const routes = [
     {
         path:'/masterfile/items/edit',
         component: item_edit,
+    },
+    {
+        path:'/masterfile/department',
+        component: department_list,
+    },
+    {
+        path:'/masterfile/purpose',
+        component: purpose_list,
+    },
+    {
+        path:'/masterfile/enduse',
+        component: enduse_list,
+    },
+    {
+        path:'/masterfile/employee',
+        component: employee_list,
+    },
+    {
+        path:'/masterfile/users',
+        component: users_list,
+    },
+    {
+        path:'/masterfile/location',
+        component: location_list,
+    },
+    {
+        path:'/masterfile/company',
+        component: company_list,
     },
     {
         path:'/:pathMatch(.*)*',

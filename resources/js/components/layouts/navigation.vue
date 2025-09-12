@@ -30,9 +30,13 @@
 					class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg overflow-hidden z-50"
 					>
 					<a href="/masterfile/items" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Items</a>
-					<a href="/masterfile/departments" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Departments</a>
-					<a href="/masterfile/users" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Enduse</a>
-					<a href="/masterfile/users" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Purpose</a>
+					<a href="/masterfile/department" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Department</a>
+					<a href="/masterfile/enduse" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Enduse</a>
+					<a href="/masterfile/purpose" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Purpose</a>
+					<a href="/masterfile/employee" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Employee</a>
+					<a href="/masterfile/users" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Users</a>
+					<a href="/masterfile/location" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Location</a>
+					<a href="/masterfile/company" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Company</a>
 					</div>
 				</transition>
 				</div>

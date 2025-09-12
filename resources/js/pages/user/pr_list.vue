@@ -56,57 +56,37 @@
 				</div>
 			</div>
 
-				<!-- Add/Edit Modal -->
-			<div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-				<div class="bg-white rounded-lg w-96 p-6">
-					<h3 class="text-lg font-semibold mb-4">{{ isEdit ? 'Edit Item' : 'Add Item' }}</h3>
-					<div class="flex flex-col gap-3">
-					<input v-model="modalItem.code" placeholder="Item Code" class="border px-3 py-2 rounded"/>
-					<input v-model="modalItem.name" placeholder="Item Name" class="border px-3 py-2 rounded"/>
-					<input v-model="modalItem.category" placeholder="Category" class="border px-3 py-2 rounded"/>
-					</div>
-					<div class="flex justify-end gap-2 mt-4">
-					<button @click="closeModal" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
-					<button @click="saveItem" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">{{ isEdit ? 'Update' : 'Add' }}</button>
-					</div>
-				</div>
-			</div>
 
 			<div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-				<div class="bg-white rounded-2xl shadow-lg w-96 p-6 text-center">
+				<div class="bg-white rounded-2xl shadow-lg w-[600px] max-w-[90%] p-6 px-8 text-center max-h-[90vh] overflow-y-auto">
 					<!-- Warning Icon -->
-					<div class="flex justify-center mb-4">
-					<ExclamationTriangleIcon class="w-12 h-12 text-red-600" />
+					<div class="flex justify-center">
+					<ExclamationTriangleIcon class="w-32 h-32 text-red-600" />
 					</div>
 
 					<!-- Title -->
-					<h3 class="text-lg font-semibold text-gray-800 mb-2">
-					Confirm Deletion
+					<h3 class="!text-2xl font-bold text-gray-800 mb-6">
+						Confirm Deletion
 					</h3>
 
 					<!-- Message -->
-					<p class="text-gray-600">
-					Are you sure you want to delete 
-					<strong class="text-gray-900">{{ modalItem.name }}</strong>?
+					<p class="text-gray-600 break-words">
+						Are you sure you want to delete 
+						<span class="text-gray-600 break-words font-semibold whitespace-normal mb-4 max-w-xs">
+							{{ modalItem.name }}
+						</span>
+					?
 					</p>
-
+					
 					<!-- Action Buttons -->
-					<div class="flex justify-center gap-3 mt-6">
-					<button 
-						@click="closeDeleteModal" 
-						class="flex items-center gap-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
-					>
-						<XMarkIcon class="w-5 h-5" />
-						Cancel
-					</button>
+					<div class="flex flex-wrap justify-center gap-3 mt-10">
+						<button  @click="closeDeleteModal"  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition" >
+							Cancel
+						</button>
 
-					<button 
-						@click="deleteItem" 
-						class="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-					>
-						<TrashIcon class="w-5 h-5" />
-						Delete
-					</button>
+						<button  @click="deleteItem" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+							Delete
+						</button>
 					</div>
 				</div>
 			</div>

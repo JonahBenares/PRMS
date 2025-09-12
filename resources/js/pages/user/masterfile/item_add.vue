@@ -15,13 +15,13 @@
                     <!-- Sub Category / Category -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs text-gray-500 uppercase mb-1">Sub Category</label>
+                            <label class="block text-sm text-gray-500 mb-1">Sub Category</label>
                             <select class="w-full border rounded-md px-2 py-2 text-sm">
                                 <option>Select Sub Category</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 uppercase mb-1">Category</label>
+                            <label class="block text-sm text-gray-500 mb-1">Category</label>
                             <input type="text" class="w-full border rounded-md px-2 py-2 text-sm" placeholder="Category" readonly>
                         </div>
                     </div>
@@ -29,7 +29,7 @@
                     <!-- Item Description / Location / Warehouse -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
                         <div class="md:col-span-2">
-                            <label class="block text-xs text-gray-500 uppercase mb-1">Item Description</label>
+                            <label class="block text-sm text-gray-500 mb-1">Item Description</label>
                             <input type="text" class="w-full border rounded-md px-2 py-2 text-sm" placeholder="Item Description">
                         </div>
                     </div>
@@ -37,25 +37,25 @@
                     <!-- Rack / Group / Reorder / Beginning -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                          <div>
-                            <label class="block text-xs text-gray-500 uppercase mb-1">Location</label>
+                            <label class="block text-sm text-gray-500 mb-1">Location</label>
                             <select class="w-full border rounded-md px-2 py-2 text-sm">
                                 <option>Select Location</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 uppercase mb-1">Warehouse</label>
+                            <label class="block text-sm text-gray-500 mb-1">Warehouse</label>
                             <select class="w-full border rounded-md px-2 py-2 text-sm">
                                 <option>Select Warehouse</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 uppercase mb-1">Rack</label>
+                            <label class="block text-sm text-gray-500 mb-1">Rack</label>
                             <select class="w-full border rounded-md px-2 py-2 text-sm">
                                 <option>Select Rack</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 uppercase mb-1">Group</label>
+                            <label class="block text-sm text-gray-500 mb-1">Group</label>
                             <select class="w-full border rounded-md px-2 py-2 text-sm">
                                 <option>Select Group</option>
                             </select>
@@ -142,9 +142,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="6" class="border-t">
-                                            
-
+                                        <td colspan="6" class="border-t px-4">
                                             <!-- Images -->
                                             <div class="mt-2 flex flex-wrap -mx-1">
                                                 <!-- Image 1 -->
