@@ -47,7 +47,7 @@
 						<tr>
 							<td class="border px-1">PR Number</td>
 							<td class="border w-[37.5%]">
-								<input type="text" class="outline-none w-full px-1">
+								<input type="text" class="outline-none w-full px-1" :value="prNumber" readonly>
 							</td>
 							<td class="border px-1">Department Code</td>
 							<td class="border w-[37.5%]">
@@ -226,6 +226,16 @@
 								<button @click="removeRow(index)" class="bg-red-600 p-1 rounded-full">
 									<XMarkIcon class="size-4 text-white" />
 								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<table class="w-full text-sm !border-b border-x">
+					<tbody>
+						<tr>
+							<td class="border px-1 align-top" width="11%">Notes</td>
+							<td class="border p-0" colspan="2">
+								<textarea name="" id="" class="m-0 w-full p-1 outline-none"></textarea>
 							</td>
 						</tr>
 					</tbody>
@@ -423,6 +433,7 @@
 						</tbody>
 					</table>
 				</div>
+				
 				<div class="mt-4 flex justify-end flex-wrap gap-2">
 					<!-- Instead of <a>, we use buttons that trigger modal -->
 					<a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
@@ -443,26 +454,41 @@ import { PlusIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/
 import navigation from "@/components/layouts/navigation.vue";
 import { ref, computed , onMounted } from "vue";
 
-// State
 const selectedCompany = ref("");
 const selectedDepartment = ref("");
-const selectedPurchase = ref("");
+const selectedLocation = ref("");
 
-// Sample data mapping
+// Sample data
 const purchaseOptions = {
   ENERGREEN: ["Iloilo", "Cebu"],
   CENPRI: ["Bacolod", "Bago"],
   CPGC: ["Manila", "Quezon"],
 };
 
-// Departments per company (example)
 const departmentOptions = {
   ENERGREEN: ["Finance", "Operations"],
-  CENPRI: ["HR", "Logistics"],
+  CENPRI: ["HR", "Logistics", "IT"],
   CPGC: ["Admin", "Engineering"],
 };
 
-// Reactive computed lists
+// Codes
+const departmentCodes = {
+  Finance: "FIN",
+  Operations: "OPS",
+  HR: "HR",
+  Logistics: "LOG",
+  IT: "IT",
+  Admin: "ADM",
+  Engineering: "ENG",
+};
+
+const companyCodes = {
+  ENERGREEN: "ENGR",
+  CENPRI: "CNPR",
+  CPGC: "CPGC",
+};
+
+// Reactive lists
 const purchaseRequests = computed(() => {
   return purchaseOptions[selectedCompany.value] || [];
 });
@@ -471,15 +497,22 @@ const departments = computed(() => {
   return departmentOptions[selectedCompany.value] || [];
 });
 
-// Auto department code (example)
+// Department code
 const departmentCode = computed(() => {
-  if (selectedDepartment.value === "Finance") return "FIN";
-  if (selectedDepartment.value === "Operations") return "OPS";
-  if (selectedDepartment.value === "HR") return "HR";
-  if (selectedDepartment.value === "Logistics") return "LOG";
-  if (selectedDepartment.value === "Admin") return "ADM";
-  if (selectedDepartment.value === "Engineering") return "ENG";
-  return "";
+  return departmentCodes[selectedDepartment.value] || "";
+});
+
+// Generate PR number
+const runningNumber = ref(1001); // ideally from backend
+const year = new Date().getFullYear().toString().slice(-2);
+
+const prNumber = computed(() => {
+  if (!selectedCompany.value || !selectedDepartment.value) return "";
+
+  const deptCode = departmentCode.value;
+  const companyCode = companyCodes[selectedCompany.value] || "XXXX";
+
+  return `PR${deptCode}${year}-${runningNumber.value}-${companyCode}`;
 });
 
 const rows = ref([

@@ -96,6 +96,16 @@
 						</tr>
 					</tbody>
 				</table>
+				<table class="w-full text-sm !border-b border-x">
+					<tbody>
+						<tr>
+							<td class="border px-1 align-top" width="13%">Notes</td>
+							<td class="border pxs-1" colspan="2">
+								Sample Notes Here
+							</td>
+						</tr>
+					</tbody>
+				</table>
 				<div class="border-b border-x px-20 py-5">
 					<table class="w-full  text-sm">
 						<tbody>
