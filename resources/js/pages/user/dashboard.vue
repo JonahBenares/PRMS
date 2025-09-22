@@ -106,8 +106,8 @@
 						<tr>
 							<td class="!border-x !border-b font-semibold px-1 text-center" width="3%">#</td>
 							<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">Qty</td>
-							<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">UOM</td>
 							<td class="!border-x !border-b font-semibold px-1" width="15%">Item Code</td>
+							<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">UOM</td>
 							<td class="!border-x !border-b font-semibold px-1">Description</td>
 							<td class="!border-x !border-b font-semibold px-1" width="8%">WH Stock</td>
 							<td class="!border-x !border-b font-semibold px-1" width="10%">Date Needed</td>
@@ -128,13 +128,10 @@
 								<input v-model="row.qty" class="outline-none w-full px-1 text-center" placeholder="00" type="number" />
 							</td>
 							<td class="align-top !border-x !border-b">
-								<input v-model="row.uom" class="outline-none w-full px-1 text-center" placeholder="pc/s" type="text" />
-							</td>
-							<td class="align-top !border-x !border-b">
 								<div class="relative w-full">
 									<input
-									v-model="row2.itemCodeSearch"
-									@focus="showItemCodeList = true"
+									v-model="row.search"
+									@focus="row.showItemCodeList = true"
 									class="outline-none w-full px-2 py-1"
 									placeholder="Enter or select item code"
 									type="text"
@@ -142,45 +139,26 @@
 
 									<!-- Dropdown -->
 									<ul
-									v-if="showItemCodeList && filteredItemCodes.length"
+									v-if="row.showItemCodeList && filteredItemCodes(row.search).length"
 									class="absolute z-10 bg-white border rounded shadow mt-1 w-full max-h-40 overflow-auto"
 									>
 									<li
-										v-for="item2 in filteredItemCodes"
-										:key="item2.code"
-										@mousedown.prevent="selectItemCode(item2)"
+										v-for="item in filteredItemCodes(row.search)"
+										:key="item.code"
+										@mousedown.prevent="selectItemCode(row, item)"
 										class="px-2 py-1 hover:bg-blue-100 cursor-pointer"
 									>
-										{{ item2.code }}
+										{{ item.code }}
 									</li>
 									</ul>
 								</div>
 							</td>
 							<td class="align-top !border-x !border-b">
+								<input v-model="row.uom" class="outline-none w-full text-center" readonly />
+							</td>
+							<td class="align-top !border-x !border-b">
 								<div class="relative w-full">
-									<!-- Searchable Input -->
-									<input
-									v-model="search"
-									@focus="showList = true"
-									class="outline-none w-full px-2 py-1 font-semibold"
-									placeholder="Enter or select part number"
-									type="text"
-									/>
-
-									<!-- Dropdown -->
-									<ul
-									v-if="showList && filteredItems.length"
-									class="absolute z-10 bg-white border rounded shadow mt-1 w-full max-h-40 overflow-auto"
-									>
-									<li
-										v-for="item in filteredItems"
-										:key="item.code"
-										@mousedown.prevent="selectItem(item)" 
-										class="px-2 py-1 hover:bg-blue-100 cursor-pointer"
-									>
-										{{ item.code }} - {{ item.name }}
-									</li>
-									</ul>
+									<input v-model="row.itemName" class="outline-none w-full font-semibold px-2" readonly />
 								</div>
 								<div class="flex justify-start px-2">
 									<span class="pr-2">Category:</span>
@@ -214,7 +192,8 @@
 									<span class="pr-2">Serial:</span>
 									<input v-model="row.serial" type="text" class="outline-none w-full" />
 								</div>
-							</td>
+								</td>
+
 							<td class="align-top !border-x !border-b px-1">
 							<input v-model="row.whStock" type="text" class="outline-none w-full" placeholder="" />
 							</td>
@@ -230,7 +209,7 @@
 						</tr>
 					</tbody>
 				</table>
-				<table class="w-full text-sm !border-b border-x">
+				<table class="w-full text-sm !border-b border-x mt-1">
 					<tbody>
 						<tr>
 							<td class="border px-1 align-top" width="11%">Notes</td>
@@ -519,9 +498,9 @@ const rows = ref([
   {
     id: Date.now(),
     qty: "",
+    itemCode: "",
+    itemName: "",
     uom: "",
-    partNo: "",
-    description: "",
     category: "",
     brand: "",
     model: "",
@@ -540,9 +519,9 @@ const addRow = () => {
   rows.value.push({
     id: Date.now() + Math.random(),
     qty: "",
+    itemCode: "",
+    itemName: "",
     uom: "",
-    partNo: "",
-    description: "",
     category: "",
     brand: "",
     model: "",
@@ -613,12 +592,33 @@ const search = ref("");
 
 // Item list
 const items = ref([
-  { code: "00001-AX", name: "Hydraulic Pump" },
-  { code: "00002-BP", name: "Brake Pad Set" },
-  { code: "00003-AF", name: "Air Filter" },
-  { code: "00004-SP", name: "Spark Plug" },
-  { code: "00005-AL", name: "Alternator Assembly" },
-]);
+  {
+    code: "10023",
+    name: "Bolt PN-233",
+    uom: "pc/s",
+    category: "Hardware",
+    brand: "FastenPro",
+    model: "B233",
+    size: "M6 x 40mm",
+    color: "Silver",
+    material: "Steel",
+    unit: "Box",
+    serial: "BOLT-10023"
+  },
+  {
+    code: "10024",
+    name: "Cotton Rug PN-253",
+    uom: "pcs",
+    category: "Household",
+    brand: "HomeTex",
+    model: "R253",
+    size: "2x3 ft",
+    color: "White",
+    material: "Cotton",
+    unit: "Pack",
+    serial: "RUG-10024"
+  }
+])
 
 const showList = ref(false);
 
@@ -646,26 +646,57 @@ const row2 = ref({
 
 // Example item codes
 const items2 = ref([
-  { code: "IC-1001", name: "Hydraulic Pump" },
-  { code: "IC-2045", name: "Brake Pad Set" },
-  { code: "IC-3050", name: "Air Filter" },
-  { code: "IC-4102", name: "Spark Plug" },
-  { code: "IC-5120", name: "Alternator Assembly" },
+   {
+    code: "10023",
+    name: "Bolt PN-233",
+    uom: "pc/s",
+    category: "Hardware",
+    brand: "FastenPro",
+    model: "B233",
+    size: "M6 x 40mm",
+    color: "Silver",
+    material: "Steel",
+    unit: "Box",
+    serial: "BOLT-10023"
+  },
+  {
+    code: "10024",
+    name: "Cotton Rug PN-253",
+    uom: "pcs",
+    category: "Household",
+    brand: "HomeTex",
+    model: "R253",
+    size: "2x3 ft",
+    color: "White",
+    material: "Cotton",
+    unit: "Pack",
+    serial: "RUG-10024"
+  }
 ]);
 
 // Dropdown state
 const showItemCodeList = ref(false);
 
-const filteredItemCodes = computed(() => {
-  return items2.value.filter((item) =>
-    item.code.toLowerCase().includes(row2.value.itemCodeSearch.toLowerCase())
-  );
-});
+function filteredItemCodes(search) {
+  return items.value.filter((item) =>
+    item.code.toLowerCase().includes(search.toLowerCase())
+  )
+}
 
-function selectItemCode(item) {
-  row2.value.itemCode = item.code;          // keep raw code
-  row2.value.itemCodeSearch = item.code;    // show only code in input
-  showItemCodeList.value = false;
+function selectItemCode(row, item) {
+  row.itemCode = item.code
+  row.itemName = item.name
+  row.uom = item.uom
+  row.category = item.category
+  row.brand = item.brand
+  row.model = item.model
+  row.size = item.size
+  row.color = item.color
+  row.material = item.material
+  row.unit = item.unit
+  row.serial = item.serial
+  row.search = item.code
+  row.showItemCodeList = false
 }
 </script>
 
