@@ -72,10 +72,10 @@
 							<td class="border px-1" width="">Urgency</td>
 							<td class="border" width="35%">
 								<select name="" class="outline-none w-full px-1" id="">
-									<option value="">1-Week</option>
-									<option value="">2-Month</option>
-									<option value="">3-Quarter</option>
-									<option value="">4-Year</option>
+									<option value="">A Week</option>
+									<option value="">Month</option>
+									<option value="">Quarter</option>
+									<option value="">Year</option>
 								</select>
 							</td>
 						</tr>
