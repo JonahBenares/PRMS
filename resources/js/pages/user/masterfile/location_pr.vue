@@ -4,13 +4,13 @@
 			<div class="bg-white rounded-lg shadow-lg max-w-6xl mx-auto">
 				<!-- Header -->
 				<div class="px-6 py-4 flex justify-between items-center mb-4 bg-white border-b rounded-t-lg">
-					<h2 class="text-lg font-semibold">Location List</h2>
+					<h2 class="text-lg font-semibold">Location (PR) List</h2>
 					<button 
                         @click="openAddModal(item)"
 						class="flex text-sm items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
 						>
 						<PlusIcon class="w-5 h-5 mr-1" />
-						Add Location
+						Add Location (PR)
 					</button>
 				</div>
 
@@ -125,9 +125,8 @@ import navigation from "@/components/layouts/navigation.vue";
 
 // Table data
 const locations = reactive([
-  { id: 1, name: "Head Office" },
-  { id: 2, name: "Warehouse A"},
-  { id: 3, name: "Retail Store"},
+  { id: 1, name: "Bacolod" },
+  { id: 2, name: "Bago"},
 ]);
 
 // Modals

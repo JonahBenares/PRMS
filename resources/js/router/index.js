@@ -14,7 +14,13 @@ import purpose_list from '../pages/user/masterfile/purpose.vue'
 import enduse_list from '../pages/user/masterfile/enduse.vue'
 import employee_list from '../pages/user/masterfile/employee.vue'
 import users_list from '../pages/user/masterfile/users.vue'
-import location_list from '../pages/user/masterfile/location.vue'
+import location_item from '../pages/user/masterfile/location_item.vue'
+import location_pr from '../pages/user/masterfile/location_pr.vue'
+import warehouse_list from '../pages/user/masterfile/warehouse.vue'
+import rack_list from '../pages/user/masterfile/rack.vue'
+import group_list from '../pages/user/masterfile/group.vue'
+import category_list from '../pages/user/masterfile/category.vue'
+import qualifier_list from '../pages/user/masterfile/qualifier.vue'
 import company_list from '../pages/user/masterfile/company.vue'
 
 
@@ -68,8 +74,33 @@ const routes = [
         component: users_list,
     },
     {
-        path:'/masterfile/location',
-        component: location_list,
+        path:'/masterfile/location_item',
+        component: location_item,
+    },
+
+    {
+        path:'/masterfile/location_pr',
+        component: location_pr,
+    },
+    {
+        path:'/masterfile/warehouse',
+        component: warehouse_list,
+    },
+    {
+        path:'/masterfile/rack',
+        component: rack_list,
+    },
+    {
+        path:'/masterfile/group',
+        component: group_list,
+    },
+    {
+        path:'/masterfile/qualifier',
+        component: qualifier_list,
+    },
+    {
+        path:'/masterfile/category',
+        component: category_list,
     },
     {
         path:'/masterfile/company',
