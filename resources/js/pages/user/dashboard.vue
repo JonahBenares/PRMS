@@ -128,27 +128,29 @@
 								<input v-model="row.qty" class="outline-none w-full px-1 text-center" placeholder="00" type="number" />
 							</td>
 							<td class="align-top !border-x !border-b">
-								<div class="relative w-full">
+								<!-- Searchable Item Code -->
+								<div class="relative">
 									<input
-									v-model="row.search"
-									@focus="row.showItemCodeList = true"
-									class="outline-none w-full px-2 py-1"
-									placeholder="Enter or select item code"
+									v-model="row.searchQuery"
+									@input="filterItems(index)"
+									@focus="showDropdown = index"
+									@blur="hideDropdown"
+									class="outline-none w-full px-1"
+									placeholder="Search Item Code / Name / PN"
 									type="text"
 									/>
-
-									<!-- Dropdown -->
+									<!-- Dropdown Results -->
 									<ul
-									v-if="row.showItemCodeList && filteredItemCodes(row.search).length"
-									class="absolute z-10 bg-white border rounded shadow mt-1 w-full max-h-40 overflow-auto"
+									v-if="showDropdown === index && filteredItems.length"
+									class="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto shadow-lg rounded"
 									>
 									<li
-										v-for="item in filteredItemCodes(row.search)"
+										v-for="item in filteredItems"
 										:key="item.code"
-										@mousedown.prevent="selectItemCode(row, item)"
-										class="px-2 py-1 hover:bg-blue-100 cursor-pointer"
+										@mousedown.prevent="selectItem(index, item)"
+										class="px-2 py-1 hover:bg-blue-100 cursor-pointer text-sm"
 									>
-										{{ item.code }}
+										<strong>{{ item.code }}</strong> — {{ item.name }} (PN: {{ item.pn }})
 									</li>
 									</ul>
 								</div>
@@ -156,9 +158,27 @@
 							<td class="align-top !border-x !border-b">
 								<input v-model="row.uom" class="outline-none w-full text-center" readonly />
 							</td>
+							<!-- <td class="align-top !border-x !border-b">
+								<div class="flex flex-col px-1">
+									<div class="flex justify-start">
+									<span class="pr-2 w-20 text-gray-600">Item Name:</span>
+									<input v-model="row.itemName" class="outline-none w-full font-semibold" readonly />
+									</div>
+									<div class="flex justify-start mt-1">
+									<span class="pr-2 w-20 text-gray-600">PN:</span>
+									<input v-model="row.pn" class="outline-none w-full font-semibold" readonly />
+									</div>
+								</div>
+							</td> -->
+
+
 							<td class="align-top !border-x !border-b">
-								<div class="relative w-full">
-									<input v-model="row.itemName" class="outline-none w-full font-semibold px-2" readonly />
+								<div class="relative w-full px-2">
+									<input
+									:value="`${row.itemName || ''}${row.pn ? ' ' + row.pn : ''}`"
+									class="outline-none w-full font-semibold"
+									readonly
+									/>
 								</div>
 								<div class="flex justify-start px-2">
 									<span class="pr-2">Category:</span>
@@ -192,7 +212,7 @@
 									<span class="pr-2">Serial:</span>
 									<input v-model="row.serial" type="text" class="outline-none w-full" />
 								</div>
-								</td>
+							</td>
 
 							<td class="align-top !border-x !border-b px-1">
 							<input v-model="row.whStock" type="text" class="outline-none w-full" placeholder="" />
@@ -428,276 +448,130 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
-import { PlusIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/solid'
-import navigation from "@/components/layouts/navigation.vue";
-import { ref, computed , onMounted } from "vue";
+	import { ref, computed, onMounted } from "vue";
+	import { PlusIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+	import navigation from "@/components/layouts/navigation.vue";
 
-const selectedCompany = ref("");
-const selectedDepartment = ref("");
-const selectedLocation = ref("");
+	// ===== COMPANY / DEPARTMENT LOGIC =====
+	const selectedCompany = ref("");
+	const selectedDepartment = ref("");
+	const selectedPurchase = ref("");
 
-// Sample data
-const purchaseOptions = {
-  ENERGREEN: ["Iloilo", "Cebu"],
-  CENPRI: ["Bacolod", "Bago"],
-  CPGC: ["Manila", "Quezon"],
-};
+	const purchaseOptions = {
+	ENERGREEN: ["Iloilo", "Cebu"],
+	CENPRI: ["Bacolod", "Bago"],
+	CPGC: ["Manila", "Quezon"],
+	};
 
-const departmentOptions = {
-  ENERGREEN: ["Finance", "Operations"],
-  CENPRI: ["HR", "Logistics", "IT"],
-  CPGC: ["Admin", "Engineering"],
-};
+	const departmentOptions = {
+	ENERGREEN: ["Finance", "Operations"],
+	CENPRI: ["HR", "Logistics", "IT"],
+	CPGC: ["Admin", "Engineering"],
+	};
 
-// Codes
-const departmentCodes = {
-  Finance: "FIN",
-  Operations: "OPS",
-  HR: "HR",
-  Logistics: "LOG",
-  IT: "IT",
-  Admin: "ADM",
-  Engineering: "ENG",
-};
+	const departmentCodes = {
+	Finance: "FIN",
+	Operations: "OPS",
+	HR: "HR",
+	Logistics: "LOG",
+	IT: "IT",
+	Admin: "ADM",
+	Engineering: "ENG",
+	};
 
-const companyCodes = {
-  ENERGREEN: "ENGR",
-  CENPRI: "CNPR",
-  CPGC: "CPGC",
-};
+	const companyCodes = {
+	ENERGREEN: "ENGR",
+	CENPRI: "CNPR",
+	CPGC: "CPGC",
+	};
 
-// Reactive lists
-const purchaseRequests = computed(() => {
-  return purchaseOptions[selectedCompany.value] || [];
-});
+	const purchaseRequests = computed(() => purchaseOptions[selectedCompany.value] || []);
+	const departments = computed(() => departmentOptions[selectedCompany.value] || []);
+	const departmentCode = computed(() => departmentCodes[selectedDepartment.value] || "");
 
-const departments = computed(() => {
-  return departmentOptions[selectedCompany.value] || [];
-});
+	const runningNumber = ref(1001);
+	const year = new Date().getFullYear().toString().slice(-2);
 
-// Department code
-const departmentCode = computed(() => {
-  return departmentCodes[selectedDepartment.value] || "";
-});
+	const prNumber = computed(() => {
+	if (!selectedCompany.value || !selectedDepartment.value) return "";
+	const deptCode = departmentCode.value;
+	const companyCode = companyCodes[selectedCompany.value] || "XXXX";
+	return `PR${deptCode}${year}-${runningNumber.value}-${companyCode}`;
+	});
 
-// Generate PR number
-const runningNumber = ref(1001); // ideally from backend
-const year = new Date().getFullYear().toString().slice(-2);
+	// ===== ITEM TABLE LOGIC =====
+	const showDropdown = ref(null);
+	const filteredItems = ref([]);
 
-const prNumber = computed(() => {
-  if (!selectedCompany.value || !selectedDepartment.value) return "";
+	// Example dataset (can come from API)
+	const items = ref([
+	{ code: "10023", name: "Bolt", pn: "PN-233", uom: "pcs", category: "Hardware", brand: "FastenPro", model: "B233", size: "M6x40mm", color: "Silver", material: "Steel", unit: "Box", serial: "BOLT-10023" },
+	{ code: "10024", name: "Cotton Rug", pn: "PN-253", uom: "pcs", category: "Household", brand: "HomeTex", model: "R253", size: "2x3ft", color: "White", material: "Cotton", unit: "Pack", serial: "RUG-10024" },
+	{ code: "10025", name: "Hydraulic Pump", pn: "PN-345", uom: "set", category: "Mechanical", brand: "HydraPro", model: "H345", size: "M12", color: "Gray", material: "Aluminum", unit: "Piece", serial: "HP-10025" },
+	]);
 
-  const deptCode = departmentCode.value;
-  const companyCode = companyCodes[selectedCompany.value] || "XXXX";
+	const rows = ref([
+	newRow()
+	]);
 
-  return `PR${deptCode}${year}-${runningNumber.value}-${companyCode}`;
-});
+	function newRow() {
+	return {
+		id: Date.now() + Math.random(),
+		qty: "",
+		uom: "",
+		searchQuery: "",
+		itemCode: "",
+		itemName: "",
+		pn: "",
+		category: "",
+		brand: "",
+		model: "",
+		size: "",
+		color: "",
+		material: "",
+		unit: "",
+		serial: "",
+		whStock: "",
+		dateNeeded: "",
+	};
+	}
 
-const rows = ref([
-  {
-    id: Date.now(),
-    qty: "",
-    itemCode: "",
-    itemName: "",
-    uom: "",
-    category: "",
-    brand: "",
-    model: "",
-    size: "",
-    color: "",
-    material: "",
-    unit: "",
-    serial: "",
-    whStock: "",
-    dateNeeded: "",
-  },
-]);
+	const addRow = () => rows.value.push(newRow());
+	const removeRow = (index) => rows.value.splice(index, 1);
 
-// Add row
-const addRow = () => {
-  rows.value.push({
-    id: Date.now() + Math.random(),
-    qty: "",
-    itemCode: "",
-    itemName: "",
-    uom: "",
-    category: "",
-    brand: "",
-    model: "",
-    size: "",
-    color: "",
-    material: "",
-    unit: "",
-    serial: "",
-    whStock: "",
-    dateNeeded: "",
-  });
-};
+	// Filter item list based on search input
+	const filterItems = (index) => {
+	const query = rows.value[index].searchQuery?.toLowerCase() || "";
+	filteredItems.value = items.value.filter(
+		(i) =>
+		i.code.toLowerCase().includes(query) ||
+		i.name.toLowerCase().includes(query) ||
+		i.pn.toLowerCase().includes(query)
+	);
+	};
 
-// Remove row
-const removeRow = (index) => {
-  rows.value.splice(index, 1);
-};
+	// When item is selected from dropdown
+	const selectItem = (index, item) => {
+	const row = rows.value[index];
+	row.searchQuery = item.code; // show only item code
+	row.itemCode = item.code;
+	row.itemName = item.name;
+	row.pn = item.pn;
+	row.uom = item.uom;
+	row.category = item.category;
+	row.brand = item.brand;
+	row.model = item.model;
+	row.size = item.size;
+	row.color = item.color;
+	row.material = item.material;
+	row.unit = item.unit;
+	row.serial = item.serial;
+	showDropdown.value = null;
+	};
 
-
-/**
- * If you’re NOT using Inertia:
- * - Pass :is-logged-in="true/false" from parent and remove the Inertia bits below.
- */
-const props = defineProps({
-  isLoggedIn: { type: Boolean, default: null }, // null means "auto-detect via Inertia"
-  rememberKey: { type: String, default: 'hide_auth_reminder' } // localStorage key
-})
-
-const dismissed = ref(false)
-
-// Auto-detect (Inertia) or fallback to prop
-let inertiaUser = null
-try {
-  const page = usePage?.()
-  inertiaUser = computed(() => page?.props?.auth?.user ?? null)
-} catch (e) {
-  inertiaUser = computed(() => null)
-}
-
-const loggedIn = computed(() => {
-  // If prop provided, use it; else use Inertia user presence
-  return props.isLoggedIn !== null ? props.isLoggedIn : !!inertiaUser.value
-})
-
-const shouldShow = computed(() => !loggedIn.value && !dismissed.value)
-
-const dismiss = () => {
-  dismissed.value = true
-  try {
-    localStorage.setItem(props.rememberKey, '1')
-  } catch {}
-}
-
-onMounted(() => {
-  try {
-    dismissed.value = localStorage.getItem(props.rememberKey) === '1'
-  } catch {}
-})
-
-
-// Simulate your row object
-const row = ref({
-  partNo: "",
-});
-
-// Input model (separate from row so filtering works)
-const search = ref("");
-
-// Item list
-const items = ref([
-  {
-    code: "10023",
-    name: "Bolt PN-233",
-    uom: "pc/s",
-    category: "Hardware",
-    brand: "FastenPro",
-    model: "B233",
-    size: "M6 x 40mm",
-    color: "Silver",
-    material: "Steel",
-    unit: "Box",
-    serial: "BOLT-10023"
-  },
-  {
-    code: "10024",
-    name: "Cotton Rug PN-253",
-    uom: "pcs",
-    category: "Household",
-    brand: "HomeTex",
-    model: "R253",
-    size: "2x3 ft",
-    color: "White",
-    material: "Cotton",
-    unit: "Pack",
-    serial: "RUG-10024"
-  }
-])
-
-const showList = ref(false);
-
-// Filter items by search
-const filteredItems = computed(() => {
-  return items.value.filter((item) =>
-    (item.code + " " + item.name)
-      .toLowerCase()
-      .includes(search.value.toLowerCase())
-  );
-});
-
-// Select item from dropdown
-function selectItem(item) {
-  row.value.partNo = `${item.code} - ${item.name}`;
-  search.value = row.value.partNo;
-  showList.value = false;
-}
-
-
-const row2 = ref({
-  itemCode: "",
-  itemCodeSearch: "",
-});
-
-// Example item codes
-const items2 = ref([
-   {
-    code: "10023",
-    name: "Bolt PN-233",
-    uom: "pc/s",
-    category: "Hardware",
-    brand: "FastenPro",
-    model: "B233",
-    size: "M6 x 40mm",
-    color: "Silver",
-    material: "Steel",
-    unit: "Box",
-    serial: "BOLT-10023"
-  },
-  {
-    code: "10024",
-    name: "Cotton Rug PN-253",
-    uom: "pcs",
-    category: "Household",
-    brand: "HomeTex",
-    model: "R253",
-    size: "2x3 ft",
-    color: "White",
-    material: "Cotton",
-    unit: "Pack",
-    serial: "RUG-10024"
-  }
-]);
-
-// Dropdown state
-const showItemCodeList = ref(false);
-
-function filteredItemCodes(search) {
-  return items.value.filter((item) =>
-    item.code.toLowerCase().includes(search.toLowerCase())
-  )
-}
-
-function selectItemCode(row, item) {
-  row.itemCode = item.code
-  row.itemName = item.name
-  row.uom = item.uom
-  row.category = item.category
-  row.brand = item.brand
-  row.model = item.model
-  row.size = item.size
-  row.color = item.color
-  row.material = item.material
-  row.unit = item.unit
-  row.serial = item.serial
-  row.search = item.code
-  row.showItemCodeList = false
-}
+	const hideDropdown = () => {
+	setTimeout(() => (showDropdown.value = null), 150);
+	};
 </script>
 
 <style scoped>

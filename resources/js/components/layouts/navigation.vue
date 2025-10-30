@@ -37,12 +37,12 @@
 					<a href="/masterfile/employee" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Employee</a>
 					<a href="/masterfile/users" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Users</a>
 					<a href="/masterfile/location_pr" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Location PR</a>
+					<a href="/masterfile/group" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Group</a>
 					<a href="/masterfile/location_item" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Location Item</a>
 					<a href="/masterfile/company" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Company</a>
 					<a href="/masterfile/warehouse" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Warehouse</a>
 					<a href="/masterfile/rack" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Rack</a>
 					<a href="/masterfile/qualifier" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Qualifier</a>
-					<a href="/masterfile/group" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Group</a>
 					</div>
 				</transition>
 				</div>
