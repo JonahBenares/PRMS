@@ -1,16 +1,16 @@
 <template> 
 	<navigation>
-		<section class="items-center justify-center py-8">
-			<div class="w-full bg-white shadow-lg rounded-lg p-8 max-w-6xl mx-auto">
-				<div class="flex justify-start">
-					<div>
-						<h2 class="text-xl font-semibold mb-2 ">PR FORM</h2>
-					</div>
-					<div class="px-2 mt-1">
-						<span class="text-emerald-500 text-white  font-semibold">Revise</span>
-					</div>
+		<pageCard>
+			<div class="flex justify-start">
+				<div>
+					<h2 class="text-xl font-bold mb-2">PR FORM</h2>
 				</div>
-				<table class="w-full text-sm !border-b border-x">
+				<div class="px-2 mt-1">
+					<span class="text-emerald-500 text-white  font-semibold">Revise</span>
+				</div>
+			</div>
+			<div class="border border-gray-200 rounded-lg overflow-hidden text-sm bg-white shadow-sm">
+				<table class="w-full text-sm ">
 					<tbody>
 						<tr>
 							<td class="border px-1">Company</td>
@@ -101,349 +101,355 @@
 						</tr>
 					</tbody>
 				</table>
-				<table class="w-full border-y border-x text-sm mt-1">
-					<thead class="bg-blue-50">
-						<tr>
-							<td class="!border-x !border-b font-semibold px-1 text-center" width="3%">#</td>
-							<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">Qty</td>
-							<td class="!border-x !border-b font-semibold px-1" width="15%">Item Code</td>
-							<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">UOM</td>
-							<td class="!border-x !border-b font-semibold px-1">Description</td>
-							<td class="!border-x !border-b font-semibold px-1" width="8%">WH Stock</td>
-							<td class="!border-x !border-b font-semibold px-1" width="10%">Date Needed</td>
-							<td class="!border-x !border-b font-semibold px-1" width="2%" align="center">
-								<button @click="addRow" class="bg-blue-600 p-1 rounded-full">
-									<PlusIcon class="size-4 text-white" />
-								</button>
-							</td>
-						</tr>
-						</thead>
+			</div>
+			<table class="w-full border-y border-x text-sm mt-1">
+				<thead class="bg-blue-50">
+					<tr>
+						<td class="!border-x !border-b font-semibold px-1 text-center" width="3%">#</td>
+						<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">Qty</td>
+						<td class="!border-x !border-b font-semibold px-1" width="15%">Item Code</td>
+						<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">UOM</td>
+						<td class="!border-x !border-b font-semibold px-1">Description</td>
+						<td class="!border-x !border-b font-semibold px-1" width="8%">WH Stock</td>
+						<td class="!border-x !border-b font-semibold px-1" width="10%">Date Needed</td>
+						<td class="!border-x !border-b font-semibold px-1" width="2%" align="center">
+							<button @click="addRow" class="bg-blue-600 p-1 rounded-full">
+								<PlusIcon class="size-4 text-white" />
+							</button>
+						</td>
+					</tr>
+					</thead>
 
-						<tbody>
-						<tr v-for="(row, index) in rows" :key="row.id">
-							<td class="align-top !border-x !border-b px-1 text-center">
-							{{ index + 1 }}
-							</td>
-							<td class="align-top !border-x !border-b">
-								<input v-model="row.qty" class="outline-none w-full px-1 text-center" placeholder="00" type="number" />
-							</td>
-							<td class="align-top !border-x !border-b">
-								<!-- Searchable Item Code -->
-								<div class="relative">
-									<input
-									v-model="row.searchQuery"
-									@input="filterItems(index)"
-									@focus="showDropdown = index"
-									@blur="hideDropdown"
-									class="outline-none w-full px-1"
-									placeholder="Search Item Code / Name / PN"
-									type="text"
-									/>
-									<!-- Dropdown Results -->
-									<ul
-									v-if="showDropdown === index && filteredItems.length"
-									class="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto shadow-lg rounded"
-									>
-									<li
-										v-for="item in filteredItems"
-										:key="item.code"
-										@mousedown.prevent="selectItem(index, item)"
-										class="px-2 py-1 hover:bg-blue-100 cursor-pointer text-sm"
-									>
-										<strong>{{ item.code }}</strong> — {{ item.name }} (PN: {{ item.pn }})
-									</li>
-									</ul>
+					<tbody>
+					<tr v-for="(row, index) in rows" :key="row.id">
+						<td class="align-top !border-x !border-b px-1 text-center">
+						{{ index + 1 }}
+						</td>
+						<td class="align-top !border-x !border-b">
+							<input v-model="row.qty" class="outline-none w-full px-1 text-center" placeholder="00" type="number" />
+						</td>
+						<td class="align-top !border-x !border-b">
+							<!-- Searchable Item Code -->
+							<div class="relative">
+								<input
+								v-model="row.searchQuery"
+								@input="filterItems(index)"
+								@focus="showDropdown = index"
+								@blur="hideDropdown"
+								class="outline-none w-full px-1"
+								placeholder="Search Item Code / Name / PN"
+								type="text"
+								/>
+								<!-- Dropdown Results -->
+								<ul
+								v-if="showDropdown === index && filteredItems.length"
+								class="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto shadow-lg rounded"
+								>
+								<li
+									v-for="item in filteredItems"
+									:key="item.code"
+									@mousedown.prevent="selectItem(index, item)"
+									class="px-2 py-1 hover:bg-blue-100 cursor-pointer text-sm"
+								>
+									<strong>{{ item.code }}</strong> — {{ item.name }} (PN: {{ item.pn }})
+								</li>
+								</ul>
+							</div>
+						</td>
+						<td class="align-top !border-x !border-b">
+							<input v-model="row.uom" class="outline-none w-full text-center" readonly />
+						</td>
+						<!-- <td class="align-top !border-x !border-b">
+							<div class="flex flex-col px-1">
+								<div class="flex justify-start">
+								<span class="pr-2 w-20 text-gray-600">Item Name:</span>
+								<input v-model="row.itemName" class="outline-none w-full font-semibold" readonly />
 								</div>
-							</td>
-							<td class="align-top !border-x !border-b">
-								<input v-model="row.uom" class="outline-none w-full text-center" readonly />
-							</td>
-							<!-- <td class="align-top !border-x !border-b">
-								<div class="flex flex-col px-1">
-									<div class="flex justify-start">
-									<span class="pr-2 w-20 text-gray-600">Item Name:</span>
-									<input v-model="row.itemName" class="outline-none w-full font-semibold" readonly />
-									</div>
-									<div class="flex justify-start mt-1">
-									<span class="pr-2 w-20 text-gray-600">PN:</span>
-									<input v-model="row.pn" class="outline-none w-full font-semibold" readonly />
-									</div>
+								<div class="flex justify-start mt-1">
+								<span class="pr-2 w-20 text-gray-600">PN:</span>
+								<input v-model="row.pn" class="outline-none w-full font-semibold" readonly />
 								</div>
-							</td> -->
+							</div>
+						</td> -->
 
 
-							<td class="align-top !border-x !border-b">
-								<div class="relative w-full px-2">
-									<input
-									:value="`${row.itemName || ''}${row.pn ? ' ' + row.pn : ''}`"
-									class="outline-none w-full font-semibold"
-									readonly
-									/>
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Category:</span>
-									<input v-model="row.category" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Brand:</span>
-									<input v-model="row.brand" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Model:</span>
-									<input v-model="row.model" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Size:</span>
-									<input v-model="row.size" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Color:</span>
-									<input v-model="row.color" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Material:</span>
-									<input v-model="row.material" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Unit:</span>
-									<input v-model="row.unit" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Serial:</span>
-									<input v-model="row.serial" type="text" class="outline-none w-full" />
-								</div>
-							</td>
+						<td class="align-top !border-x !border-b">
+							<div class="relative w-full px-2">
+								<input
+								:value="`${row.itemName || ''}${row.pn ? ' ' + row.pn : ''}`"
+								class="outline-none w-full font-semibold"
+								readonly
+								/>
+							</div>
+							<div class="flex justify-start px-2">
+								<span class="pr-2">Category:</span>
+								<input v-model="row.category" type="text" class="outline-none w-full" />
+							</div>
+							<div class="flex justify-start px-2">
+								<span class="pr-2">Brand:</span>
+								<input v-model="row.brand" type="text" class="outline-none w-full" />
+							</div>
+							<div class="flex justify-start px-2">
+								<span class="pr-2">Model:</span>
+								<input v-model="row.model" type="text" class="outline-none w-full" />
+							</div>
+							<div class="flex justify-start px-2">
+								<span class="pr-2">Size:</span>
+								<input v-model="row.size" type="text" class="outline-none w-full" />
+							</div>
+							<div class="flex justify-start px-2">
+								<span class="pr-2">Color:</span>
+								<input v-model="row.color" type="text" class="outline-none w-full" />
+							</div>
+							<div class="flex justify-start px-2">
+								<span class="pr-2">Material:</span>
+								<input v-model="row.material" type="text" class="outline-none w-full" />
+							</div>
+							<div class="flex justify-start px-2">
+								<span class="pr-2">Unit:</span>
+								<input v-model="row.unit" type="text" class="outline-none w-full" />
+							</div>
+							<div class="flex justify-start px-2">
+								<span class="pr-2">Serial:</span>
+								<input v-model="row.serial" type="text" class="outline-none w-full" />
+							</div>
+						</td>
 
-							<td class="align-top !border-x !border-b px-1">
-							<input v-model="row.whStock" type="text" class="outline-none w-full" placeholder="" />
-							</td>
-							<td class="align-top !border-x !border-b px-1">
-							<input v-model="row.dateNeeded" type="date" class="outline-none w-full" />
-							</td>
-							<td class="align-top !border-x !border-b px-1">
-								<!-- DELETE BUTTON -->
-								<button @click="removeRow(index)" class="bg-red-600 p-1 rounded-full">
-									<XMarkIcon class="size-4 text-white" />
-								</button>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				<table class="w-full text-sm !border-b border-x mt-1">
+						<td class="align-top !border-x !border-b px-1">
+						<input v-model="row.whStock" type="text" class="outline-none w-full" placeholder="" />
+						</td>
+						<td class="align-top !border-x !border-b px-1">
+						<input v-model="row.dateNeeded" type="date" class="outline-none w-full" />
+						</td>
+						<td class="align-top !border-x !border-b px-1">
+							<!-- DELETE BUTTON -->
+							<button @click="removeRow(index)" class="bg-red-600 p-1 rounded-full">
+								<XMarkIcon class="size-4 text-white" />
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<table class="w-full text-sm !border-b border-x mt-1">
+				<tbody>
+					<tr>
+						<td class="border px-1 align-top" width="11%">Notes</td>
+						<td class="border p-0" colspan="2">
+							<textarea name="" id="" class="m-0 w-full p-1 outline-none"></textarea>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bago'" class="border-b border-x px-20 py-5">
+				<table class="w-full  text-sm">
 					<tbody>
 						<tr>
-							<td class="border px-1 align-top" width="11%">Notes</td>
-							<td class="border p-0" colspan="2">
-								<textarea name="" id="" class="m-0 w-full p-1 outline-none"></textarea>
+							<td width="10%">Prepared By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
 							</td>
+							<td width="5%"></td>
+							<td width="20%">Specifications Verified By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+							<td></td>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+						</tr>
+
+						<tr>
+							<td width="10%">Planned By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+							<td width="5%"></td>
+							<td width="20%">Request Verified By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+							<td></td>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+						</tr>
+
+						<tr>
+							<td width="10%">Checked By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+							<td width="5%"></td>
+							<td width="20%">Processed By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+							<td></td>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+						</tr>
+
+						<tr>
+							<td width="10%">WH Check By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+							<td width="5%"></td>
+							<td width="20%">Recommending Approval:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+							<td></td>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+						</tr>
+
+						<tr>
+							<td width="10%"></td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+							<td></td>
+							<td>Approved By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+							<td></td>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
 						</tr>
 					</tbody>
 				</table>
-				<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bago'" class="border-b border-x px-20 py-5">
-					<table class="w-full  text-sm">
-						<tbody>
-							<tr>
-								<td width="10%">Prepared By:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-								<td width="5%"></td>
-								<td width="20%">Specifications Verified by:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-								<td></td>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							</tr>
-
-							<tr>
-								<td width="10%">Planned By:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-								<td width="5%"></td>
-								<td width="20%">Request Verified By:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-								<td></td>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							</tr>
-
-							<tr>
-								<td width="10%">Checked By:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-								<td width="5%"></td>
-								<td width="20%">Processed By:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-								<td></td>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							</tr>
-
-							<tr>
-								<td width="10%">Verified By:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-								<td width="5%"></td>
-								<td width="20%">Recommending Approval:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-								<td></td>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							</tr>
-
-							<tr>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td>Approved by:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td width=""></td>
-								<td></td>
-								<td></td>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bacolod'" class="border-b border-x px-20 py-5">
-					<table class="w-full  text-sm">
-						<tbody>
-							<tr>
-								<td width="10%">Prepared By:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-								<td width="5%"></td>
-								<td width="20%">Reviewed by:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-								<td></td>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							</tr>
-
-							<tr>
-								<td width="10%">Recommending Approval By:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-								<td width="5%"></td>
-								<td width="20%">Approved By:</td>
-								<td class="border-b">
-									<select name="" class="outline-none w-full px-1 font-semibold" id="">
-										<option value="">Select Employee</option>
-										<option value=""></option>
-										<option value=""></option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-								<td></td>
-								<td width=""></td>
-								<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				
-				<div class="mt-4 flex justify-end flex-wrap gap-2">
-					<!-- Instead of <a>, we use buttons that trigger modal -->
-					<a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
-						Save as Draft
-					</a>
-					<a href="print_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50">
-						Proceed
-					</a>
-				</div>
 			</div>
-		</section>
+			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bacolod'" class="border-b border-x px-20 py-5">
+				<table class="w-full  text-sm">
+					<tbody>
+						<tr>
+							<td width="10%">Prepared By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+							<td width="5%"></td>
+							<td width="20%">Reviewed By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+							<td></td>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+						</tr>
+
+						<tr>
+							<td width="10%">Recommending Approval By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+							<td width="5%"></td>
+							<td width="20%">Approved By:</td>
+							<td class="border-b">
+								<select name="" class="outline-none w-full px-1 font-semibold" id="">
+									<option value="">Select Employee</option>
+									<option value=""></option>
+									<option value=""></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+							<td></td>
+							<td width=""></td>
+							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			
+			<div class="mt-4 flex justify-end flex-wrap gap-2">
+				<!-- Instead of <a>, we use buttons that trigger modal -->
+				<a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
+					Save as Draft
+				</a>
+				<a href="print_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50">
+					Proceed
+				</a>
+			</div>
+		</pageCard>
 	</navigation>
 </template>
 
@@ -451,6 +457,7 @@
 	import { ref, computed, onMounted } from "vue";
 	import { PlusIcon, XMarkIcon } from "@heroicons/vue/24/solid";
 	import navigation from "@/components/layouts/navigation.vue";
+	import pageCard from "@/components/card.vue";
 
 	// ===== COMPANY / DEPARTMENT LOGIC =====
 	const selectedCompany = ref("");
