@@ -99,10 +99,13 @@
 				<table class="w-full text-sm !border-b border-x">
 					<tbody>
 						<tr>
-							<td class="border px-1 align-top" width="13%">Notes</td>
-							<td class="border pxs-1" colspan="2">
-								Sample Notes Here
-							</td>
+							<td class="border px-1 align-top" colspan="3">Notes : Sample Notes Here</td>
+							<!-- <td class="border pxs-1" colspan="2">
+								
+							</td> -->
+						</tr>
+						<tr>
+							<td class="border px-1 align-top bg-gray-100 font-semibold" colspan="3" align="center">--- Nothing Follows ---</td>
 						</tr>
 					</tbody>
 				</table>
@@ -113,7 +116,7 @@
 								<td width="10%">Prepared By:</td>
 								<td class="border-b text-center">Employee Name</td>
 								<td width="5%"></td>
-								<td width="20%">Specifications Verified by:</td>
+								<td width="20%">Specifications Verified By:</td>
 								<td class="border-b text-center" width="30%">Employee Name</td>
 							</tr>
 							<tr>
@@ -154,7 +157,7 @@
 								<td class="p-0 text-center pb-7">Position</td>
 							</tr>
 							<tr>
-								<td width="10%">Verified By:</td>
+								<td width="10%">WH Check By:</td>
 								<td class="border-b text-center">Employee Name</td>
 								<td width="5%"></td>
 								<td width="20%">Recommending Approval:</td>
@@ -170,14 +173,14 @@
 
 							<tr>
 								<td></td>
+								<td class="border-b text-center">Employee Name</td>
 								<td></td>
-								<td></td>
-								<td>Approved by:</td>
+								<td>Approved By:</td>
 								<td class="border-b text-center">Employee Name</td>
 							</tr>
 							<tr>
 								<td width=""></td>
-								<td class="p-0 text-center pb-2"></td>
+								<td class="p-0 text-center pb-7">Position</td>
 								<td></td>
 								<td width=""></td>
 								<td class="p-0 text-center pb-7">Position</td>

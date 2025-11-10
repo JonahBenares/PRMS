@@ -1,15 +1,16 @@
 <template> 
 	<navigation>
 		<pageCard>
-			<div class="flex justify-start">
+			<div class="flex justify-start mb-4">
+				<span class="w-2 bg-blue-700 mb-2 mt-0 mr-5 rounded"></span>
 				<div>
-					<h2 class="text-xl font-bold mb-2">PR FORM</h2>
+					<h2 class="text-2xl font-bold mb-2">PR FORM</h2>
 				</div>
 				<div class="px-2 mt-1">
-					<span class="text-emerald-500 text-white  font-semibold">Revise</span>
+					<span class="text-emerald-500 text-white font-semibold">Revise</span>
 				</div>
 			</div>
-			<div class="border border-gray-200 rounded-lg overflow-hidden text-sm bg-white shadow-sm">
+			<div class="mb-3">
 				<table class="w-full text-sm ">
 					<tbody>
 						<tr>
@@ -102,145 +103,147 @@
 					</tbody>
 				</table>
 			</div>
-			<table class="w-full border-y border-x text-sm mt-1">
-				<thead class="bg-blue-50">
-					<tr>
-						<td class="!border-x !border-b font-semibold px-1 text-center" width="3%">#</td>
-						<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">Qty</td>
-						<td class="!border-x !border-b font-semibold px-1" width="15%">Item Code</td>
-						<td class="!border-x !border-b font-semibold px-1 text-center" width="5%">UOM</td>
-						<td class="!border-x !border-b font-semibold px-1">Description</td>
-						<td class="!border-x !border-b font-semibold px-1" width="8%">WH Stock</td>
-						<td class="!border-x !border-b font-semibold px-1" width="10%">Date Needed</td>
-						<td class="!border-x !border-b font-semibold px-1" width="2%" align="center">
-							<button @click="addRow" class="bg-blue-600 p-1 rounded-full">
-								<PlusIcon class="size-4 text-white" />
-							</button>
-						</td>
-					</tr>
-					</thead>
+			<div class="border border-gray-200 rounded-xl overflow-hidden text-sm mb-3">
+				<table class="w-full  text-sm">
+					<thead class="bg-blue-50">
+						<tr>
+							<td class="!border-x !border-b font-semibold px-1 py-1 text-center" width="3%">#</td>
+							<td class="!border-x !border-b font-semibold px-1 py-1 text-center" width="5%">Qty</td>
+							<td class="!border-x !border-b font-semibold px-1 py-1" width="15%">Item Code</td>
+							<td class="!border-x !border-b font-semibold px-1 py-1 text-center" width="5%">UOM</td>
+							<td class="!border-x !border-b font-semibold px-1 py-1">Description</td>
+							<td class="!border-x !border-b font-semibold px-1 py-1" width="8%">WH Stock</td>
+							<td class="!border-x !border-b font-semibold px-1 py-1" width="10%">Date Needed</td>
+							<td class="!border-x !border-b font-semibold px-1 py-1" width="2%" align="center">
+								<button @click="addRow" class="bg-blue-600 p-1 rounded-full">
+									<PlusIcon class="size-4 text-white" />
+								</button>
+							</td>
+						</tr>
+						</thead>
 
-					<tbody>
-					<tr v-for="(row, index) in rows" :key="row.id">
-						<td class="align-top !border-x !border-b px-1 text-center">
-						{{ index + 1 }}
-						</td>
-						<td class="align-top !border-x !border-b">
-							<input v-model="row.qty" class="outline-none w-full px-1 text-center" placeholder="00" type="number" />
-						</td>
-						<td class="align-top !border-x !border-b">
-							<!-- Searchable Item Code -->
-							<div class="relative">
-								<input
-								v-model="row.searchQuery"
-								@input="filterItems(index)"
-								@focus="showDropdown = index"
-								@blur="hideDropdown"
-								class="outline-none w-full px-1"
-								placeholder="Search Item Code / Name / PN"
-								type="text"
-								/>
-								<!-- Dropdown Results -->
-								<ul
-								v-if="showDropdown === index && filteredItems.length"
-								class="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto shadow-lg rounded"
-								>
-								<li
-									v-for="item in filteredItems"
-									:key="item.code"
-									@mousedown.prevent="selectItem(index, item)"
-									class="px-2 py-1 hover:bg-blue-100 cursor-pointer text-sm"
-								>
-									<strong>{{ item.code }}</strong> — {{ item.name }} (PN: {{ item.pn }})
-								</li>
-								</ul>
-							</div>
-						</td>
-						<td class="align-top !border-x !border-b">
-							<input v-model="row.uom" class="outline-none w-full text-center" readonly />
-						</td>
-						<!-- <td class="align-top !border-x !border-b">
-							<div class="flex flex-col px-1">
-								<div class="flex justify-start">
-								<span class="pr-2 w-20 text-gray-600">Item Name:</span>
-								<input v-model="row.itemName" class="outline-none w-full font-semibold" readonly />
+						<tbody>
+						<tr v-for="(row, index) in rows" :key="row.id">
+							<td class="align-top !border-x !border-b px-1 text-center">
+							{{ index + 1 }}
+							</td>
+							<td class="align-top !border-x !border-b">
+								<input v-model="row.qty" class="outline-none w-full px-1 text-center" placeholder="00" type="number" />
+							</td>
+							<td class="align-top !border-x !border-b">
+								<!-- Searchable Item Code -->
+								<div class="relative">
+									<input
+									v-model="row.searchQuery"
+									@input="filterItems(index)"
+									@focus="showDropdown = index"
+									@blur="hideDropdown"
+									class="outline-none w-full px-1"
+									placeholder="Search Item Code / Name / PN"
+									type="text"
+									/>
+									<!-- Dropdown Results -->
+									<ul
+									v-if="showDropdown === index && filteredItems.length"
+									class="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto shadow-lg rounded"
+									>
+									<li
+										v-for="item in filteredItems"
+										:key="item.code"
+										@mousedown.prevent="selectItem(index, item)"
+										class="px-2 py-1 hover:bg-blue-100 cursor-pointer text-sm"
+									>
+										<strong>{{ item.code }}</strong> — {{ item.name }} (PN: {{ item.pn }})
+									</li>
+									</ul>
 								</div>
-								<div class="flex justify-start mt-1">
-								<span class="pr-2 w-20 text-gray-600">PN:</span>
-								<input v-model="row.pn" class="outline-none w-full font-semibold" readonly />
+							</td>
+							<td class="align-top !border-x !border-b">
+								<input v-model="row.uom" class="outline-none w-full text-center" readonly />
+							</td>
+							<!-- <td class="align-top !border-x !border-b">
+								<div class="flex flex-col px-1">
+									<div class="flex justify-start">
+									<span class="pr-2 w-20 text-gray-600">Item Name:</span>
+									<input v-model="row.itemName" class="outline-none w-full font-semibold" readonly />
+									</div>
+									<div class="flex justify-start mt-1">
+									<span class="pr-2 w-20 text-gray-600">PN:</span>
+									<input v-model="row.pn" class="outline-none w-full font-semibold" readonly />
+									</div>
 								</div>
-							</div>
-						</td> -->
+							</td> -->
 
 
-						<td class="align-top !border-x !border-b">
-							<div class="relative w-full px-2">
-								<input
-								:value="`${row.itemName || ''}${row.pn ? ' ' + row.pn : ''}`"
-								class="outline-none w-full font-semibold"
-								readonly
-								/>
-							</div>
-							<div class="flex justify-start px-2">
-								<span class="pr-2">Category:</span>
-								<input v-model="row.category" type="text" class="outline-none w-full" />
-							</div>
-							<div class="flex justify-start px-2">
-								<span class="pr-2">Brand:</span>
-								<input v-model="row.brand" type="text" class="outline-none w-full" />
-							</div>
-							<div class="flex justify-start px-2">
-								<span class="pr-2">Model:</span>
-								<input v-model="row.model" type="text" class="outline-none w-full" />
-							</div>
-							<div class="flex justify-start px-2">
-								<span class="pr-2">Size:</span>
-								<input v-model="row.size" type="text" class="outline-none w-full" />
-							</div>
-							<div class="flex justify-start px-2">
-								<span class="pr-2">Color:</span>
-								<input v-model="row.color" type="text" class="outline-none w-full" />
-							</div>
-							<div class="flex justify-start px-2">
-								<span class="pr-2">Material:</span>
-								<input v-model="row.material" type="text" class="outline-none w-full" />
-							</div>
-							<div class="flex justify-start px-2">
-								<span class="pr-2">Unit:</span>
-								<input v-model="row.unit" type="text" class="outline-none w-full" />
-							</div>
-							<div class="flex justify-start px-2">
-								<span class="pr-2">Serial:</span>
-								<input v-model="row.serial" type="text" class="outline-none w-full" />
-							</div>
-						</td>
+							<td class="align-top !border-x !border-b">
+								<div class="relative w-full px-2">
+									<input
+									:value="`${row.itemName || ''}${row.pn ? ' ' + row.pn : ''}`"
+									class="outline-none w-full font-semibold"
+									readonly
+									/>
+								</div>
+								<div class="flex justify-start px-2">
+									<span class="pr-2">Category:</span>
+									<input v-model="row.category" type="text" class="outline-none w-full" />
+								</div>
+								<div class="flex justify-start px-2">
+									<span class="pr-2">Brand:</span>
+									<input v-model="row.brand" type="text" class="outline-none w-full" />
+								</div>
+								<div class="flex justify-start px-2">
+									<span class="pr-2">Model:</span>
+									<input v-model="row.model" type="text" class="outline-none w-full" />
+								</div>
+								<div class="flex justify-start px-2">
+									<span class="pr-2">Size:</span>
+									<input v-model="row.size" type="text" class="outline-none w-full" />
+								</div>
+								<div class="flex justify-start px-2">
+									<span class="pr-2">Color:</span>
+									<input v-model="row.color" type="text" class="outline-none w-full" />
+								</div>
+								<div class="flex justify-start px-2">
+									<span class="pr-2">Material:</span>
+									<input v-model="row.material" type="text" class="outline-none w-full" />
+								</div>
+								<div class="flex justify-start px-2">
+									<span class="pr-2">Unit:</span>
+									<input v-model="row.unit" type="text" class="outline-none w-full" />
+								</div>
+								<div class="flex justify-start px-2">
+									<span class="pr-2">Serial:</span>
+									<input v-model="row.serial" type="text" class="outline-none w-full" />
+								</div>
+							</td>
 
-						<td class="align-top !border-x !border-b px-1">
-						<input v-model="row.whStock" type="text" class="outline-none w-full" placeholder="" />
-						</td>
-						<td class="align-top !border-x !border-b px-1">
-						<input v-model="row.dateNeeded" type="date" class="outline-none w-full" />
-						</td>
-						<td class="align-top !border-x !border-b px-1">
-							<!-- DELETE BUTTON -->
-							<button @click="removeRow(index)" class="bg-red-600 p-1 rounded-full">
-								<XMarkIcon class="size-4 text-white" />
-							</button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+							<td class="align-top !border-x !border-b px-1">
+							<input v-model="row.whStock" type="text" class="outline-none w-full" placeholder="" />
+							</td>
+							<td class="align-top !border-x !border-b px-1">
+							<input v-model="row.dateNeeded" type="date" class="outline-none w-full" />
+							</td>
+							<td class="align-top !border-x !border-b px-1">
+								<!-- DELETE BUTTON -->
+								<button @click="removeRow(index)" class="bg-red-600 p-1 rounded-full">
+									<XMarkIcon class="size-4 text-white" />
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 			<table class="w-full text-sm !border-b border-x mt-1">
 				<tbody>
 					<tr>
-						<td class="border px-1 align-top" width="11%">Notes</td>
 						<td class="border p-0" colspan="2">
-							<textarea name="" id="" class="m-0 w-full p-1 outline-none"></textarea>
+							<span class="px-1 align-top">Notes</span>
+							<textarea name="" id="" class="m-0 w-full p-1 outline-none" rows="1"></textarea>
 						</td>
 					</tr>
 				</tbody>
 			</table>
-			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bago'" class="border-b border-x px-20 py-5">
+			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bago'" class="border-b border-x px-16 py-5">
 				<table class="w-full  text-sm">
 					<tbody>
 						<tr>
