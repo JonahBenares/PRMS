@@ -54,8 +54,8 @@
 							<td class="border px-1" width="37.5%">Hennelen Tantanan</td>
 						</tr>
 						<tr>
-							<td class="border px-1" width="">Date Issued</td>
-							<td class="border px-1" width="37.5%">10/10/25</td>
+							<td class="border px-1" width=""></td>
+							<td class="border px-1" width="37.5%"></td>
 							<td class="border px-1" width="">Urgency</td>
 							<td class="border px-1" width="35%">1 - Week</td>
 						</tr>
@@ -128,35 +128,6 @@
 							</tr>
 
 							<tr>
-								<td width="10%">Planned By:</td>
-								<td class="border-b text-center">Employee Name</td>
-								<td width="5%"></td>
-								<td width="20%">Request Verified By:</td>
-								<td class="border-b text-center">Employee Name</td>
-							</tr>
-							<tr>
-								<td width=""></td>
-								<td class="p-0 text-center pb-7">Position</td>
-								<td></td>
-								<td width=""></td>
-								<td class="p-0 text-center pb-7">Position</td>
-							</tr>
-
-							<tr>
-								<td width="10%">Checked By:</td>
-								<td class="border-b text-center">Employee Name</td>
-								<td width="5%"></td>
-								<td width="20%">Processed By:</td>
-								<td class="border-b text-center">Employee Name</td>
-							</tr>
-							<tr>
-								<td width=""></td>
-								<td class="p-0 text-center pb-7">Position</td>
-								<td></td>
-								<td width=""></td>
-								<td class="p-0 text-center pb-7">Position</td>
-							</tr>
-							<tr>
 								<td width="10%">WH Check By:</td>
 								<td class="border-b text-center">Employee Name</td>
 								<td width="5%"></td>
@@ -165,7 +136,7 @@
 							</tr>
 							<tr>
 								<td width=""></td>
-								<td class="p-0 text-center pb-7">Position</td>
+								<td class="p-0 text-center pb-7"></td>
 								<td></td>
 								<td width=""></td>
 								<td class="p-0 text-center pb-7">Position</td>
@@ -173,14 +144,14 @@
 
 							<tr>
 								<td></td>
-								<td class="border-b text-center">Employee Name</td>
+								<td class=" text-center"></td>
 								<td></td>
 								<td>Approved By:</td>
 								<td class="border-b text-center">Employee Name</td>
 							</tr>
 							<tr>
 								<td width=""></td>
-								<td class="p-0 text-center pb-7">Position</td>
+								<td class="p-0 text-center pb-7"></td>
 								<td></td>
 								<td width=""></td>
 								<td class="p-0 text-center pb-7">Position</td>

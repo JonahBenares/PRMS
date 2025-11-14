@@ -68,8 +68,8 @@
 							</td>
 						</tr>
 						<tr>
-							<td class="border px-1" width="">Date Issued</td>
-							<td class="border" width="37.5%"><input type="date" class="outline-none w-full px-1"></td>
+							<td class="border px-1" width=""></td>
+							<td class="border" width="37.5%"></td>
 							<td class="border px-1" width="">Urgency</td>
 							<td class="border" width="35%">
 								<select name="" class="outline-none w-full px-1" id="">
@@ -130,8 +130,7 @@
 							<td class="align-top !border-x !border-b">
 								<input v-model="row.qty" class="outline-none w-full px-1 text-center" placeholder="00" type="number" />
 							</td>
-							<td class="align-top !border-x !border-b">
-								<!-- Searchable Item Code -->
+							<td class="align-top !border-x !border-b relative">
 								<div class="relative">
 									<input
 									v-model="row.searchQuery"
@@ -141,11 +140,13 @@
 									class="outline-none w-full px-1"
 									placeholder="Search Item Code / Name / PN"
 									type="text"
+									ref="searchInput"
 									/>
-									<!-- Dropdown Results -->
+									<!-- Dropdown -->
 									<ul
 									v-if="showDropdown === index && filteredItems.length"
-									class="absolute z-10 bg-white border border-gray-300 w-full max-h-40 overflow-y-auto shadow-lg rounded"
+									:style="dropdownStyle"
+									class="fixed z-50 bg-white border border-gray-300 w-64 max-h-40 overflow-y-auto shadow-lg rounded"
 									>
 									<li
 										v-for="item in filteredItems"
@@ -176,46 +177,62 @@
 
 
 							<td class="align-top !border-x !border-b">
-								<div class="relative w-full px-2">
-									<input
-									:value="`${row.itemName || ''}${row.pn ? ' ' + row.pn : ''}`"
-									class="outline-none w-full font-semibold"
-									readonly
-									/>
+								<div v-if="row.itemCode" class="space-y-1 px-2">
+									<div>
+										<input
+											:value="`${row.itemName || ''}${row.pn ? ' ' + row.pn : ''}`"
+											class="outline-none w-full font-semibold"
+											readonly
+										/>
+									</div>
+									<div v-if="row.category && row.category.trim() !== ''" class="flex justify-start">
+										<span class="pr-2 w-20">Category:</span>
+										<input v-model="row.category" type="text" class="outline-none w-full" />
+									</div>
+
+									<div v-if="row.brand && row.brand.trim() !== ''" class="flex justify-start">
+										<span class="pr-2 w-20">Brand:</span>
+										<input v-model="row.brand" type="text" class="outline-none w-full" />
+									</div>
+
+									<div v-if="row.model && row.model.trim() !== ''" class="flex justify-start">
+										<span class="pr-2 w-20">Model:</span>
+										<input v-model="row.model" type="text" class="outline-none w-full" />
+									</div>
+
+									<div v-if="row.size && row.size.trim() !== ''" class="flex justify-start">
+										<span class="pr-2 w-20">Size:</span>
+										<input v-model="row.size" type="text" class="outline-none w-full" />
+									</div>
+
+									<div v-if="row.color && row.color.trim() !== ''" class="flex justify-start">
+										<span class="pr-2 w-20">Color:</span>
+										<input v-model="row.color" type="text" class="outline-none w-full" />
+									</div>
+
+									<div v-if="row.material && row.material.trim() !== ''" class="flex justify-start">
+										<span class="pr-2 w-20">Material:</span>
+										<input v-model="row.material" type="text" class="outline-none w-full" />
+									</div>
+
+									<div v-if="row.unit && row.unit.trim() !== ''" class="flex justify-start">
+										<span class="pr-2 w-20">Unit:</span>
+										<input v-model="row.unit" type="text" class="outline-none w-full" />
+									</div>
+
+									<div v-if="row.serial && row.serial.trim() !== ''" class="flex justify-start">
+										<span class="pr-2 w-20">Serial:</span>
+										<input v-model="row.serial" type="text" class="outline-none w-full" />
+									</div>
+
 								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Category:</span>
-									<input v-model="row.category" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Brand:</span>
-									<input v-model="row.brand" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Model:</span>
-									<input v-model="row.model" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Size:</span>
-									<input v-model="row.size" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Color:</span>
-									<input v-model="row.color" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Material:</span>
-									<input v-model="row.material" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Unit:</span>
-									<input v-model="row.unit" type="text" class="outline-none w-full" />
-								</div>
-								<div class="flex justify-start px-2">
-									<span class="pr-2">Serial:</span>
-									<input v-model="row.serial" type="text" class="outline-none w-full" />
+
+								<!-- Default blank state (optional) -->
+								<div v-else class="text-gray-400 italic px-2 py-2">
+									Select an Item Code to view specs
 								</div>
 							</td>
+
 
 							<td class="align-top !border-x !border-b px-1">
 							<input v-model="row.whStock" type="text" class="outline-none w-full" placeholder="" />
@@ -274,60 +291,6 @@
 						</tr>
 
 						<tr>
-							<td width="10%">Planned By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-							<td width="5%"></td>
-							<td width="20%">Request Verified By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							<td></td>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-						</tr>
-
-						<tr>
-							<td width="10%">Checked By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-							<td width="5%"></td>
-							<td width="20%">Processed By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							<td></td>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-						</tr>
-
-						<tr>
 							<td width="10%">WH Check By:</td>
 							<td class="border-b">
 								<select name="" class="outline-none w-full px-1 font-semibold" id="">
@@ -356,13 +319,7 @@
 
 						<tr>
 							<td width="10%"></td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
+							<td class=""></td>
 							<td></td>
 							<td>Approved By:</td>
 							<td class="border-b">
@@ -375,7 +332,7 @@
 						</tr>
 						<tr>
 							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
+							<td></td>
 							<td></td>
 							<td width=""></td>
 							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
@@ -515,9 +472,26 @@
 
 	// Example dataset (can come from API)
 	const items = ref([
-	{ code: "10023", name: "Bolt", pn: "PN-233", uom: "pcs", category: "Hardware", brand: "FastenPro", model: "B233", size: "M6x40mm", color: "Silver", material: "Steel", unit: "Box", serial: "BOLT-10023" },
-	{ code: "10024", name: "Cotton Rug", pn: "PN-253", uom: "pcs", category: "Household", brand: "HomeTex", model: "R253", size: "2x3ft", color: "White", material: "Cotton", unit: "Pack", serial: "RUG-10024" },
-	{ code: "10025", name: "Hydraulic Pump", pn: "PN-345", uom: "set", category: "Mechanical", brand: "HydraPro", model: "H345", size: "M12", color: "Gray", material: "Aluminum", unit: "Piece", serial: "HP-10025" },
+		{ code: "10023", name: "Bolt", pn: "PN-233", uom: "pcs", size: "M6x40mm", color: "Silver", material: "Steel", unit: "Box", serial: "BOLT-10023" },
+		{ code: "10024", name: "Cotton Rug", pn: "PN-253", uom: "pcs", category: "Household", brand: "HomeTex", model: "R253", unit: "Pack", serial: "RUG-10024" },
+		{ code: "10025", name: "Hydraulic Pump", pn: "PN-345", uom: "set", category: "Mechanical", brand: "HydraPro", model: "H345", size: "M12", color: "Gray" },
+		{ code: "10026", name: "LED Bulb", pn: "PN-412", uom: "pcs", wattage: "9W", color: "Warm White", brand: "Philips", voltage: "220V", unit: "Box", serial: "LED-10026" },
+		{ code: "10027", name: "Laptop Stand", pn: "PN-578", uom: "pcs", category: "Office", brand: "ErgoLift", material: "Aluminum", color: "Black", unit: "Piece" },
+		{ code: "10028", name: "PVC Pipe", pn: "PN-612", uom: "mtr", size: "2-inch", color: "White", material: "PVC", category: "Plumbing", unit: "Bundle" },
+		{ code: "10029", name: "Safety Helmet", pn: "PN-789", uom: "pcs", color: "Yellow", brand: "3M", category: "Safety", unit: "Piece", serial: "HELM-10029" },
+		{ code: "10030", name: "Printer Ink", pn: "PN-845", uom: "bottle", color: "Black", brand: "Epson", capacity: "100ml", unit: "Box" },
+		{ code: "10031", name: "Wrench Set", pn: "PN-903", uom: "set", category: "Tools", brand: "Stanley", pieces: "12", material: "Chrome Vanadium", unit: "Case" },
+		{ code: "10032", name: "Air Filter", pn: "PN-950", uom: "pcs", category: "Automotive", brand: "Bosch", model: "AF950", size: "Medium", color: "White", unit: "Box" },
+		{ code: "10033", name: "Extension Cord", pn: "PN-1001", uom: "pcs", length: "5m", color: "White", voltage: "220V", brand: "Omni", unit: "Piece" },
+		{ code: "10034", name: "Ceramic Tile", pn: "PN-1102", uom: "box", size: "60x60cm", color: "Beige", brand: "Mariwasa", category: "Construction", unit: "Box" },
+		{ code: "10035", name: "Drill Machine", pn: "PN-1204", uom: "pcs", power: "600W", brand: "Makita", model: "D600", color: "Blue", unit: "Box" },
+		{ code: "10036", name: "Office Chair", pn: "PN-1345", uom: "pcs", category: "Furniture", brand: "ErgoFlex", color: "Black", material: "Mesh", unit: "Piece" },
+		{ code: "10037", name: "Copper Wire", pn: "PN-1452", uom: "roll", length: "100m", material: "Copper", gauge: "2.5mm²", color: "Red", unit: "Roll" },
+		{ code: "10038", name: "Battery Pack", pn: "PN-1560", uom: "pcs", capacity: "12V 7Ah", brand: "Panasonic", type: "Sealed Lead Acid", unit: "Piece" },
+		{ code: "10039", name: "Paint Thinner", pn: "PN-1661", uom: "ltr", brand: "Boysen", category: "Chemical", container: "Gallon", unit: "Can" },
+		{ code: "10040", name: "HDMI Cable", pn: "PN-1753", uom: "pcs", length: "2m", brand: "Belkin", color: "Black", category: "Electronics", unit: "Piece" },
+		{ code: "10041", name: "Electric Fan", pn: "PN-1855", uom: "pcs", brand: "Asahi", model: "EF16", size: "16-inch", color: "Gray", unit: "Box" },
+		{ code: "10042", name: "Paper Ream (A4)", pn: "PN-1900", uom: "ream", brand: "Double A", category: "Office", gsm: "80gsm", unit: "Box" },
 	]);
 
 	const rows = ref([

@@ -168,10 +168,7 @@ const masterfileLinks = [
   { text: "Employee", href: "/masterfile/employee" },
   { text: "Users", href: "/masterfile/users" },
   { text: "Location PR", href: "/masterfile/location_pr" },
-  { text: "Group", href: "/masterfile/group" },
   { text: "Company", href: "/masterfile/company" },
-  { text: "Warehouse", href: "/masterfile/warehouse" },
-  { text: "Rack", href: "/masterfile/rack" },
   { text: "Qualifier", href: "/masterfile/qualifier" },
 ];
 
