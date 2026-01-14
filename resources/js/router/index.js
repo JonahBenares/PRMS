@@ -27,11 +27,16 @@ import company_list from '../pages/user/masterfile/company.vue'
 const routes = [
     {
         path:'/',
+        name: 'login',
         component: login,
     },
     {
         path:'/create_pr',
+        name: 'home',
         component: home,
+        meta:{
+            requiresAuth:false
+        }
     },
     {
         path:'/print_pr',
@@ -50,8 +55,9 @@ const routes = [
         component: item_add,
     },
     {
-        path:'/masterfile/items/edit',
+        path:'/masterfile/items/edit/:id',
         component: item_edit,
+        props: true
     },
     {
         path:'/masterfile/department',
@@ -119,6 +125,12 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes
+})
+
+router.beforeEach((to,from) => {
+    if(to.meta.requiresAuth && !localStorage.getItem('token') ){
+        return { name: 'login'}
+    } 
 })
 
 export default router

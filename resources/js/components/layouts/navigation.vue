@@ -1,3 +1,47 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from "vue";
+
+const mobileMenuOpen = ref(false);
+const masterfileOpen = ref(false);
+const profileOpen = ref(false);
+const masterfileRef = ref(null);
+const profileRef = ref(null);
+
+const masterfileLinks = [
+  { text: "Items", href: "/masterfile/items" },
+  { text: "Category", href: "/masterfile/category" },
+  { text: "Department", href: "/masterfile/department" },
+  { text: "Enduse", href: "/masterfile/enduse" },
+  { text: "Purpose", href: "/masterfile/purpose" },
+  { text: "Employee", href: "/masterfile/employee" },
+  { text: "Users", href: "/masterfile/users" },
+  { text: "Location PR", href: "/masterfile/location_pr" },
+  { text: "Company", href: "/masterfile/company" },
+  { text: "Qualifier", href: "/masterfile/qualifier" },
+];
+
+function toggleMasterfile() {
+  masterfileOpen.value = !masterfileOpen.value;
+  if (masterfileOpen.value) profileOpen.value = false;
+}
+function toggleProfile() {
+  profileOpen.value = !profileOpen.value;
+  if (profileOpen.value) masterfileOpen.value = false;
+}
+
+// Detect click outside
+function useClickOutside(elRef, callback) {
+  const handler = (e) => {
+    if (elRef.value && !elRef.value.contains(e.target)) callback();
+  };
+  onMounted(() => document.addEventListener("click", handler));
+  onUnmounted(() => document.removeEventListener("click", handler));
+}
+
+useClickOutside(masterfileRef, () => (masterfileOpen.value = false));
+useClickOutside(profileRef, () => (profileOpen.value = false));
+</script>
+
 <template>
 	<div class="text-gray-800 min-h-screen flex flex-col ">
 		<!-- Header -->
@@ -149,50 +193,6 @@
 		</main>
 	</div>
 </template>
-
-<script setup>
-import { ref, onMounted, onUnmounted } from "vue";
-
-const mobileMenuOpen = ref(false);
-const masterfileOpen = ref(false);
-const profileOpen = ref(false);
-const masterfileRef = ref(null);
-const profileRef = ref(null);
-
-const masterfileLinks = [
-  { text: "Items", href: "/masterfile/items" },
-  { text: "Category", href: "/masterfile/category" },
-  { text: "Department", href: "/masterfile/department" },
-  { text: "Enduse", href: "/masterfile/enduse" },
-  { text: "Purpose", href: "/masterfile/purpose" },
-  { text: "Employee", href: "/masterfile/employee" },
-  { text: "Users", href: "/masterfile/users" },
-  { text: "Location PR", href: "/masterfile/location_pr" },
-  { text: "Company", href: "/masterfile/company" },
-  { text: "Qualifier", href: "/masterfile/qualifier" },
-];
-
-function toggleMasterfile() {
-  masterfileOpen.value = !masterfileOpen.value;
-  if (masterfileOpen.value) profileOpen.value = false;
-}
-function toggleProfile() {
-  profileOpen.value = !profileOpen.value;
-  if (profileOpen.value) masterfileOpen.value = false;
-}
-
-// Detect click outside
-function useClickOutside(elRef, callback) {
-  const handler = (e) => {
-    if (elRef.value && !elRef.value.contains(e.target)) callback();
-  };
-  onMounted(() => document.addEventListener("click", handler));
-  onUnmounted(() => document.removeEventListener("click", handler));
-}
-
-useClickOutside(masterfileRef, () => (masterfileOpen.value = false));
-useClickOutside(profileRef, () => (profileOpen.value = false));
-</script>
 
 <style scoped>
 .fade-slide-enter-active,

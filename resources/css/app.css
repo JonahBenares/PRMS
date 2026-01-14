@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* DataTables classic styling */
+@import "datatables.net-dt/css/jquery.dataTables.css";
+
 #itemTable{
     @apply border-b;
 }

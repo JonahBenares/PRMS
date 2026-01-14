@@ -1,3 +1,127 @@
+<script setup>
+import { ref, reactive, onMounted } from "vue";
+import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
+import navigation from "@/components/layouts/navigation.vue";
+
+const categories = ref([]);
+
+// Fetch departments from API
+const fetchCategories = async () => {
+    try {
+        const response = await axios.get("/api/categories");
+        categories.value = response.data;
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+onMounted(async () => {
+	fetchCategories()
+})
+
+// Modal states
+const showModal = ref(false);
+const showDeleteModal = ref(false);
+const isEdit = ref(false);
+const isSub = ref(false);
+const parentCategory = ref(null);
+const modalItem = reactive({ id: null, name: "" });
+
+const openAddModal = (parent = null) => {
+  isEdit.value = false;
+  isSub.value = !!parent;
+  parentCategory.value = parent;
+
+  // Always blank input
+  modalItem.id = null;
+  modalItem.name = "";
+  
+  showModal.value = true;
+};
+
+const openEditModal = (item, sub = false) => {
+  isEdit.value = true;
+  isSub.value = sub;
+
+  // Map DB column to modalItem.name
+  modalItem.id = item.id;
+  modalItem.name = sub ? item.sub_cat_name : item.category_name;
+
+  // Find parent for subcategory
+  if (sub) {
+    if (Array.isArray(categories.value)) {
+      parentCategory.value = categories.value.find(c =>
+        Array.isArray(c.subcategories) && c.subcategories.some(s => s.id === item.id)
+      ) || null;
+    } else {
+      parentCategory.value = null;
+    }
+  } else {
+    parentCategory.value = null;
+  }
+
+  showModal.value = true;
+};
+
+
+const saveItem = async () => {
+  if (!modalItem.name.trim()) return;
+
+  try {
+    if (isEdit.value) {
+      // UPDATE
+      if (isSub.value) {
+        await axios.put(`/api/update_subcategory/${modalItem.id}`, {
+          sub_cat_name: modalItem.name,
+        });
+      } else {
+        await axios.put(`/api/update_category/${modalItem.id}`, {
+          category_name : modalItem.name,
+        });
+      }
+    } else {
+      // ADD
+      if (isSub.value) {
+        await axios.post("/api/new_subcategory", {
+          sub_cat_name : modalItem.name,
+          category_id: parentCategory.value.id,
+        });
+      } else {
+        await axios.post("/api/new_category", {
+          category_name : modalItem.name,
+        });
+      }
+    }
+
+    showModal.value = false;
+    await fetchCategories();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const openDeleteModal = (item, sub = false, parent = null) => {
+  isSub.value = sub;
+  parentCategory.value = parent;
+  Object.assign(modalItem, { ...item });
+  showDeleteModal.value = true;
+};
+
+const deleteItem = () => {
+  if (isSub.value) {
+    const subIndex = parentCategory.value.subcategories.findIndex(s => s.id === modalItem.id);
+    if (subIndex !== -1) parentCategory.value.subcategories.splice(subIndex, 1);
+  } else {
+    const index = categories.findIndex(c => c.id === modalItem.id);
+    if (index !== -1) categories.splice(index, 1);
+  }
+  showDeleteModal.value = false;
+};
+
+const closeModal = () => showModal.value = false;
+const closeDeleteModal = () => showDeleteModal.value = false;
+</script>
+
 <template>
 	<navigation>
 		<section class="items-center justify-center py-8">
@@ -30,7 +154,7 @@
 					<!-- Categories -->
 					<template v-for="category in categories" :key="category.id">
 						<tr class="bg-gray-50">
-						<td class="px-4 py-2 font-semibold">{{ category.name }}</td>
+						<td class="px-4 py-2 font-semibold">{{ category.category_name }}</td>
 						<td class="px-4 py-2 flex space-x-1">
 							<button 
 							@click="openEditModal(category, false)"
@@ -38,12 +162,12 @@
 							>
 							<PencilSquareIcon class="w-4 h-4"/>
 							</button>
-							<button
+							<!-- <button
 							@click="openDeleteModal(category, false)"
 							class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700"
 							>
 							<TrashIcon class="w-4 h-4"/>
-							</button>
+							</button> -->
 							<button
 							@click="openAddModal(category)"
 							class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-700"
@@ -58,7 +182,7 @@
 						v-for="subcategory in category.subcategories"
 						:key="subcategory.id"
 						>
-						<td class="px-8 py-2 text-gray-600">↳ {{ subcategory.name }}</td>
+						<td class="px-8 py-2 text-gray-600">↳ {{ subcategory.sub_cat_name }}</td>
 						<td class="px-4 py-2 flex space-x-1">
 							<button 
 							@click="openEditModal(subcategory, true)"
@@ -66,12 +190,12 @@
 							>
 							<PencilSquareIcon class="w-4 h-4"/>
 							</button>
-							<button
+							<!-- <button
 							@click="openDeleteModal(subcategory, true, category)"
 							class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700"
 							>
 							<TrashIcon class="w-4 h-4"/>
-							</button>
+							</button> -->
 						</td>
 						</tr>
 					</template>
@@ -123,79 +247,3 @@
 		</section>
 	</navigation>
 </template>
-
-<script setup>
-import { ref, reactive } from "vue";
-import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
-import navigation from "@/components/layouts/navigation.vue";
-
-// Data
-const categories = reactive([
-  { id: 1, name: "Inventory", subcategories: [{ id: 11, name: "Spare Parts" }, { id: 12, name: "Consumables" }] },
-  { id: 2, name: "Technology", subcategories: [{ id: 21, name: "Software" }, { id: 22, name: "Hardware" }] },
-]);
-
-// Modal states
-const showModal = ref(false);
-const showDeleteModal = ref(false);
-const isEdit = ref(false);
-const isSub = ref(false);
-const parentCategory = ref(null);
-const modalItem = reactive({ id: null, name: "" });
-
-const openAddModal = (parent = null) => {
-  isEdit.value = false;
-  isSub.value = !!parent;
-  parentCategory.value = parent;
-  Object.assign(modalItem, { id: null, name: "" });
-  showModal.value = true;
-};
-
-const openEditModal = (item, sub = false) => {
-  isEdit.value = true;
-  isSub.value = sub;
-  Object.assign(modalItem, { ...item });
-  if (sub) parentCategory.value = categories.find(c => c.subcategories.some(s => s.id === item.id));
-  showModal.value = true;
-};
-
-const saveItem = () => {
-  if (isEdit.value) {
-    if (isSub.value) {
-      const subIndex = parentCategory.value.subcategories.findIndex(s => s.id === modalItem.id);
-      parentCategory.value.subcategories[subIndex] = { ...modalItem };
-    } else {
-      const catIndex = categories.findIndex(c => c.id === modalItem.id);
-      categories[catIndex] = { ...categories[catIndex], name: modalItem.name };
-    }
-  } else {
-    if (isSub.value) {
-      parentCategory.value.subcategories.push({ id: Date.now(), name: modalItem.name });
-    } else {
-      categories.push({ id: Date.now(), name: modalItem.name, subcategories: [] });
-    }
-  }
-  showModal.value = false;
-};
-
-const openDeleteModal = (item, sub = false, parent = null) => {
-  isSub.value = sub;
-  parentCategory.value = parent;
-  Object.assign(modalItem, { ...item });
-  showDeleteModal.value = true;
-};
-
-const deleteItem = () => {
-  if (isSub.value) {
-    const subIndex = parentCategory.value.subcategories.findIndex(s => s.id === modalItem.id);
-    if (subIndex !== -1) parentCategory.value.subcategories.splice(subIndex, 1);
-  } else {
-    const index = categories.findIndex(c => c.id === modalItem.id);
-    if (index !== -1) categories.splice(index, 1);
-  }
-  showDeleteModal.value = false;
-};
-
-const closeModal = () => showModal.value = false;
-const closeDeleteModal = () => showDeleteModal.value = false;
-</script>

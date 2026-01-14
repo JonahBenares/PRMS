@@ -1,260 +1,364 @@
-<template>
-    <navigation>
-		<section class="items-center justify-center py-8">
-			<div class="bg-white rounded-lg shadow-lg max-w-6xl mx-auto">
-				<!-- Header -->
-				<div class="px-6 py-4 flex justify-between items-center mb-4 bg-white border-b rounded-t-lg">
-                    <h2 class="text-lg font-semibold">Edit Item</h2>
-                    <a href="/masterfile/items"
-                        class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg shadow hover:bg-blue-700 transition">
-                        Show List
-                    </a>
-                </div>
-				<!-- Table -->
-				<div class="px-6 pt-2 pb-6">
-                    <!-- Sub Category / Category -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm text-gray-500 mb-1">Sub Category</label>
-                            <select class="w-full border rounded-md px-2 py-2 text-sm">
-                                <option>Select Sub Category</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm text-gray-500 mb-1">Category</label>
-                            <input type="text" class="w-full border rounded-md px-2 py-2 text-sm" placeholder="Category" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Item Description / Location / Warehouse -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
-                        <div class="md:col-span-2">
-                            <label class="block text-sm text-gray-500 mb-1">Item Description</label>
-                            <input type="text" class="w-full border rounded-md px-2 py-2 text-sm" placeholder="Item Description">
-                        </div>
-                    </div>
-
-                    <!-- Rack / Group / Reorder / Beginning -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-                         <div>
-                            <label class="block text-sm text-gray-500 mb-1">Location</label>
-                            <select class="w-full border rounded-md px-2 py-2 text-sm">
-                                <option>Select Location</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm text-gray-500 mb-1">Warehouse</label>
-                            <select class="w-full border rounded-md px-2 py-2 text-sm">
-                                <option>Select Warehouse</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm text-gray-500 mb-1">Rack</label>
-                            <select class="w-full border rounded-md px-2 py-2 text-sm">
-                                <option>Select Rack</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm text-gray-500 mb-1">Group</label>
-                            <select class="w-full border rounded-md px-2 py-2 text-sm">
-                                <option>Select Group</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="w-full">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center mt-6">
-                            <h2 class="font-semibold text-gray-700">Variant Items</h2>
-                            <button
-                                @click="addVariant"
-                                class="flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1.5 rounded"
-                            >
-                                <PlusIcon class="w-4 h-4 mr-1" />
-                                Add Variant
-                            </button>
-                        </div>
-
-                        <!-- Variants List -->
-                        <div
-                        v-for="(variant, index) in variants"
-                        :key="index"
-                        class="mt-3 border border-gray-200 rounded-lg overflow-hidden text-sm"
-                        >
-                            <table class="w-full border-collapse">
-                                <tbody>
-                                    <tr class="border-b">
-                                        <td class="bg-gray-100 font-medium px-2">Brand</td>
-                                        <td colspan="5" class="p-0">
-                                            <div class="flex items-center space-x-2 pr-2">
-                                                <input
-                                                v-model="variant.brand"
-                                                type="text"
-                                                class="w-full rounded px-2 py-1 focus:ring focus:ring-blue-200"
-                                                />
-                                                <div class="border-l"> &nbsp;</div>
-                                                <button
-                                                @click="deleteVariant(index)"
-                                                class="bg-red-500 hover:bg-red-600 text-white rounded p-1 mx-2"
-                                                >
-                                                <TrashIcon class="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-
-                                    </tr>
-
-                                    <tr class="border-b">
-                                        <td class="bg-gray-100 font-medium w-24 px-2">Item Code</td>
-                                        <td class="w-1/4">
-                                        <input v-model="variant.itemCode" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                        <td class="bg-gray-100 font-medium w-24 px-2">Part No.</td>
-                                        <td>
-                                            <input v-model="variant.type" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                        <td class="bg-gray-100 font-medium w-24 px-2">Type</td>
-                                        <td>
-                                            <input v-model="variant.type" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                        
-                                    </tr>
-
-                                    <tr class="border-b">
-                                        <td class="bg-gray-100 font-medium w-24 px-2">Model</td>
-                                        <td>
-                                            <input v-model="variant.model" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                        <td class="bg-gray-100 font-medium px-2">Size</td>
-                                        <td>
-                                            <input v-model="variant.size" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                        <td class="bg-gray-100 font-medium px-2">Color</td>
-                                        <td>
-                                            <input v-model="variant.color" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td class="bg-gray-100 font-medium px-2">Material</td>
-                                        <td>
-                                            <input v-model="variant.material" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                        <td class="bg-gray-100 font-medium px-2">Serial</td>
-                                        <td>
-                                            <input v-model="variant.serial" type="text" class="w-full rounded px-2 py-1" />
-                                        </td>
-                                        <td class="bg-gray-100 font-medium px-2">UOM</td>
-                                        <td class="">
-                                            <input v-model="variant.uom" type="text" class="w-full rounded px-2 py-1" />
-                                        
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="6" class="border-t px-4">
-                                            <!-- Images -->
-                                            <div class="mt-2 flex flex-wrap -mx-1">
-                                                <!-- Image 1 -->
-                                                <div class="w-full sm:w-1/3 px-1 mb-4">
-                                                <div class="flex flex-col">
-                                                    <span class="text-xs text-gray-500 uppercase mb-1">Image 1</span>
-                                                    <input type="file" accept="image/*" id="image1" @change="upload_image1" class="border rounded px-2 py-1 text-sm">
-                                                    <div class="mt-2 w-24 h-24 rounded-full overflow-hidden">
-                                                    <img :src="imageUrl1" class="w-full h-full object-cover">
-                                                    </div>
-                                                </div>
-                                                </div>
-
-                                                <!-- Image 2 -->
-                                                <div class="w-full sm:w-1/3 px-1 mb-4">
-                                                <div class="flex flex-col">
-                                                    <span class="text-xs text-gray-500 uppercase mb-1">Image 2</span>
-                                                    <input type="file" accept="image/*" id="image2" @change="upload_image2" class="border rounded px-2 py-1 text-sm">
-                                                    <div class="mt-2 w-24 h-24 rounded-full overflow-hidden">
-                                                    <img :src="imageUrl2" class="w-full h-full object-cover">
-                                                    </div>
-                                                </div>
-                                                </div>
-
-                                                <!-- Image 3 -->
-                                                <div class="w-full sm:w-1/3 px-1 mb-4">
-                                                <div class="flex flex-col">
-                                                    <span class="text-xs text-gray-500 uppercase mb-1">Image 3</span>
-                                                    <input type="file" accept="image/*" id="image3" @change="upload_image3" class="border rounded px-2 py-1 text-sm">
-                                                    <div class="mt-2 w-24 h-24 rounded-full overflow-hidden">
-                                                    <img :src="imageUrl3" class="w-full h-full object-cover">
-                                                    </div>
-                                                </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-
-                    <!-- Save Buttons -->
-                    <div class="mt-8 flex justify-end space-x-2 border-t pt-4">
-                        <button class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-2 rounded-md shadow">
-                        Save As Draft
-                        </button>
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-6 py-2 rounded-md shadow">
-                        Save Changes
-                        </button>
-                    </div>
-
-				</div>
-			</div>
-
-				
-		</section>
-    </navigation>
-</template>
-
 <script setup>
-    import { ref, onMounted, reactive } from "vue";
-    import { TrashIcon, PencilSquareIcon, PlusIcon } from '@heroicons/vue/24/solid';
-    import navigation from "@/components/layouts/navigation.vue";
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
+import { TrashIcon, PlusIcon } from "@heroicons/vue/24/solid";
+import navigation from "@/components/layouts/navigation.vue";
+import pageCard from "@/components/card.vue";
 
-    
-// Variant structure
-const variants = ref([
-  {
-    itemCode: "",
-    brand: "",
-    type: "",
-    model: "",
-    size: "",
-    color: "",
-    material: "",
-    serial: "",
-    expiration: "",
-    barcode: "",
-    uom: "",
-  },
-]);
+/* ------------------- STATE ------------------- */
+const route = useRoute();
+const itemId = ref(route.params.id || null);
 
-// Add new variant
+const itemCode = ref("");
+const itemDescription = ref("");
+const sub_cat_name = ref("");
+const selectedSubCategory = ref(null);
+const categoryName = ref("");
+
+const variants = ref([]); // all variants (existing + new)
+const isSaved = ref(false);
+
+/* ------------------- LOAD ITEM ---------------- */
+onMounted(async () => {
+  if (itemId.value) {
+    await loadItem(itemId.value);
+  }
+});
+
+const loadItem = async (id) => {
+  try {
+    const res = await axios.get(`/api/items/${id}`);
+    const item = res.data;
+
+    itemCode.value = item.item_code;
+    itemDescription.value = item.item_description;
+    sub_cat_name.value = item.sub_cat_name;
+    categoryName.value = item.category_name;
+
+    // Map existing variants (readonly)
+    variants.value = item.item_variants.map(v => ({
+      id: v.id,
+      variant_item_code: v.variant_item_code,
+      brand: v.brand,
+      partNo: v.part_no,
+      type: v.type,
+      model: v.model,
+      size: v.size,
+      color: v.color,
+      material: v.material,
+      uom: v.uom,
+      images: [
+        { url: v.img1 ? `/storage/items/${v.img1}` : "" },
+        { url: v.img2 ? `/storage/items/${v.img2}` : "" },
+        { url: v.img3 ? `/storage/items/${v.img3}` : "" }
+      ],
+      isNew: false,
+      readonly: true
+    }));
+
+    isSaved.value = true;
+  } catch (err) {
+    console.error("Failed to load item:", err);
+  }
+};
+
+/* ------------------- VARIANT FUNCTIONS ---------------- */
 const addVariant = () => {
+  const nextIndex = variants.value.length + 1;
   variants.value.push({
-    itemCode: "",
+    id: null,
+    variant_item_code: `${itemCode.value}-${String(nextIndex).padStart(3,"0")}`,
     brand: "",
+    partNo: "",
     type: "",
     model: "",
     size: "",
     color: "",
     material: "",
-    serial: "",
-    expiration: "",
-    barcode: "",
     uom: "",
+    images: [{ url: "" }, { url: "" }, { url: "" }],
+    isNew: true,
+    readonly: false
   });
 };
 
-// Delete variant
+const canDeleteVariant = (v) => v.isNew;
+
 const deleteVariant = (index) => {
+  if (!variants.value[index].isNew) return;
   variants.value.splice(index, 1);
+
+  // Re-sequence variant codes for new variants
+  variants.value.forEach((v, i) => {
+    if (v.isNew) v.variant_item_code = `${itemCode.value}-${String(i+1).padStart(3,"0")}`;
+  });
+};
+
+/* ------------------- IMAGE FUNCTIONS ---------------- */
+const handleFileUpload = (e, variant, imgIndex) => {
+  if (variant.readonly) return;
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Assign file object for FormData
+  variant.images[imgIndex].file = file;
+
+  // Preview image
+  variant.images[imgIndex].url = URL.createObjectURL(file);
+};
+
+const removeImage = (variant, imgIndex) => {
+  if (variant.readonly) return;
+  variant.images[imgIndex].url = "";
+  delete variant.images[imgIndex].file;
+};
+
+/* ------------------- SAVE NEW VARIANTS ---------------- */
+const saveNewVariants = async () => {
+  try {
+    const newVariants = variants.value.filter(v => v.isNew);
+    if (!newVariants.length) return alert("No new variants to save");
+
+    const formData = new FormData();
+
+    newVariants.forEach((v, i) => {
+      formData.append(`variants[${i}][variant_item_code]`, v.variant_item_code);
+      formData.append(`variants[${i}][brand]`, v.brand || "");
+      formData.append(`variants[${i}][partNo]`, v.partNo || "");
+      formData.append(`variants[${i}][type]`, v.type || "");
+      formData.append(`variants[${i}][model]`, v.model || "");
+      formData.append(`variants[${i}][size]`, v.size || "");
+      formData.append(`variants[${i}][color]`, v.color || "");
+      formData.append(`variants[${i}][material]`, v.material || "");
+      formData.append(`variants[${i}][uom]`, v.uom || "");
+      formData.append(`variants[${i}][isNew]`, 1);
+
+      v.images.forEach((img, idx) => {
+        if (img.file) formData.append(`variants[${i}][images][${idx}]`, img.file);
+      });
+    });
+
+    const res = await axios.post(`/api/items/${itemId.value}/variants`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    alert(res.data.message);
+
+    // Reload item to include newly saved variants
+    await loadItem(itemId.value);
+  } catch (err) {
+    console.error("Failed to save variants:", err);
+    alert("Failed to save variants.");
+  }
 };
 </script>
+
+
+<template>
+<navigation>
+  <pageCard>
+    <h2 class="text-lg font-semibold border-b pb-3 mb-4">View Item / Add Variants</h2>
+
+    <!-- ITEM INFO -->
+    <div class="grid md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="text-sm text-gray-500">Item Code</label>
+        <input type="text" class="w-full border rounded px-2 py-2 bg-gray-100" :value="itemCode" readonly />
+      </div>
+      <div>
+        <label class="text-sm text-gray-500">Sub Category</label>
+        <input type="text" class="w-full border rounded px-2 py-2 bg-gray-50" :value="sub_cat_name" readonly />
+      </div>
+      <div>
+        <label class="text-sm text-gray-500">Category</label>
+        <input type="text" class="w-full border rounded px-2 py-2 bg-gray-50" :value="categoryName" readonly />
+      </div>
+      <div>
+        <label class="text-sm text-gray-500">Description</label>
+        <input type="text" class="w-full border rounded px-2 py-2 bg-gray-50" :value="itemDescription" readonly />
+      </div>
+    </div>
+
+<!-- VARIANTS -->
+<div class="mt-6">
+  <div class="flex justify-between items-center mb-2">
+    <h3 class="font-semibold">Variants</h3>
+    <button
+      @click="addVariant"
+      class="flex items-center bg-blue-600 text-white text-sm px-3 py-1.5 rounded"
+    >
+      <PlusIcon class="w-4 h-4 mr-1" /> Add Variant
+    </button>
+  </div>
+
+  <div
+    v-for="(variant, index) in variants"
+    :key="index"
+    class="border rounded-lg mb-4 p-4 bg-white"
+  >
+    <div class="grid md:grid-cols-3 gap-3 text-sm">
+
+      <!-- Variant Item Code -->
+      <div>
+        <label class="text-xs text-gray-500">Variant Item Code</label>
+        <input
+          type="text"
+          class="w-full border rounded px-2 py-1 bg-gray-100"
+          :value="variant.variant_item_code"
+          readonly
+        />
+      </div>
+
+      <!-- Brand -->
+      <div>
+        <label class="text-xs text-gray-500">Brand</label>
+        <input
+          v-model="variant.brand"
+          class="w-full border rounded px-2 py-1"
+          :readonly="variant.readonly"
+          :class="variant.readonly ? 'bg-gray-100' : ''"
+          type="text"
+        />
+      </div>
+
+      <!-- Part No -->
+      <div>
+        <label class="text-xs text-gray-500">Part No</label>
+        <input
+          v-model="variant.partNo"
+          class="w-full border rounded px-2 py-1"
+          :readonly="variant.readonly"
+          :class="variant.readonly ? 'bg-gray-100' : ''"
+          type="text"
+        />
+      </div>
+
+      <!-- Type -->
+      <div>
+        <label class="text-xs text-gray-500">Type</label>
+        <input
+          v-model="variant.type"
+          class="w-full border rounded px-2 py-1"
+          :readonly="variant.readonly"
+          :class="variant.readonly ? 'bg-gray-100' : ''"
+          type="text"
+        />
+      </div>
+
+      <!-- Model -->
+      <div>
+        <label class="text-xs text-gray-500">Model</label>
+        <input
+          v-model="variant.model"
+          class="w-full border rounded px-2 py-1"
+          :readonly="variant.readonly"
+          :class="variant.readonly ? 'bg-gray-100' : ''"
+          type="text"
+        />
+      </div>
+
+      <!-- Size -->
+      <div>
+        <label class="text-xs text-gray-500">Size</label>
+        <input
+          v-model="variant.size"
+          class="w-full border rounded px-2 py-1"
+          :readonly="variant.readonly"
+          :class="variant.readonly ? 'bg-gray-100' : ''"
+          type="text"
+        />
+      </div>
+
+      <!-- Color -->
+      <div>
+        <label class="text-xs text-gray-500">Color</label>
+        <input
+          v-model="variant.color"
+          class="w-full border rounded px-2 py-1"
+          :readonly="variant.readonly"
+          :class="variant.readonly ? 'bg-gray-100' : ''"
+          type="text"
+        />
+      </div>
+
+      <!-- Material -->
+      <div>
+        <label class="text-xs text-gray-500">Material</label>
+        <input
+          v-model="variant.material"
+          class="w-full border rounded px-2 py-1"
+          :readonly="variant.readonly"
+          :class="variant.readonly ? 'bg-gray-100' : ''"
+          type="text"
+        />
+      </div>
+
+      <!-- UOM -->
+      <div>
+        <label class="text-xs text-gray-500">Unit of Measure (UOM)</label>
+        <input
+          v-model="variant.uom"
+          class="w-full border rounded px-2 py-1"
+          :readonly="variant.readonly"
+          :class="variant.readonly ? 'bg-gray-100' : ''"
+          type="text"
+        />
+      </div>
+    </div>
+
+    <!-- Images -->
+    <div class="grid grid-cols-3 gap-3 mt-4">
+      <div
+        v-for="(image, imgIndex) in variant.images"
+        :key="imgIndex"
+        class="border-2 border-dashed rounded-lg p-2 relative text-center"
+      >
+        <img
+          v-if="image.url"
+          :src="image.url"
+          class="w-full h-28 object-cover rounded"
+        />
+        <span v-else class="text-xs text-gray-400 block mt-6">
+          Image {{ imgIndex + 1 }}
+        </span>
+
+        <input
+          type="file"
+          accept="image/*"
+          class="absolute inset-0 opacity-0 cursor-pointer"
+          :disabled="variant.readonly"
+          @change="handleFileUpload($event, variant, imgIndex)"
+        />
+
+        <button
+          v-if="image.url && !variant.readonly"
+          @click.stop="removeImage(variant, imgIndex)"
+          class="absolute top-1 right-1 bg-black/60 text-white rounded-full px-2"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Delete -->
+    <div class="flex justify-end mt-3">
+      <button
+        v-if="canDeleteVariant(variant)"
+        @click="deleteVariant(index)"
+        class="bg-red-500 text-white rounded p-1"
+      >
+        <TrashIcon class="w-4 h-4" />
+      </button>
+    </div>
+  </div>
+</div>
+
+    <div class="flex justify-end border-t pt-4">
+      <button @click="saveNewVariants" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+        Save New Variants
+      </button>
+    </div>
+  </pageCard>
+</navigation>
+</template>
