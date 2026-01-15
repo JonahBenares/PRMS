@@ -22,22 +22,23 @@ const fetchNextCodes = async () => {
 
     // Use what backend returns directly
     itemCode.value = res.data.item_code;
+    variants.value = [];
     
-    variants.value = [
-      {
-        variant_item_code: res.data.first_variant_code,
-        brand: "",
-        partNo: "",
-        type: "",
-        model: "",
-        size: "",
-        color: "",
-        material: "",
-        uom: "",
-        isNew: true,
-        images: [{ url: "" }, { url: "" }, { url: "" }]
-      }
-    ];
+    // variants.value = [
+    //   {
+    //     variant_item_code: res.data.first_variant_code,
+    //     brand: "",
+    //     partNo: "",
+    //     type: "",
+    //     model: "",
+    //     size: "",
+    //     color: "",
+    //     material: "",
+    //     uom: "",
+    //     isNew: true,
+    //     images: [{ url: "" }, { url: "" }, { url: "" }]
+    //   }
+    // ];
   } catch (error) {
     console.error("Error fetching next codes:", error);
   }

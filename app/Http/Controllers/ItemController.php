@@ -107,7 +107,7 @@ public function getNextItemAndVariantCodes()
         $request->validate([
             'sub_category_id'  => 'required',
             'item_description' => 'required',
-            'variants'         => 'required|array|min:1',
+            'variants' => 'nullable|array',
         ]);
 
         DB::transaction(function () use ($request , &$item) {
@@ -134,47 +134,49 @@ public function getNextItemAndVariantCodes()
             ]);
 
             // Handle variants
-            foreach ($request->variants as $index => $variant) {
-                $variantSeries = str_pad($index + 1, 3, '0', STR_PAD_LEFT);
-                $variantCode = $itemCode . '-' . $variantSeries;
+            if ($request->has('variants') && !empty($request->variants)) {
+                foreach ($request->variants as $index => $variant) {
+                    $variantSeries = str_pad($index + 1, 3, '0', STR_PAD_LEFT);
+                    $variantCode = $itemCode . '-' . $variantSeries;
 
-                $img1 = $img2 = $img3 = null;
+                    $img1 = $img2 = $img3 = null;
 
-                for ($i = 0; $i < 3; $i++) {
-                    if ($request->hasFile("variants.$index.images.$i")) {
+                    for ($i = 0; $i < 3; $i++) {
+                        if ($request->hasFile("variants.$index.images.$i")) {
 
-                        $file = $request->file("variants.$index.images.$i");
+                            $file = $request->file("variants.$index.images.$i");
 
-                        // Clean item description to be filename-safe
-                        $cleanName = preg_replace('/[^A-Za-z0-9\-]/', '_', $item->item_description);
+                            // Clean item description to be filename-safe
+                            $cleanName = preg_replace('/[^A-Za-z0-9\-]/', '_', $item->item_description);
 
-                        // Filename: item_description + variant_code + _index
-                        $filename = $cleanName . '_' . $variantCode . '_' . ($i + 1) . '.' . $file->getClientOriginalExtension();
+                            // Filename: item_description + variant_code + _index
+                            $filename = $cleanName . '_' . $variantCode . '_' . ($i + 1) . '.' . $file->getClientOriginalExtension();
 
-                        // Store in public/items folder
-                        $path = $file->storeAs('items', $filename, 'public');
+                            // Store in public/items folder
+                            $path = $file->storeAs('items', $filename, 'public');
 
-                        // Save only the filename in DB (without 'items/' folder)
-                        ${'img' . ($i + 1)} = $filename;
+                            // Save only the filename in DB (without 'items/' folder)
+                            ${'img' . ($i + 1)} = $filename;
+                        }
                     }
+
+
+                    ItemVariants::create([
+                        'item_id'           => $item->id,
+                        'variant_item_code' => $variantCode,
+                        'brand'             => $variant['brand'] ?? null,
+                        'type'              => $variant['type'] ?? null,
+                        'model'             => $variant['model'] ?? null,
+                        'part_no'           => $variant['partNo'] ?? null,
+                        'size'              => $variant['size'] ?? null,
+                        'color'             => $variant['color'] ?? null,
+                        'material'          => $variant['material'] ?? null,
+                        'uom'               => $variant['uom'] ?? null,
+                        'img1'              => $img1,
+                        'img2'              => $img2,
+                        'img3'              => $img3,
+                    ]);
                 }
-
-
-                ItemVariants::create([
-                    'item_id'           => $item->id,
-                    'variant_item_code' => $variantCode,
-                    'brand'             => $variant['brand'] ?? null,
-                    'type'              => $variant['type'] ?? null,
-                    'model'             => $variant['model'] ?? null,
-                    'part_no'           => $variant['partNo'] ?? null,
-                    'size'              => $variant['size'] ?? null,
-                    'color'             => $variant['color'] ?? null,
-                    'material'          => $variant['material'] ?? null,
-                    'uom'               => $variant['uom'] ?? null,
-                    'img1'              => $img1,
-                    'img2'              => $img2,
-                    'img3'              => $img3,
-                ]);
             }
         });
 
@@ -203,7 +205,7 @@ public function addVariants(Request $request, $id)
     $item = Items::findOrFail($id);
 
     $request->validate([
-        'variants' => 'required|array|min:1',
+        'variants' => 'nullable|array',
         'variants.*.variant_item_code' => 'required|string',
     ]);
 
