@@ -15,21 +15,22 @@ let loading = ref(false);
 let showPassword = ref(false);
 
 const login = async () => {
-    loading.value = true;
-    error.value = '';
+    loading.value = true;    // start loading
+    error.value = '';         // clear previous errors
 
     try {
         let response = await axios.post('/api/login_process', form);
+
         if (response.data.success) {
-            localStorage.setItem('token', response.data.data.token);
-            router.push('/create_pr');
+            localStorage.setItem('token', response.data.data.token); // save token
+            router.push('/create_pr'); // redirect
         } else {
-            error.value = response.data.message;
+            error.value = response.data.message; // show API error
         }
     } catch (err) {
-        error.value = "An error occurred. Please try again.";
+        error.value = "An error occurred. Please try again."; // catch network/server errors
     } finally {
-        loading.value = false;
+        loading.value = false; // stop loading
     }
 };
 </script>

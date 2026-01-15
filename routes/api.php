@@ -29,6 +29,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/login_form', [AuthController::class,'login_form']);
+Route::post('/login_process', [AuthController::class,'login_process']);
+Route::middleware('auth:sanctum')->get('/dashboard', [AuthController::class, 'dashboard']);
+
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/new_category', [CategoryController::class, 'store_category']);
 Route::put('/update_category/{id}', [CategoryController::class, 'update_category']);
@@ -45,9 +49,6 @@ Route::delete('/companies/{id}', [CompanyController::class, 'destroy']);
 Route::post('/company_locations', [CompanyController::class, 'storeLocation']);
 Route::put('/company_locations/{id}', [CompanyController::class, 'updateLocation']);
 Route::delete('/company_locations/{id}', [CompanyController::class, 'destroyLocation']);
-
-Route::get('/login_form', [AuthController::class,'login_form']);
-Route::post('/login_process', [AuthController::class,'login_process']);
 
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::post('/departments', [DepartmentController::class, 'store']);

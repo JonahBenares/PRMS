@@ -1,11 +1,44 @@
 <script setup>
+import { data } from "jquery";
 import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from 'vue-router';
+const router = useRouter();
+let credentials = ref([]);
 
 const mobileMenuOpen = ref(false);
 const masterfileOpen = ref(false);
 const profileOpen = ref(false);
 const masterfileRef = ref(null);
 const profileRef = ref(null);
+
+
+onMounted(async () => {
+	getDashboard();
+});
+
+const getDashboard = async () => {
+    const token = localStorage.getItem('token'); // Get token
+    if (!token) {
+        router.push('/');
+        return;
+    }
+
+    const response = await fetch(`/api/dashboard`, {
+        headers: {
+            'Authorization': `Bearer ${token}`, // Pass the token
+            'Accept': 'application/json'
+        }
+    });
+
+    credentials.value = await response.json();
+
+    if (!credentials.value.name) {
+        alert('You have been logged out due to inactivity.')
+        localStorage.removeItem('token');
+        router.push('/');
+    }
+};
+
 
 const masterfileLinks = [
   { text: "Items", href: "/masterfile/items" },
@@ -40,6 +73,16 @@ function useClickOutside(elRef, callback) {
 
 useClickOutside(masterfileRef, () => (masterfileOpen.value = false));
 useClickOutside(profileRef, () => (profileOpen.value = false));
+
+
+const logout = async () => {
+	loading.value = true;
+	setTimeout(() => {
+		localStorage.removeItem('token');
+		router.push('/');
+		loading.value = false;
+	}, 1500);
+};
 </script>
 
 <template>
@@ -106,7 +149,7 @@ useClickOutside(profileRef, () => (profileOpen.value = false));
 								alt="Profile"
 								class="w-8 h-8 rounded-full ring-2 ring-white"
 							/>
-							<span class="font-semibold">John Doe</span>
+							<span class="font-semibold">{{ credentials.name }}</span>
 							<svg
 								class="w-4 h-4  transition-transform duration-200"
 								:class="{ 'rotate-180': profileOpen }"
@@ -126,7 +169,7 @@ useClickOutside(profileRef, () => (profileOpen.value = false));
 							class="absolute right-0 mt-2 w-48 bg-white backdrop-blur-lg border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-fadeIn"
 						>
 							<a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-all">Settings</a>
-							<a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-all">Change Password</a>
+							<a href="/change_password/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-all">Change Password</a>
 							<a href="/" class="block px-4 py-2 text-red-600 hover:bg-gray-100 transition-all">Logout</a>
 						</div>
 						</transition>
@@ -174,7 +217,7 @@ useClickOutside(profileRef, () => (profileOpen.value = false));
 					<a href="/pr_list" class="py-2 text-gray-700 hover:text-blue-600">PR List</a>
 					<a href="#" class="py-2 text-gray-700 hover:text-blue-600">Settings</a>
 					<a href="#" class="py-2 text-gray-700 hover:text-blue-600">Change Password</a>
-					<a href="/" class="py-2 text-red-600 hover:text-red-700">Logout</a>
+					<a href="#" class="py-2 text-red-600 hover:text-red-700" @click="logout">Logout</a>
 				</nav>
 				</div>
 			</transition>
