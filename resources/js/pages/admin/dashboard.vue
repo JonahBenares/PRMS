@@ -1,3 +1,68 @@
+<script setup>
+import { ref, computed } from "vue";
+import { PlusIcon } from "@heroicons/vue/24/solid";
+import navigation from "@/components/layouts/navigation_admin.vue";
+
+// Sample Data
+const items = ref([
+	{ id: 1, code: "ITM001", name: "Laptop", category: "Electronics" },
+	{ id: 2, code: "ITM002", name: "Office Chair", category: "Furniture" },
+	{ id: 3, code: "ITM003", name: "Notebook", category: "Stationery" },
+	{ id: 4, code: "ITM004", name: "Smartphone", category: "Electronics" },
+	{ id: 5, code: "ITM005", name: "Desk", category: "Furniture" },
+]);
+
+// Search
+const search = ref("");
+
+// Sorting
+const sortKey = ref("");
+const sortAsc = ref(true);
+const sort = (key) => {
+	if (sortKey.value === key) {
+		sortAsc.value = !sortAsc.value;
+	} else {
+		sortKey.value = key;
+		sortAsc.value = true;
+	}
+};
+
+// Filter + Sort
+const filteredItems = computed(() => {
+	let result = items.value.filter(
+		(item) =>
+			item.name.toLowerCase().includes(search.value.toLowerCase()) ||
+			item.code.toLowerCase().includes(search.value.toLowerCase()) ||
+			item.category.toLowerCase().includes(search.value.toLowerCase())
+	);
+
+	if (sortKey.value) {
+		result = result.sort((a, b) => {
+			const valA = a[sortKey.value].toString().toLowerCase();
+			const valB = b[sortKey.value].toString().toLowerCase();
+			if (valA < valB) return sortAsc.value ? -1 : 1;
+			if (valA > valB) return sortAsc.value ? 1 : -1;
+			return 0;
+		});
+	}
+
+	return result;
+});
+
+// Pagination
+const currentPage = ref(1);
+const perPage = 3;
+const totalPages = computed(() => Math.ceil(filteredItems.value.length / perPage));
+
+const paginatedItems = computed(() => {
+	const start = (currentPage.value - 1) * perPage;
+	const end = start + perPage;
+	return filteredItems.value.slice(start, end);
+});
+
+const startIndex = computed(() => (currentPage.value - 1) * perPage);
+const endIndex = computed(() => Math.min(startIndex.value + perPage, filteredItems.value.length));
+</script>
 <template>
 	<navigation>
 		<section class="">
@@ -80,69 +145,3 @@
 		</section>
 	</navigation>
 </template>
-
-<script setup>
-import { ref, computed } from "vue";
-import { PlusIcon } from "@heroicons/vue/24/solid";
-import navigation from "@/components/layouts/navigation_admin.vue";
-
-// Sample Data
-const items = ref([
-	{ id: 1, code: "ITM001", name: "Laptop", category: "Electronics" },
-	{ id: 2, code: "ITM002", name: "Office Chair", category: "Furniture" },
-	{ id: 3, code: "ITM003", name: "Notebook", category: "Stationery" },
-	{ id: 4, code: "ITM004", name: "Smartphone", category: "Electronics" },
-	{ id: 5, code: "ITM005", name: "Desk", category: "Furniture" },
-]);
-
-// Search
-const search = ref("");
-
-// Sorting
-const sortKey = ref("");
-const sortAsc = ref(true);
-const sort = (key) => {
-	if (sortKey.value === key) {
-		sortAsc.value = !sortAsc.value;
-	} else {
-		sortKey.value = key;
-		sortAsc.value = true;
-	}
-};
-
-// Filter + Sort
-const filteredItems = computed(() => {
-	let result = items.value.filter(
-		(item) =>
-			item.name.toLowerCase().includes(search.value.toLowerCase()) ||
-			item.code.toLowerCase().includes(search.value.toLowerCase()) ||
-			item.category.toLowerCase().includes(search.value.toLowerCase())
-	);
-
-	if (sortKey.value) {
-		result = result.sort((a, b) => {
-			const valA = a[sortKey.value].toString().toLowerCase();
-			const valB = b[sortKey.value].toString().toLowerCase();
-			if (valA < valB) return sortAsc.value ? -1 : 1;
-			if (valA > valB) return sortAsc.value ? 1 : -1;
-			return 0;
-		});
-	}
-
-	return result;
-});
-
-// Pagination
-const currentPage = ref(1);
-const perPage = 3;
-const totalPages = computed(() => Math.ceil(filteredItems.value.length / perPage));
-
-const paginatedItems = computed(() => {
-	const start = (currentPage.value - 1) * perPage;
-	const end = start + perPage;
-	return filteredItems.value.slice(start, end);
-});
-
-const startIndex = computed(() => (currentPage.value - 1) * perPage);
-const endIndex = computed(() => Math.min(startIndex.value + perPage, filteredItems.value.length));
-</script>
