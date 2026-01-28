@@ -16,9 +16,22 @@ class EmployeeController extends Controller
     }
 
     // Get all employees
-    public function index() {
-        return response()->json(Employee::all());
+    public function index(Request $request)
+    {
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = Employee::query();
+
+        if ($search) {
+            $query->where('employee_name', 'like', "%{$search}%")
+                ->orWhere('position', 'like', "%{$search}%")
+                ->orWhere('department_name', 'like', "%{$search}%");
+        }
+
+        return $query->paginate($perPage);
     }
+
 
     public function store(Request $request)
     {

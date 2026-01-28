@@ -8,8 +8,18 @@ use App\Models\Qualifier;
 class QualifierController extends Controller
 {
     // Get all qualifiers
-    public function index() {
-        return Qualifier::all();
+    public function index(Request $request)
+    {
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = Qualifier::query();
+
+        if ($search) {
+            $query->where('qualifier_name', 'like', "%{$search}%");
+        }
+
+        return $query->paginate($perPage);
     }
 
     // Store new qualifier

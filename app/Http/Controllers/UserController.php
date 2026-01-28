@@ -9,9 +9,21 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     // Get all users
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(User::all());
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = User::query();
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('role', 'like', "%{$search}%")
+                ->orWhere('password', 'like', "%{$search}%");
+        }
+
+        return $query->paginate($perPage);
     }
 
     // Add new user

@@ -8,8 +8,18 @@ use App\Models\Purpose;
 class PurposeController extends Controller
 {
     // Get all purposes
-    public function index() {
-        return Purpose::all();
+    public function index(Request $request)
+    {
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = Purpose::query();
+
+        if ($search) {
+            $query->where('purpose_name', 'like', "%{$search}%");
+        }
+
+        return $query->paginate($perPage);
     }
 
     // Store new purpose

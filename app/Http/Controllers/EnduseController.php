@@ -8,8 +8,18 @@ use App\Models\Enduse;
 class EnduseController extends Controller
 {
     // Get all enduses
-    public function index() {
-        return Enduse::all();
+    public function index(Request $request)
+    {
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = Enduse::query();
+
+        if ($search) {
+            $query->where('enduse_name', 'like', "%{$search}%");
+        }
+
+        return $query->paginate($perPage);
     }
 
     // Store new enduse

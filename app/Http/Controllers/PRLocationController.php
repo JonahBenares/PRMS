@@ -8,9 +8,18 @@ use App\Models\PRLocation;
 class PRLocationController extends Controller
 {
     // GET /api/pr-locations
-    public function index()
+    public function index(Request $request)
     {
-        return PRLocation::all();
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = PRLocation::query();
+
+        if ($search) {
+            $query->where('location', 'like', "%{$search}%");
+        }
+
+        return $query->paginate($perPage);
     }
 
     // POST /api/pr-locations

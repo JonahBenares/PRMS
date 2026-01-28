@@ -2,62 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DataTables classic styling */
-@import "datatables.net-dt/css/jquery.dataTables.css";
-
-#itemTable{
-    @apply border-b;
-}
-/* DataTable Toolbar Container */
-.dt-toolbar {
-    @apply flex justify-between items-center mb-4;
+.pagination-btn {
+  @apply px-3 py-1.5 text-sm border rounded-md transition
+         disabled:opacity-40 disabled:cursor-not-allowed;
 }
 
-/* Entries per page dropdown */
-.dt-length select#dt-length-0 {
-    @apply px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300;
+.modal-enter-active,
+.modal-leave-active {
+    transition: all 0.25s ease;
+}
+.modal-enter-from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+}
+.modal-leave-to {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
 }
 
-.dt-length label[for="dt-length-0"] {
-    @apply ml-2 text-gray-700;
+.backdrop-enter-active,
+.backdrop-leave-active {
+    transition: opacity 0.25s ease;
 }
-
-/* Search input */
-.dt-search input#dt-search-0 {
-    @apply px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 w-80;
-}
-
-/* Optional: spacing between toolbar elements */
-.dt-length,
-.dt-search {
-    @apply flex items-center gap-2;
-}
-/* DataTable pagination buttons */
-.dt-paging-button {
-    @apply px-3 py-1 border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-100 transition;
-}
-
-.dt-paging-button.disabled {
-    @apply bg-gray-100 text-gray-400 cursor-not-allowed;
-}
-
-.dt-paging-button.first,
-.dt-paging-button.previous,
-.dt-paging-button.next,
-.dt-paging-button.last {
-    @apply font-semibold;
-}
-
-.dt-paging-button.current {
-    @apply bg-blue-500 text-white border-blue-500;
-}
-
-/* Optional: spacing between buttons */
-nav[aria-label="pagination"] .dt-paging-button + .dt-paging-button {
-    @apply ml-1;
-}
-
-/* Focus state */
-.dt-paging-button:focus {
-    @apply outline-none ring-2 ring-blue-300;
+.backdrop-enter-from,
+.backdrop-leave-to {
+    opacity: 0;
 }

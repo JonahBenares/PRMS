@@ -224,12 +224,11 @@ const logout = async () => {
 		</header>
 
 		<!-- Page Content -->
-		<main class="pt-20 flex-1 relative overflow-hidden bg-gray-100">
-			<!-- <div class="absolute inset-0 -z-10">
-				<div class="absolute top-[5%] left-[0%] w-[400px] h-[400px] bg-[#a3f3ff]/40 blur-[140px] rounded-full"></div>
-				<div class="absolute bottom-[0%] right-[0%] w-[800px] h-[800px] bg-[#b6fbc8]/40 blur-[160px] rounded-full"></div>
-				<div class="absolute bottom-[0%] left-[35%] w-[500px] h-[500px] bg-[#d4f8ff]/50 blur-[200px] rounded-full"></div>
-			</div> -->
+		<main
+			class="pt-20 flex-1 relative overflow-hidden bg-gray-100
+					bg-[radial-gradient(circle,rgba(0,0,0,0.15)_1px,transparent_1px)]
+					bg-[size:24px_24px]"
+			>
 			<div class="relative z-10">
 				<slot />
 			</div>

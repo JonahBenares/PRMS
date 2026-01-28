@@ -1,95 +1,147 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue";
-import $ from "jquery";
-import "datatables.net";
-import axios from "axios";
-import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
-import navigation from "@/components/layouts/navigation.vue";
+    import { ref, reactive, onMounted, computed } from "vue";
+    import axios from "axios";
+    import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
+    import { useTable } from '@/composables/useTable'
+    import searchbox from '@/composables/searchbox.vue';
+    import pagination from "@/composables/pagination.vue";
+    import navigation from "@/components/layouts/navigation.vue";
 
-// Enduses data
-const enduses = ref([]);
+    const {
+        items,
+        search,
+        page,
+        perPage,
+        total,
+        lastPage,
+        loading,
+        fetchData
+    } = useTable('/api/enduses')
 
-// Modal states
-const showModal = ref(false);
-const showDeleteModal = ref(false);
-const isEdit = ref(false);
-const modalItem = reactive({ id: null, enduse_name: "" });
-const errors = reactive({ enduse_name: "" });
+    onMounted(fetchData)
+    const pageCount = computed(() => lastPage.value)
+    const totalItems = computed(() => total.value)
 
-// Fetch enduses from API
-const fetchEnduses = async () => {
-    try {
-        const response = await axios.get("/api/enduses");
-        enduses.value = response.data;
-    } catch (err) {
-        console.error(err);
-    }
-};
+    // Flatten categories + subcategories for table rows
+    const tableRows = computed(() => {
+        const rows = []
+        items.value.forEach(category => {
+            rows.push({
+            id: `c-${category.id}`,
+            name: category.category_name,
+            type: 'category',
+            raw: category
+            })
+            category.subcategories?.forEach(sub => {
+            rows.push({
+                id: `s-${sub.id}`,
+                name: `↳ ${sub.sub_cat_name}`,
+                type: 'subcategory',
+                raw: sub,
+                parent: category
+            })
+            })
+        })
+        return rows
+    })
 
-// Add/Edit modal
-const openAddModal = () => {
-    isEdit.value = false;
-    Object.assign(modalItem, { id: null, enduse_name: "" });
-    Object.assign(errors, { enduse_name: "" });
-    showModal.value = true;
-};
+    const visiblePages = computed(() => {
+        const total = pageCount.value
+        const current = page.value
+        const delta = 2 // pages on each side
 
-const openEditModal = (enduse) => {
-    isEdit.value = true;
-    Object.assign(modalItem, enduse);
-    Object.assign(errors, { enduse_name: "" });
-    showModal.value = true;
-};
-
-const closeModal = () => showModal.value = false;
-
-// Save Enduse
-const saveEnduse = async () => {
-    Object.assign(errors, { enduse_name: "" });
-
-    if (!modalItem.enduse_name) {
-        errors.enduse_name = "Enduse name is required";
-        return;
-    }
-
-    try {
-        if (isEdit.value) {
-            await axios.put(`/api/enduses/${modalItem.id}`, modalItem);
-        } else {
-            await axios.post("/api/enduses", modalItem);
+        if (total <= 7) {
+            return Array.from({ length: total }, (_, i) => i + 1)
         }
-        await fetchEnduses();
-        showModal.value = false;
-    } catch (err) {
-        if (err.response?.data?.errors) {
-            Object.assign(errors, err.response.data.errors);
+
+        const pages = new Set()
+
+        pages.add(1)
+        pages.add(total)
+
+        for (let i = current - delta; i <= current + delta; i++) {
+            if (i > 1 && i < total) {
+            pages.add(i)
+            }
         }
-        console.error(err);
-    }
-};
 
-// Delete modal
-const openDeleteModal = (enduse) => {
-    Object.assign(modalItem, enduse);
-    showDeleteModal.value = true;
-};
+        return Array.from(pages).sort((a, b) => a - b)
+    })
 
-const closeDeleteModal = () => showDeleteModal.value = false;
+    // Enduses data
+    const enduses = ref([]);
 
-const deleteItem = async () => {
-    try {
-        await axios.delete(`/api/enduses/${modalItem.id}`);
-        await fetchEnduses();
-        showDeleteModal.value = false;
-    } catch (err) {
-        console.error(err);
-    }
-};
+    // Modal states
+    const showModal = ref(false);
+    const showDeleteModal = ref(false);
+    const isEdit = ref(false);
+    const modalItem = reactive({ id: null, enduse_name: "" });
+    const errors = reactive({ enduse_name: "" });
 
-// Initialize
-onMounted(async () => {
-    await fetchEnduses();
-});
+    // Add/Edit modal
+    const openAddModal = () => {
+        isEdit.value = false;
+        Object.assign(modalItem, { id: null, enduse_name: "" });
+        Object.assign(errors, { enduse_name: "" });
+        showModal.value = true;
+    };
+
+    const openEditModal = (enduse) => {
+        isEdit.value = true;
+        Object.assign(modalItem, enduse);
+        Object.assign(errors, { enduse_name: "" });
+        showModal.value = true;
+    };
+
+    const closeModal = () => showModal.value = false;
+
+    // Save Enduse
+    const saveEnduse = async () => {
+        Object.assign(errors, { enduse_name: "" });
+
+        if (!modalItem.enduse_name) {
+            errors.enduse_name = "Enduse name is required";
+            return;
+        }
+
+        try {
+            if (isEdit.value) {
+                await axios.put(`/api/enduses/${modalItem.id}`, modalItem);
+            } else {
+                await axios.post("/api/enduses", modalItem);
+            }
+            await fetchData();
+            showModal.value = false;
+        } catch (err) {
+            if (err.response?.data?.errors) {
+                Object.assign(errors, err.response.data.errors);
+            }
+            console.error(err);
+        }
+    };
+
+    // Delete modal
+    const openDeleteModal = (enduse) => {
+        Object.assign(modalItem, enduse);
+        showDeleteModal.value = true;
+    };
+
+    const closeDeleteModal = () => showDeleteModal.value = false;
+
+    const deleteItem = async () => {
+        try {
+            await axios.delete(`/api/enduses/${modalItem.id}`);
+            await fetchData();
+            showDeleteModal.value = false;
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // Initialize
+    onMounted(async () => {
+        await fetchData();
+    });
 </script>
 
 <template>
@@ -107,8 +159,10 @@ onMounted(async () => {
                 </button>
             </div>
 
+            <searchbox v-model="search" />
+
             <!-- Table -->
-            <div class="px-6 pt-2 pb-6">
+            <div class="overflow-x-auto">
                 <table
                     id="itemTable"
                     class="min-w-full text-sm text-left text-gray-700 border border-gray-200 rounded-lg overflow-hidden"
@@ -120,7 +174,7 @@ onMounted(async () => {
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    <tr v-for="enduse in enduses" :key="enduse.id" class="hover:bg-gray-50">
+                    <tr v-for="enduse in items" :key="enduse.id" class="hover:bg-gray-50">
                         <td class="px-4 py-2">{{ enduse.enduse_name }}</td>
                         <td class="px-4 py-2 flex items-center space-x-1">
                             <button @click="openEditModal(enduse)" class="flex items-center justify-center px-1 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
@@ -131,9 +185,21 @@ onMounted(async () => {
                             </button> -->
                         </td>
                     </tr>
+                    <tr v-if="items.length === 0">
+                        <td colspan="2" class="text-center py-4 text-gray-500">No enduse found.</td>
+                    </tr>
                 </tbody>
                 </table>
             </div>
+
+            <pagination
+                :page="page"
+                :per-page="perPage"
+                :last-page="lastPage"
+                :total="total"
+                @update:page="page = $event"
+                @update:perPage="perPage = $event"
+            />
 
             <!-- Add/Edit Modal -->
             <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center">

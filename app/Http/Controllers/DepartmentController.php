@@ -8,8 +8,19 @@ use Illuminate\Http\Request;
 class DepartmentController extends Controller
 {
     // Get all departments
-    public function index() {
-        return response()->json(Department::all());
+    public function index(Request $request)
+    {
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = Department::query();
+
+        if ($search) {
+            $query->where('department_name', 'like', "%{$search}%")
+                ->orWhere('department_code', 'like', "%{$search}%");
+        }
+
+        return $query->paginate($perPage);
     }
 
     // Add new department

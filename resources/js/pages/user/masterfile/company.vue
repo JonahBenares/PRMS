@@ -1,165 +1,224 @@
 <script setup>
-import { ref, reactive, onMounted, watch } from "vue";
-import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
-import navigation from "@/components/layouts/navigation.vue";
+	import { ref, reactive, onMounted, watch, computed } from "vue";
+	import { useTable } from '@/composables/useTable'
+	import searchbox from '@/composables/searchbox.vue';
+	import pagination from "@/composables/pagination.vue";
+	import navigation from "@/components/layouts/navigation.vue";
+	import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
+	import axios from 'axios'
 
-const companies = ref([]);
-const logoFile = ref(null);
-const logoPreview = ref(null);
+	const {
+		items,
+		search,
+		page,
+		perPage,
+		total,
+		lastPage,
+		loading,
+		fetchData
+	} = useTable('/api/companies')
 
-// Fetch departments from API
-const fetchCompanies = async () => {
-    try {
-        const response = await axios.get("/api/companies");
-        companies.value = response.data;
-    } catch (err) {
-        console.error(err);
-    }
-};
+	onMounted(fetchData)
+	const pageCount = computed(() => lastPage.value)
+	const totalItems = computed(() => total.value)
 
-const handleLogoUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+	// Flatten categories + subcategories for table rows
+	const tableRows = computed(() => {
+		const rows = []
+		items.value.forEach(category => {
+			rows.push({
+			id: `c-${category.id}`,
+			name: category.category_name,
+			type: 'category',
+			raw: category
+			})
+			category.subcategories?.forEach(sub => {
+			rows.push({
+				id: `s-${sub.id}`,
+				name: `↳ ${sub.sub_cat_name}`,
+				type: 'subcategory',
+				raw: sub,
+				parent: category
+			})
+			})
+		})
+		return rows
+	})
 
-  modalItem.company_logo = file;
-  logoPreview.value = URL.createObjectURL(file);
-};
+	
+	const visiblePages = computed(() => {
+		const total = pageCount.value
+		const current = page.value
+		const delta = 2 // pages on each side
 
-onMounted(async () => {
-	fetchCompanies()
-})
+		if (total <= 7) {
+			return Array.from({ length: total }, (_, i) => i + 1)
+		}
 
-// Modal States
-const showModal = ref(false);
-const showDeleteModal = ref(false);
-const isEdit = ref(false);
-const isSub = ref(false);
-const parentCompany = ref(null);
+		const pages = new Set()
 
-const modalItem = reactive({
-  id: null,
+		pages.add(1)
+		pages.add(total)
 
-  company_name: "",
-  company_code: "",
-  company_logo: null,
+		for (let i = current - delta; i <= current + delta; i++) {
+			if (i > 1 && i < total) {
+			pages.add(i)
+			}
+		}
 
-  location: "",
-  address: "",
-  telephone: "",
-  telefax: "",
-});
+		return Array.from(pages).sort((a, b) => a - b)
+	})
 
-const openAddModal = (parent = null) => {
-  isEdit.value = false;
-  isSub.value = !!parent;
-  parentCompany.value = parent;
+	const companies = ref([]);
+	const logoFile = ref(null);
+	const logoPreview = ref(null);
 
-  Object.assign(modalItem, {
-    id: null,
-    company_name: "",
-    company_code: "",
-    company_logo: null,
-    location: "",
-    address: "",
-    telephone: "",
-    telefax: "",
-  });
+	// Fetch departments from API
+	
 
-  showModal.value = true;
-};
+	const handleLogoUpload = (e) => {
+	const file = e.target.files[0];
+	if (!file) return;
 
-const openEditModal = (item, sub = false) => {
-  isEdit.value = true;
-  isSub.value = sub;
+	modalItem.company_logo = file;
+	logoPreview.value = URL.createObjectURL(file);
+	};
 
-  Object.assign(modalItem, { ...item });
+	onMounted(async () => {
+		fetchData()
+	})
 
-  // 👇 THIS IS THE FIX
-  if (!sub && item.company_logo) {
-    logoPreview.value = `/storage/logos/${item.company_logo}`;
-  } else {
-    logoPreview.value = null;
-  }
+	// Modal States
+	const showModal = ref(false);
+	const showDeleteModal = ref(false);
+	const isEdit = ref(false);
+	const isSub = ref(false);
+	const parentCompany = ref(null);
 
-  logoFile.value = null;
-  showModal.value = true;
-};
+	const modalItem = reactive({
+	id: null,
 
-// Save Company or Location
-const saveCompany = async () => {
-  try {
-    if (isSub.value) {
-      // Save location
-      const payload = {
-        company_id: parentCompany.value.id,
-        location: modalItem.location,
-        address: modalItem.address,
-        telephone: modalItem.telephone,
-        telefax: modalItem.telefax
-      };
+	company_name: "",
+	company_code: "",
+	company_logo: null,
 
-      if (isEdit.value) {
-        await axios.put(`/api/company_locations/${modalItem.id}`, payload);
-      } else {
-        await axios.post("/api/company_locations", payload);
-      }
+	location: "",
+	address: "",
+	telephone: "",
+	telefax: "",
+	});
 
-    } else {
-      // Save company
-      const formData = new FormData();
-      formData.append("company_name", modalItem.company_name);
-      formData.append("company_code", modalItem.company_code);
+	const openAddModal = (parent = null) => {
+	isEdit.value = false;
+	isSub.value = !!parent;
+	parentCompany.value = parent;
 
-      // ✅ Only append logo if it's a File (new upload)
-      if (modalItem.company_logo instanceof File) {
-        formData.append("company_logo", modalItem.company_logo);
-      }
+	Object.assign(modalItem, {
+		id: null,
+		company_name: "",
+		company_code: "",
+		company_logo: null,
+		location: "",
+		address: "",
+		telephone: "",
+		telefax: "",
+	});
 
-      const url = isEdit.value 
-        ? `/api/companies/${modalItem.id}?_method=PUT` 
-        : "/api/companies";
+	showModal.value = true;
+	};
 
-      await axios.post(url, formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-    }
+	const openEditModal = (item, sub = false) => {
+	isEdit.value = true;
+	isSub.value = sub;
 
-    showModal.value = false;
-    await fetchCompanies();
-  } catch (err) {
-    console.error("Save failed:", err.response?.data || err);
-  }
-}
+	Object.assign(modalItem, { ...item });
 
-const openDeleteModal = (item, sub = false, parent = null) => {
-  isSub.value = sub;
-  parentCompany.value = parent;
-  Object.assign(modalItem, { ...item });
-  showDeleteModal.value = true;
-};
+	// 👇 THIS IS THE FIX
+	if (!sub && item.company_logo) {
+		logoPreview.value = `/storage/logos/${item.company_logo}`;
+	} else {
+		logoPreview.value = null;
+	}
 
-const deleteCompany = async () => {
-  try {
-    if (isSub.value) {
-      await axios.delete(`/api/company_locations/${modalItem.id}`);
-    } else {
-      await axios.delete(`/api/companies/${modalItem.id}`);
-    }
+	logoFile.value = null;
+	showModal.value = true;
+	};
 
-    showDeleteModal.value = false;
-    await fetchCompanies();
-  } catch (err) {
-    console.error("Delete failed:", err);
-  }
-};
+	// Save Company or Location
+	const saveCompany = async () => {
+	try {
+		if (isSub.value) {
+		// Save location
+		const payload = {
+			company_id: parentCompany.value.id,
+			location: modalItem.location,
+			address: modalItem.address,
+			telephone: modalItem.telephone,
+			telefax: modalItem.telefax
+		};
 
-const closeModal = () => {
-  showModal.value = false;
-  logoFile.value = null;
-  logoPreview.value = null;
-};
+		if (isEdit.value) {
+			await axios.put(`/api/company_locations/${modalItem.id}`, payload);
+		} else {
+			await axios.post("/api/company_locations", payload);
+		}
 
-const closeDeleteModal = () => showDeleteModal.value = false;
+		} else {
+		// Save company
+		const formData = new FormData();
+		formData.append("company_name", modalItem.company_name);
+		formData.append("company_code", modalItem.company_code);
+
+		// ✅ Only append logo if it's a File (new upload)
+		if (modalItem.company_logo instanceof File) {
+			formData.append("company_logo", modalItem.company_logo);
+		}
+
+		const url = isEdit.value 
+			? `/api/companies/${modalItem.id}?_method=PUT` 
+			: "/api/companies";
+
+		await axios.post(url, formData, {
+			headers: { "Content-Type": "multipart/form-data" }
+		});
+		}
+
+		showModal.value = false;
+		await fetchData();
+	} catch (err) {
+		console.error("Save failed:", err.response?.data || err);
+	}
+	}
+
+	const openDeleteModal = (item, sub = false, parent = null) => {
+		isSub.value = sub;
+		parentCompany.value = parent;
+		Object.assign(modalItem, { ...item });
+		showDeleteModal.value = true;
+	};
+
+	const deleteCompany = async () => {
+	try {
+		if (isSub.value) {
+		await axios.delete(`/api/company_locations/${modalItem.id}`);
+		} else {
+		await axios.delete(`/api/companies/${modalItem.id}`);
+		}
+
+		showDeleteModal.value = false;
+		await fetchData();
+	} catch (err) {
+		console.error("Delete failed:", err);
+	}
+	};
+
+	const closeModal = () => {
+		showModal.value = false;
+		logoFile.value = null;
+		logoPreview.value = null;
+	};
+
+	const closeDeleteModal = () => showDeleteModal.value = false;
 </script>
 <template>
 	<navigation>
@@ -172,15 +231,17 @@ const closeDeleteModal = () => showDeleteModal.value = false;
 
 			<button 
 				@click="openAddModal()"
-				class="flex text-sm items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+				class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
 			>
 				<PlusIcon class="w-5 h-5 mr-1" />
 				Add Company
 			</button>
 			</div>
 
+			<!-- SEARCH -->
+			<searchbox v-model="search" />
 			<!-- Table -->
-			<div class="px-6 pt-2 pb-6">
+			<div class="overflow-auto">
 				<table
 					class="min-w-full text-sm text-left text-gray-700 border border-gray-200 rounded-lg overflow-hidden"
 					>
@@ -199,7 +260,7 @@ const closeDeleteModal = () => showDeleteModal.value = false;
 
 					<tbody class="divide-y divide-gray-200">
 						<!-- COMPANY ROW -->
-						<template v-for="company in companies" :key="company.id">
+						<template v-for="company in items" :key="company.id">
 						<tr class="bg-gray-50">
 							<td class="px-4 py-2 font-semibold">{{ company.company_name }}</td>
 							<td class="px-4 py-2">{{ company.company_code }}</td>
@@ -221,13 +282,12 @@ const closeDeleteModal = () => showDeleteModal.value = false;
 							<td></td>
 
 							<td class="px-4 py-2 flex space-x-1">
-							<button @click="openEditModal(company, false)" class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-700">
+							<button @click="openEditModal(company, false)" class="px-1 py-1 bg-blue-500 text-white rounded hover:bg-blue-700">
 								<PencilSquareIcon class="w-4 h-4"/>
 							</button>
-							<button @click="openDeleteModal(company, false)" class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700">
-								<TrashIcon class="w-4 h-4"/>
+							<button @click="openAddModal(company)" class="px-1 py-1 bg-green-500 text-white rounded hover:bg-green-700">
+								<PlusIcon class="w-4 h-4"></PlusIcon>
 							</button>
-							<button @click="openAddModal(company)" class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-700">+</button>
 							</td>
 						</tr>
 
@@ -243,11 +303,8 @@ const closeDeleteModal = () => showDeleteModal.value = false;
 							<td class="px-4 py-2">{{ loc.telefax }}</td>
 
 							<td class="px-4 py-2 flex space-x-1">
-							<button @click="openEditModal(loc, true)" class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-700">
+							<button @click="openEditModal(loc, true)" class="px-1 py-1 bg-blue-500 text-white rounded hover:bg-blue-700">
 								<PencilSquareIcon class="w-4 h-4"/>
-							</button>
-							<button @click="openDeleteModal(loc, true, company)" class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700">
-								<TrashIcon class="w-4 h-4"/>
 							</button>
 							</td>
 						</tr>
@@ -256,6 +313,15 @@ const closeDeleteModal = () => showDeleteModal.value = false;
 
 					</table>
 
+
+				<pagination
+				:page="page"
+				:per-page="perPage"
+				:last-page="lastPage"
+				:total="total"
+				@update:page="page = $event"
+				@update:perPage="perPage = $event"
+			/>
 			</div>
 		</div>
 

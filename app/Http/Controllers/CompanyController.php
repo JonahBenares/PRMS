@@ -9,9 +9,24 @@ use Illuminate\Http\Request;
 class CompanyController extends Controller
 {
     // Get all Company
-    public function index()
+    public function index(Request $request)
     {
-        return Company::with('companylocation')->get();
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = Company::with('companylocation');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('company_code', 'like', "%{$search}%")
+                  ->orWhereHas('companylocation', function ($lq) use ($search) {
+                      $lq->where('location_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function store_company(Request $request)

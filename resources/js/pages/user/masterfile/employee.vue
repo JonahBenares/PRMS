@@ -1,104 +1,159 @@
 <script setup>
-import { ref, onMounted, reactive } from "vue";
-import $ from "jquery";
-import "datatables.net";
-import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
-import navigation from "@/components/layouts/navigation.vue";
+	import { ref, onMounted, reactive, computed } from "vue";
+	import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
+	import { useTable } from '@/composables/useTable'
+	import searchbox from '@/composables/searchbox.vue';
+	import pagination from "@/composables/pagination.vue";
+    import navigation from "@/components/layouts/navigation.vue";
 
-// Table data
-const employees = ref([]);
-let listdepartment=ref([]);
 
-// Fetch departments from API
-const fetchEmployees = async () => {
-    try {
-        const response = await axios.get("/api/employees");
-        employees.value = response.data;
-    } catch (err) {
-        console.error(err);
-    }
-};
+	const {
+		items,
+		search,
+		page,
+		perPage,
+		total,
+		lastPage,
+		loading,
+		fetchData
+	} = useTable('/api/employees')
 
-const getdepartment = async () => {
-	let response = await axios.get("/api/department_list");
-	listdepartment.value=response.data.department
-}
+	onMounted(fetchData)
+	const pageCount = computed(() => lastPage.value)
+	const totalItems = computed(() => total.value)
 
-onMounted(async () => {
-	fetchEmployees()
-	getdepartment()
-})
+	// Flatten categories + subcategories for table rows
+	const tableRows = computed(() => {
+		const rows = []
+		items.value.forEach(category => {
+			rows.push({
+			id: `c-${category.id}`,
+			name: category.category_name,
+			type: 'category',
+			raw: category
+			})
+			category.subcategories?.forEach(sub => {
+			rows.push({
+				id: `s-${sub.id}`,
+				name: `↳ ${sub.sub_cat_name}`,
+				type: 'subcategory',
+				raw: sub,
+				parent: category
+			})
+			})
+		})
+		return rows
+	})
 
-// Modals
-const showModal = ref(false);
-const showDeleteModal = ref(false);
-const isEdit = ref(false);
-const modalItem = reactive({
-  id: null,
-  employee_name: "",
-  position: "",
-  department_id: null,
-  department_name: "",
-});
+	
+	const visiblePages = computed(() => {
+		const total = pageCount.value
+		const current = page.value
+		const delta = 2 // pages on each side
 
-const openAddModal = () => {
-  isEdit.value = false;
-  Object.assign(modalItem, {
-    id: null,
-    employee_name: "",
-    position: "",
-    department_id: null,
-    department_name: "",
-  });
-  showModal.value = true;
-};
+		if (total <= 7) {
+			return Array.from({ length: total }, (_, i) => i + 1)
+		}
 
-const openEditModal = (item) => {
-  isEdit.value = true;
-  Object.assign(modalItem, {
-    id: item.id,
-    employee_name: item.employee_name,
-    position: item.position,
-    department_id: item.department_id,
-    department_name: item.department_name,
-  });
-  showModal.value = true;
-};
+		const pages = new Set()
 
-const closeModal = () => showModal.value = false;
+		pages.add(1)
+		pages.add(total)
 
-const saveEmployee = async () => {
-  if (!modalItem.employee_name || !modalItem.position || !modalItem.department_id) return;
+		for (let i = current - delta; i <= current + delta; i++) {
+			if (i > 1 && i < total) {
+			pages.add(i)
+			}
+		}
 
-  // Find department_name from dropdown
-  const selectedDept = listdepartment.value.find(d => d.id === modalItem.department_id);
-  modalItem.department_name = selectedDept ? selectedDept.department_name : "";
+		return Array.from(pages).sort((a, b) => a - b)
+	})
 
-  try {
-    if (isEdit.value) {
-      await axios.put(`/api/employees/${modalItem.id}`, { ...modalItem });
-    } else {
-      await axios.post("/api/employees", { ...modalItem });
-    }
-    showModal.value = false;
-    await fetchEmployees();
-  } catch (err) {
-    console.error(err);
-  }
-};
+	// Table data
+	const employees = ref([]);
+	let listdepartment=ref([]);
 
-const openDeleteModal = (item) => {
-  Object.assign(modalItem, item);
-  showDeleteModal.value = true;
-};
 
-const closeDeleteModal = () => showDeleteModal.value = false;
+	const getdepartment = async () => {
+		let response = await axios.get("/api/department_list");
+		listdepartment.value=response.data.department
+	}
 
-const deleteItem = () => {
-  const index = employees.findIndex(i => i.id === modalItem.id);
-  if (index !== -1) employees.splice(index, 1);
-  showDeleteModal.value = false;
-};
+	onMounted(async () => {
+		fetchData()
+		getdepartment()
+	})
+
+	// Modals
+	const showModal = ref(false);
+	const showDeleteModal = ref(false);
+	const isEdit = ref(false);
+	const modalItem = reactive({
+	id: null,
+	employee_name: "",
+	position: "",
+	department_id: null,
+	department_name: "",
+	});
+
+	const openAddModal = () => {
+		isEdit.value = false;
+		Object.assign(modalItem, {
+			id: null,
+			employee_name: "",
+			position: "",
+			department_id: null,
+			department_name: "",
+		});
+		showModal.value = true;
+	};
+
+	const openEditModal = (item) => {
+		isEdit.value = true;
+		Object.assign(modalItem, {
+			id: item.id,
+			employee_name: item.employee_name,
+			position: item.position,
+			department_id: item.department_id,
+			department_name: item.department_name,
+		});
+		showModal.value = true;
+	};
+
+	const closeModal = () => showModal.value = false;
+
+	const saveEmployee = async () => {
+		if (!modalItem.employee_name || !modalItem.position || !modalItem.department_id) return;
+
+		// Find department_name from dropdown
+		const selectedDept = listdepartment.value.find(d => d.id === modalItem.department_id);
+		modalItem.department_name = selectedDept ? selectedDept.department_name : "";
+
+		try {
+			if (isEdit.value) {
+			await axios.put(`/api/employees/${modalItem.id}`, { ...modalItem });
+			} else {
+			await axios.post("/api/employees", { ...modalItem });
+			}
+			showModal.value = false;
+			await fetchData();
+		} catch (err) {
+			console.error(err);
+		}
+		};
+
+		const openDeleteModal = (item) => {
+		Object.assign(modalItem, item);
+		showDeleteModal.value = true;
+	};
+
+	const closeDeleteModal = () => showDeleteModal.value = false;
+
+	const deleteItem = () => {
+	const index = employees.findIndex(i => i.id === modalItem.id);
+	if (index !== -1) employees.splice(index, 1);
+	showDeleteModal.value = false;
+	};
 </script>
 <template>
     <navigation>
@@ -115,9 +170,10 @@ const deleteItem = () => {
 						Add Employee
 					</button>
 				</div>
+				<searchbox v-model="search" />
 
 				<!-- Table -->
-				<div class="px-6 pt-2 pb-6">
+				<div class="overflow-x-auto">
 					<table
                         id="itemTable"
                         class="min-w-full text-sm text-left text-gray-700 border border-gray-200 rounded-lg overflow-hidden"
@@ -132,7 +188,7 @@ const deleteItem = () => {
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             <tr
-                                v-for="employee in employees"
+                                v-for="employee in items"
                                 :key="employee.id"
                                 class="hover:bg-gray-50"
                             >
@@ -146,52 +202,60 @@ const deleteItem = () => {
                                     >
                                         <PencilSquareIcon class="w-4 h-4" />
                                     </button>
-                                    <!-- <button
-                                        @click="openDeleteModal(employee)"
-                                        class="flex items-center justify-center px-1 py-1 bg-red-500 text-white rounded-lg hover:bg-red-700"
-                                    >
-                                        <TrashIcon class="w-4 h-4" />
-                                    </button> -->
                                 </td>
                             </tr>
+							<tr v-if="items.length === 0">
+								<td colspan="4" class="text-center py-4 text-gray-500">No employees found.</td>
+							</tr>
                         </tbody>
 					</table>
-				</div>
-			</div>
 
+					<pagination
+						:page="page"
+						:per-page="perPage"
+						:last-page="lastPage"
+						:total="total"
+						@update:page="page = $event"
+						@update:perPage="perPage = $event"
+					/>
+				</div>
+
+				
+			</div>
+			
             <!-- Add/Edit Modal -->
             <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
-            <div class="bg-black/50 w-full h-full" @click="showModal=false"></div>
-            <div class="bg-white rounded-lg w-[600px] absolute top-32 p-6">
-                <h3 class="text-lg font-semibold mb-4">{{ isEdit ? 'Edit Employee' : 'Add Employee' }}</h3>
+				<div class="bg-black/50 w-full h-full" @click="showModal=false"></div>
+				<div class="bg-white rounded-lg w-[600px] absolute top-32 p-6">
+					<h3 class="text-lg font-semibold mb-4">{{ isEdit ? 'Edit Employee' : 'Add Employee' }}</h3>
 
-                <div class="flex flex-col gap-3 mb-4">
-                <label>Employee Name</label>
-                <input v-model="modalItem.employee_name" placeholder="Enter employee name" class="border px-3 py-2 rounded"/>
-                </div>
+					<div class="flex flex-col gap-3 mb-4">
+					<label>Employee Name</label>
+					<input v-model="modalItem.employee_name" placeholder="Enter employee name" class="border px-3 py-2 rounded"/>
+					</div>
 
-                <div class="flex flex-col gap-3 mb-4">
-                <label>Position</label>
-                <input v-model="modalItem.position" placeholder="Enter position" class="border px-3 py-2 rounded"/>
-                </div>
+					<div class="flex flex-col gap-3 mb-4">
+					<label>Position</label>
+					<input v-model="modalItem.position" placeholder="Enter position" class="border px-3 py-2 rounded"/>
+					</div>
 
-                <div class="flex flex-col gap-3 mb-4">
-                <label>Department</label>
-                <select v-model="modalItem.department_id" class="border px-3 py-2 rounded">
-                    <option value="" disabled>Select Department</option>
-                    <option v-for="dept in listdepartment" :key="dept.id" :value="dept.id">
-                    {{ dept.department_name }}
-                    </option>
-                </select>
-                </div>
+					<div class="flex flex-col gap-3 mb-4">
+					<label>Department</label>
+					<select v-model="modalItem.department_id" class="border px-3 py-2 rounded">
+						<option value="" disabled>Select Department</option>
+						<option v-for="dept in listdepartment" :key="dept.id" :value="dept.id">
+						{{ dept.department_name }}
+						</option>
+					</select>
+					</div>
 
-                <div class="flex justify-end gap-2">
-                <button @click="showModal=false" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-400">Cancel</button>
-                <button @click="saveEmployee" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    {{ isEdit ? 'Update' : 'Add' }}
-                </button>
-                </div>
-            </div>
+					<div class="flex justify-end gap-2">
+					<button @click="showModal=false" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-400">Cancel</button>
+					<button @click="saveEmployee" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+						{{ isEdit ? 'Update' : 'Add' }}
+					</button>
+					</div>
+				</div>
             </div>
 
             <!-- Delete Warning Modal -->
