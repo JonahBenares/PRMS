@@ -23,9 +23,10 @@ class EnduseController extends Controller
     }
 
     // Store new enduse
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
-            'enduse_name' => 'required|string|max:255',
+            'enduse_name' => 'required|string|max:255|unique:enduses,enduse_name',
         ]);
 
         $enduse = Enduse::create([
@@ -36,12 +37,19 @@ class EnduseController extends Controller
     }
 
     // Update enduse
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
+        $enduse = Enduse::findOrFail($id);
+
         $request->validate([
-            'enduse_name' => 'required|string|max:255',
+            'enduse_name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('enduses', 'enduse_name')->ignore($enduse->id),
+            ],
         ]);
 
-        $enduse = Enduse::findOrFail($id);
         $enduse->update([
             'enduse_name' => $request->enduse_name,
         ]);

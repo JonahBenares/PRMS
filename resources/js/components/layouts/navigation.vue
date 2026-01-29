@@ -88,7 +88,7 @@ const logout = async () => {
 <template>
 	<div class="text-gray-800 min-h-screen flex flex-col ">
 		<!-- Header -->
-		<header class="fixed top-0 w-full z-50 bg-blue-900 backdrop-blur-xl border-b border-gray-200/60 shadow-sm " >
+		<header class="fixed top-0 w-full z-50 bg-gradient-to-bl from-blue-950 to-blue-900 backdrop-blur-xl border-b border-blue-200/60 shadow-sm " >
 			<div class="max-w-7xl mx-auto px-6 lg:px-10 py-3 flex justify-between items-center" >
 				<!-- Logo -->
 				<div class="text-2xl font-extrabold bg-white bg-clip-text text-transparent">

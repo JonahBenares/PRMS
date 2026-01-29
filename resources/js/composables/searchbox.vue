@@ -15,6 +15,6 @@ defineEmits(['update:modelValue'])
     :value="modelValue"
     @input="$emit('update:modelValue', $event.target.value)"
     :placeholder="placeholder"
-    class="border px-3 py-2 rounded w-full text-sm"
+    class="border px-3 py-2 rounded-lg w-full text-sm"
   />
 </template>
