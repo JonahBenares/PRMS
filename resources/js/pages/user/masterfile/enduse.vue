@@ -134,7 +134,6 @@
         }
     };
 
-
     // Delete modal
     const openDeleteModal = (enduse) => {
         Object.assign(modalItem, enduse);

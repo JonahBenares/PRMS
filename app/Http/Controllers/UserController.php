@@ -18,35 +18,34 @@ class UserController extends Controller
 
         if ($search) {
             $query->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('role', 'like', "%{$search}%")
-                ->orWhere('password', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('role', 'like', "%{$search}%");
         }
 
-        return $query->paginate($perPage);
+        return $query->orderBy('name', 'ASC')->paginate($perPage);
     }
 
-    // Add new user
+    // Store new user
     public function store(Request $request)
     {
         $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'role'  => 'nullable|string|max:255',
-            'password' => 'string|min:6',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'role'     => 'required|string|max:255',
+            'password' => 'nullable|string|min:6',
         ]);
 
         $user = User::create([
-            'name'  => $request->name,
-            'email' => $request->email,
-            'role'  => $request->role,
-            'password' => Hash::make('password123'), // default password
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'role'     => $request->role,
+            'password' => Hash::make($request->password ?? 'password123'),
         ]);
 
         return response()->json($user);
     }
 
-    // Update existing user
+    // Update user
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -54,10 +53,20 @@ class UserController extends Controller
         $request->validate([
             'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'role'  => 'nullable|string|max:255',
+            'role'  => 'required|string|max:255',
         ]);
 
-        $user->update($request->only('name', 'email', 'role'));
+        $data = $request->only('name', 'email', 'role');
+
+        // Optional password update (only if provided)
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => 'string|min:6'
+            ]);
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
 
         return response()->json($user);
     }
@@ -68,6 +77,8 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
 
-        return response()->json(['message' => 'User deleted']);
+        return response()->json([
+            'message' => 'User deleted successfully'
+        ]);
     }
 }

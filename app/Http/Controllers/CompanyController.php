@@ -1,14 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Company;
 use App\Models\CompanyLocation;
-
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
 {
-    // Get all Company
+    // LIST
     public function index(Request $request)
     {
         $search  = $request->query('search');
@@ -21,105 +22,127 @@ class CompanyController extends Controller
                 $q->where('company_name', 'like', "%{$search}%")
                   ->orWhere('company_code', 'like', "%{$search}%")
                   ->orWhereHas('companylocation', function ($lq) use ($search) {
-                      $lq->where('location_name', 'like', "%{$search}%");
+                      $lq->where('location', 'like', "%{$search}%");
                   });
             });
         }
 
-        return $query->paginate($perPage);
+        return $query
+            ->orderBy('company_name', 'ASC')
+            ->paginate($perPage);
     }
 
-    public function store_company(Request $request)
+    // CREATE COMPANY
+    public function store(Request $request)
     {
         $data = $request->validate([
-            'company_name' => 'required|string',
-            'company_code' => 'required|string',
-            'company_logo' => 'nullable|image|max:2048'
+            'company_name' => 'required|string|max:255',
+            'company_code' => 'required|string|max:100|unique:companies,company_code',
+            'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
         ]);
 
         if ($request->hasFile('company_logo')) {
             $file = $request->file('company_logo');
+            $filename = strtolower($request->company_code) . '_' . now()->format('Ymd_His')
+                . '.' . $file->getClientOriginalExtension();
 
-            $companyCode = strtolower($request->company_code);
-            $extension = $file->getClientOriginalExtension();
-            $filename = $companyCode . '_' . now()->format('Ymd') . '.' . $extension;
-
-            // Save in storage/app/public/logos
             $file->storeAs('logos', $filename, 'public');
-
-            $data['company_logo'] = $filename; // Save only filename in DB
+            $data['company_logo'] = $filename;
         }
 
-        return Company::create($data);
+        $company = Company::create($data);
+
+        return response()->json($company);
     }
 
-    public function update_company(Request $request, $id)
+    // UPDATE COMPANY
+    public function update(Request $request, $id)
     {
         $company = Company::findOrFail($id);
 
-        // Validate only if logo is uploaded
         $data = $request->validate([
-            'company_name' => 'required|string',
-            'company_code' => 'required|string',
-            'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'company_name' => 'required|string|max:255',
+            'company_code' => 'required|string|max:100|unique:companies,company_code,' . $id,
+            'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
         ]);
 
-        // Check if a new logo file is uploaded
         if ($request->hasFile('company_logo')) {
 
-            // Delete old logo if exists
             if ($company->company_logo) {
                 Storage::disk('public')->delete('logos/' . $company->company_logo);
             }
 
             $file = $request->file('company_logo');
-            $companyCode = strtolower($request->company_code);
-            $extension = $file->getClientOriginalExtension();
-            $filename = $companyCode . '_' . now()->format('Ymd_His') . '.' . $extension;
+            $filename = strtolower($request->company_code) . '_' . now()->format('Ymd_His')
+                . '.' . $file->getClientOriginalExtension();
 
-            // Store new file
             $file->storeAs('logos', $filename, 'public');
-
             $data['company_logo'] = $filename;
         } else {
-            // If no file uploaded, remove company_logo from $data so it won't overwrite existing
             unset($data['company_logo']);
         }
 
         $company->update($data);
 
+        return response()->json($company);
+    }
+
+    // DELETE COMPANY
+    public function destroy($id)
+    {
+        $company = Company::findOrFail($id);
+
+        if ($company->company_logo) {
+            Storage::disk('public')->delete('logos/' . $company->company_logo);
+        }
+
+        $company->delete();
+
         return response()->json([
-            'success' => true,
-            'company' => $company
+            'message' => 'Company deleted successfully'
         ]);
     }
 
-    public function storeLocation(Request $request, Company $company)
+    // CREATE LOCATION
+    public function storeLocation(Request $request)
     {
         $data = $request->validate([
-            'company_id' => 'required|integer|exists:company,id',
-            'location' => 'required|string',
-            'address' => 'required|string',
-            'telephone' => 'nullable|string',
-            'telefax' => 'nullable|string',
+            'company_id' => 'required|exists:companies,id',
+            'location'   => 'required|string|max:255',
+            'address'    => 'required|string|max:255',
+            'telephone'  => 'nullable|string|max:50',
+            'telefax'    => 'nullable|string|max:50',
         ]);
 
-        return CompanyLocation::create($data);
+        return response()->json(
+            CompanyLocation::create($data)
+        );
     }
 
+    // UPDATE LOCATION
     public function updateLocation(Request $request, $id)
     {
         $location = CompanyLocation::findOrFail($id);
 
         $data = $request->validate([
-            'location' => 'required|string',
-            'address' => 'required|string',
-            'telephone' => 'nullable|string',
-            'telefax' => 'nullable|string',
+            'location'  => 'required|string|max:255',
+            'address'   => 'required|string|max:255',
+            'telephone' => 'nullable|string|max:50',
+            'telefax'   => 'nullable|string|max:50',
         ]);
 
         $location->update($data);
 
-        return $location;
+        return response()->json($location);
+    }
+
+    // DELETE LOCATION
+    public function destroyLocation($id)
+    {
+        CompanyLocation::findOrFail($id)->delete();
+
+        return response()->json([
+            'message' => 'Location deleted'
+        ]);
     }
 }

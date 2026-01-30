@@ -25,7 +25,7 @@ class PurposeController extends Controller
     // Store new purpose
     public function store(Request $request) {
         $request->validate([
-            'purpose_name' => 'required|string|max:255',
+            'purpose_name' => 'required|string|max:255|unique:purposes,purpose_name',
         ]);
 
         $purpose = Purpose::create([
@@ -37,15 +37,15 @@ class PurposeController extends Controller
 
     // Update purpose
     public function update(Request $request, $id) {
-        $request->validate([
-            'purpose_name' => 'required|string|max:255',
-        ]);
 
         $purpose = Purpose::findOrFail($id);
-        $purpose->update([
-            'purpose_name' => $request->purpose_name,
+
+        $request->validate([
+            'purpose_name' => 'required|string|max:255|unique:purposes,purpose_name,' . $id,
+
         ]);
 
+        $purpose->update($request->only('purpose_name'));
         return response()->json($purpose);
     }
 

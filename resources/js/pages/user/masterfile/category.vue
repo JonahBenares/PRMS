@@ -1,339 +1,299 @@
 <script setup>
-	import { onMounted, computed, ref } from 'vue'
-	import { useTable } from '@/composables/useTable'
-	import searchbox from '@/composables/searchbox.vue';
-	import pagination from "@/composables/pagination.vue";
-	import navigation from "@/components/layouts/navigation.vue";
-	import { PencilSquareIcon, PlusIcon, XMarkIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/solid'
-	import axios from 'axios'
+import { ref, reactive, onMounted } from 'vue'
+import axios from 'axios'
 
-	// -------------------
-	// TABLE DATA & PAGINATION
-	// -------------------
-	const {
-		items,
-		search,
-		page,
-		perPage,
-		total,
-		lastPage,
-		loading,
-		fetchData
-	} = useTable('/api/categories')
+import { useTable } from '@/composables/useTable'
+import searchbox from '@/composables/searchbox.vue'
+import pagination from "@/composables/pagination.vue"
+import navigation from "@/components/layouts/navigation.vue"
+import modal from "@/components/modal.vue"
 
-	onMounted(fetchData)
-	const pageCount = computed(() => lastPage.value)
-	const totalItems = computed(() => total.value)
+import { Bars3Icon, PencilSquareIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/24/solid'
 
-	// Flatten categories + subcategories for table rows
-	const tableRows = computed(() => {
-		const rows = []
-		items.value.forEach(category => {
-			rows.push({
-			id: `c-${category.id}`,
-			name: category.category_name,
-			type: 'category',
-			raw: category
-			})
-			category.subcategories?.forEach(sub => {
-			rows.push({
-				id: `s-${sub.id}`,
-				name: `↳ ${sub.sub_cat_name}`,
-				type: 'subcategory',
-				raw: sub,
-				parent: category
-			})
-			})
-		})
-		return rows
-	})
+// -------------------
+// TABLE
+// -------------------
+const {
+    items,
+    search,
+    page,
+    perPage,
+    total,
+    lastPage,
+    loading,
+    fetchData
+} = useTable('/api/categories')
 
-	
-	const visiblePages = computed(() => {
-		const total = pageCount.value
-		const current = page.value
-		const delta = 2 // pages on each side
+onMounted(fetchData)
 
-		if (total <= 7) {
-			return Array.from({ length: total }, (_, i) => i + 1)
-		}
+// -------------------
+// MODAL STATE
+// -------------------
+const showModal = ref(false)
+const isSaving = ref(false)
+const isEdit = ref(false)
+const isSub = ref(false)
 
-		const pages = new Set()
+const parentCategory = ref(null)
 
-		pages.add(1)
-		pages.add(total)
+const modalItem = reactive({
+    id: null,
+    name: ''
+})
 
-		for (let i = current - delta; i <= current + delta; i++) {
-			if (i > 1 && i < total) {
-			pages.add(i)
-			}
-		}
+const errors = reactive({
+    name: ''
+})
 
-		return Array.from(pages).sort((a, b) => a - b)
-	})
+// -------------------
+// MODAL ACTIONS
+// -------------------
+const openAddModal = (parent = null) => {
+    isEdit.value = false
+    isSub.value = !!parent
+    parentCategory.value = parent
 
-	// -------------------
-	// MODAL STATE
-	// -------------------
-	const showModal = ref(false)
-	const isEdit = ref(false)
-	const isSub = ref(false)
-	const parentCategory = ref(null)
+    Object.assign(modalItem, { id: null, name: '' })
+    errors.name = ''
 
-	const modalItem = ref({
-		id: null,
-		name: ''
-	})
+    showModal.value = true
+}
 
-	const showDeleteModal = ref(false)
+const openEditModal = (item, sub = false) => {
+    isEdit.value = true
+    isSub.value = sub
 
-	// -------------------
-	// MODAL ACTIONS
-	// -------------------
+    Object.assign(modalItem, {
+        id: item.id,
+        name: sub ? item.sub_cat_name : item.category_name
+    })
 
-	// Open Add Modal (Category or Subcategory)
-	const openAddModal = (parent = null) => {
-		isEdit.value = false
-		isSub.value = !!parent
-		parentCategory.value = parent
+    errors.name = ''
+    showModal.value = true
+}
 
-		modalItem.value = { id: null, name: '' }
+const saveItem = async () => {
+    if (isSaving.value) return
 
-		showModal.value = true
-	}
+    errors.name = ''
+    if (!modalItem.name.trim()) {
+        errors.name = "Name is required"
+        return
+    }
 
-	// Open Edit Modal (Category or Subcategory)
-	const openEditModal = (item, sub = false) => {
-		isEdit.value = true
-		isSub.value = sub
+    try {
+        isSaving.value = true
 
-		modalItem.value = {
-			id: item.id,
-			name: sub ? item.sub_cat_name : item.category_name
-		}
+        if (isEdit.value) {
+            if (isSub.value) {
+                await axios.put(`/api/update_subcategory/${modalItem.id}`, {
+                    sub_cat_name: modalItem.name
+                })
+            } else {
+                await axios.put(`/api/update_category/${modalItem.id}`, {
+                    category_name: modalItem.name
+                })
+            }
+        } else {
+            if (isSub.value) {
+                await axios.post('/api/new_subcategory', {
+                    sub_cat_name: modalItem.name,
+                    category_id: parentCategory.value.id
+                })
+            } else {
+                await axios.post('/api/new_category', {
+                    category_name: modalItem.name
+                })
+            }
+        }
 
-		parentCategory.value = sub
-			? items.value.find(c => c.subcategories?.some(s => s.id === item.id)) || null
-			: null
+        await fetchData()
+        showModal.value = false
 
-		showModal.value = true
-	}
-
-	// Save (Add / Update)
-	const saveItem = async () => {
-		const name = modalItem.value.name?.trim()
-		if (!name) {
-			console.warn('Name is empty')
-			return
-		}
-
-		try {
-			let response
-
-			if (isEdit.value) {
-			// UPDATE
-			if (isSub.value) {
-				response = await axios.put(`/api/update_subcategory/${modalItem.value.id}`, {
-				sub_cat_name: name
-				})
-			} else {
-				response = await axios.put(`/api/update_category/${modalItem.value.id}`, {
-				category_name: name
-				})
-			}
-			} else {
-			// CREATE
-			if (isSub.value) {
-				if (!parentCategory.value?.id) {
-				console.error('Parent category missing ID', parentCategory.value)
-				return
-				}
-
-				response = await axios.post('/api/new_subcategory', {
-				sub_cat_name: name,
-				category_id: parentCategory.value.id
-				})
-			} else {
-				response = await axios.post('/api/new_category', {
-				category_name: name
-				})
-			}
-			}
-
-			console.log('Saved:', response.data)
-			showModal.value = false
-			await fetchData() // refresh the table
-		} catch (err) {
-			if (err.response) {
-			console.error('Server Error:', err.response.data)
-			} else {
-			console.error(err)
-			}
-		}
-	}
-
-
-	// Delete Modal
-	const openDeleteModal = (item, sub = false, parent = null) => {
-		isSub.value = sub
-		parentCategory.value = parent
-		modalItem.value = { ...item }
-		showDeleteModal.value = true
-	}
-
-	const deleteItem = async () => {
-		try {
-			if (isSub.value) {
-			await axios.delete(`/api/delete_subcategory/${modalItem.value.id}`)
-			} else {
-			await axios.delete(`/api/delete_category/${modalItem.value.id}`)
-			}
-
-			showDeleteModal.value = false
-			await fetchData()
-		} catch (err) {
-			console.error(err)
-		}
-	}
-
-	// Close modals
-	const closeModal = () => showModal.value = false
-	const closeDeleteModal = () => showDeleteModal.value = false
-
-	// Table button helpers
-	const openEdit = row => openEditModal(row.raw, row.type === 'subcategory')
-	const openAddSub = (category) => {
-		isEdit.value = false
-		isSub.value = true
-
-		parentCategory.value = {
-			id: category.id,
-			category_name: category.category_name
-		}
-
-		modalItem.id = null
-		modalItem.name = ""
-
-		showModal.value = true
-	}
+    } catch (err) {
+        console.error(err)
+    } finally {
+        isSaving.value = false
+    }
+}
 </script>
-
 <template>
 	<navigation>
-		<section class="max-w-6xl mx-auto bg-white rounded-lg shadow">
+		<section class="items-center justify-center py-8 fade-up">
+			<div class="bg-white border border-white/20 rounded-2xl shadow-xl max-w-6xl mx-auto">
+				<!-- Header -->
+				<div class="px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-			<!-- HEADER -->
-			<div class="flex justify-between items-center px-6 py-4 border-b">
-				<h2 class="font-semibold text-lg">Categories</h2>
-				<button @click="openAddModal()" class="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-				<PlusIcon class="w-4 h-4 mr-1" />
-				Add Category
-				</button>
-			</div>
+					<div class="flex flex-col gap-1">
+						<h2 class="text-2xl font-bold text-gray-600">Categories</h2>
+					</div>
 
-			<!-- SEARCH -->
-			<searchbox v-model="search" />
+					<div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
 
-			<!-- TABLE -->
-			<div class="overflow-x-auto">
-				<table class="w-full text-sm">
-					<thead class="bg-gray-100 font-semibold">
-						<tr>
-						<td class="px-4 py-2">Name</td>
-						<td class="px-4 py-2 w-32">Actions</td>
-						</tr>
-					</thead>
+						<div class="flex-1 sm:flex-none w-full sm:w-96">
+							<searchbox v-model="search" />
+						</div>
 
-					<tbody>
-						<!-- <tr v-if="loading">
-							<td colspan="2" class="text-center py-6 text-gray-500">Loading...</td>
-						</tr> -->
+						<button
+						@click="openAddModal()"
+						class="w-full sm:w-auto inline-flex items-center justify-center gap-2
+							px-4 py-2 bg-blue-600 text-white text-sm font-medium
+							rounded-lg shadow hover:bg-blue-700 transition">
+							<PlusIcon class="w-4 h-4"/>
+							Add Category
+						</button>
 
-						<template v-for="category in items" :key="category.id">
-							<!-- CATEGORY ROW -->
-							<tr class="border-t font-semibold">
-								<td class="px-4 py-2">
-									{{ category.category_name }}
-								</td>
-								<td class="px-4 py-2">
-									<div class="flex gap-1">
-									<button @click="openEditModal(category)" class="p-1 bg-blue-500 text-white rounded">
+					</div>
+				</div>
+
+				<!-- Top Pagination -->
+				<div class="border-b">
+					<pagination
+						:page="page"
+						:per-page="perPage"
+						:last-page="lastPage"
+						:total="total"
+						@update:page="page = $event"
+						@update:perPage="perPage = $event"
+					/>
+				</div>
+
+				<!-- Table -->
+				<div class="overflow-hidden">
+					<table class="min-w-full text-sm text-left">
+						<thead class="bg-gray-100 sticky top-0 z-10">
+							<tr class="text-gray-600 uppercase text-xs tracking-wide">
+							<th class="px-6 py-3">Name</th>
+							<th class="px-6 py-3 w-1">
+								<div class="flex justify-center">
+									<Bars3Icon class="size-4"/>
+								</div>
+							</th>
+							</tr>
+						</thead>
+
+						<tbody class="divide-y">
+							<template v-for="category in items" :key="category.id">
+								<!-- Category -->
+								<tr class="hover:bg-gray-50 font-medium">
+									<td class="px-6 py-2 text-gray-800">
+										{{ category.category_name }}
+									</td>
+
+									<td class="px-6 py-2 text-right">
+										<div class="flex justify-end gap-1">
+
+										<button
+										@click="openEditModal(category)"
+										class="p-2 rounded-md text-blue-600 hover:bg-blue-50">
 										<PencilSquareIcon class="w-4 h-4"/>
-									</button>
-									<button @click="openAddSub(category)" class="p-1 bg-green-500 text-white rounded">
-										<PlusIcon class="w-4 h-4"></PlusIcon>
-									</button>
-									</div>
-								</td>
-							</tr>
+										</button>
 
-							<!-- SUBCATEGORIES -->
-							<tr
-								v-for="sub in category.subcategories"
+										<button
+										@click="openAddModal(category)"
+										class="p-2 rounded-md text-green-600 hover:bg-green-50">
+										<PlusIcon class="w-4 h-4"/>
+										</button>
+
+										</div>
+									</td>
+								</tr>
+								<!-- Subcategories -->
+								<tr v-for="sub in category.subcategories"
 								:key="sub.id"
-								class="border-t text-gray-600"
-								>
-								<td class="pl-8 py-2">
+								class="hover:bg-gray-50 text-gray-600">
+									<td class="px-6 py-2 pl-12">
 									↳ {{ sub.sub_cat_name }}
-								</td>
-								<td class="px-4 py-2">
-									<button
-									@click="openEditModal(sub, true)"
-									class="p-1 bg-blue-400 text-white rounded"
-									>
-									<PencilSquareIcon class="w-4 h-4"/>
-									</button>
+									</td>
+									<td class="px-6 py-2 text-right">
+										<button
+										@click="openEditModal(sub, true)"
+										class="p-2 rounded-md text-blue-500 hover:bg-blue-50">
+										<PencilSquareIcon class="w-4 h-4"/>
+										</button>
+									</td>
+								</tr>
+							</template>
+							<tr v-if="!loading && items.length === 0">
+								<td colspan="2" class="py-10 text-center text-gray-500">
+									No categories found.
 								</td>
 							</tr>
-						</template>
-					</tbody>
-				</table>
-			</div>
+						</tbody>
+					</table>
+				</div>
 
-			<!-- PAGINATION -->
-			<pagination
-				:page="page"
-				:per-page="perPage"
-				:last-page="lastPage"
-				:total="total"
-				@update:page="page = $event"
-				@update:perPage="perPage = $event"
-			/>
-
-			<!-- ADD / EDIT MODAL -->
-			<div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
-				<div class="bg-black/50 w-full h-full" @click="closeModal"></div>
-				<div class="bg-white rounded-lg w-[600px] absolute top-32">
-				<div class="flex justify-between px-6 py-4 bg-gray-100 rounded-t-lg">
-					<h3 class="text-lg font-semibold">
-					{{ isEdit ? 'Edit ' + (isSub ? 'Subcategory' : 'Category') : 'Add ' + (isSub ? 'Subcategory' : 'Category') }}
-					</h3>
-					<button @click="closeModal"><XMarkIcon class="w-5 h-5"/></button>
-				</div>
-				<div class="flex flex-col gap-3 px-6 py-4">
-					<label class="text-sm">{{ isSub ? 'Subcategory' : 'Category' }} Name</label>
-					<input v-model="modalItem.name" placeholder="Enter name" class="border px-3 py-2 rounded text-sm"/>
-				</div>
-				<div class="flex justify-end gap-2 px-6 py-4">
-					<button @click="closeModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-400">Cancel</button>
-					<button @click="saveItem" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">{{ isEdit ? 'Update' : 'Add' }}</button>
-				</div>
+				<!-- Bottom Pagination -->
+				<div class="border-t">
+				<pagination
+					:page="page"
+					:per-page="perPage"
+					:last-page="lastPage"
+					:total="total"
+					@update:page="page = $event"
+					@update:perPage="perPage = $event"
+				/>
 				</div>
 			</div>
-
-			<!-- DELETE MODAL -->
-			<div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-				<div class="bg-white rounded-2xl shadow-lg w-[600px] max-w-[90%] p-6 px-8 text-center">
-				<ExclamationTriangleIcon class="w-20 h-20 text-red-600 mx-auto"/>
-				<h3 class="text-xl font-bold text-gray-800 mb-4">Confirm Deletion</h3>
-				<p class="text-gray-600">Are you sure you want to delete <b>{{ modalItem.name }}</b>?</p>
-				<div class="flex justify-center gap-3 mt-6">
-					<button @click="closeDeleteModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-400">Cancel</button>
-					<button @click="deleteItem" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
-				</div>
-				</div>
-			</div>
-
 		</section>
+
+		<!-- MODAL -->
+		<modal v-model="showModal">
+
+			<template #title>
+			{{ isEdit
+			? `Edit ${isSub ? 'Subcategory' : 'Category'}`
+			: `Add ${isSub ? 'Subcategory' : 'Category'}`
+			}}
+			</template>
+
+			<template #close-icon>
+			<XMarkIcon class="w-5 h-5"/>
+			</template>
+
+			<div v-if="isSub">
+				<label class="text-sm font-medium">Category</label>
+				<input
+				type="text"
+				:value="parentCategory?.category_name"
+				class="mt-1 mb-4 w-full border rounded-lg px-3 py-2 text-sm bg-gray-100 cursor-not-allowed"
+				readonly
+				/>
+			</div>
+
+			<!-- Subcategory / Category Name -->
+			<div>
+				<label class="text-sm font-medium">
+				{{ isSub ? 'Subcategory' : 'Category' }} Name
+				</label>
+				<input
+				v-model="modalItem.name"
+				class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+				placeholder="Enter name"
+				/>
+				<span v-if="errors.name" class="text-red-500 text-xs">
+				{{ errors.name }}
+				</span>
+			</div>
+
+			<template #footer>
+
+			<button
+			@click="showModal=false"
+			class="px-4 py-2 text-sm bg-gray-100 rounded-lg"
+			:disabled="isSaving">
+			Cancel
+			</button>
+
+			<button
+			@click="saveItem"
+			class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg"
+			:disabled="isSaving">
+			{{ isSaving ? 'Saving...' : 'Save' }}
+			</button>
+
+			</template>
+
+		</modal>
 	</navigation>
 </template>

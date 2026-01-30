@@ -33,32 +33,32 @@ class EmployeeController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $request->validate([
-            'employee_name' => 'required|string|max:255',
+            'employee_name' => 'required|string|max:255|unique:employee,employee_name',
             'position' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
-            'department_name' => 'required|string',
+            'department_name' => 'required|string|max:255',
         ]);
 
-        Employee::create($request->only('employee_name', 'position', 'department_id', 'department_name'));
+        $employee = Employee::create($request->only('employee_name', 'position', 'department_id', 'department_name'));
 
-        return response()->json(['message' => 'Employee created']);
+        return response()->json($employee);
     }
 
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
+        $employee = Employee::findOrFail($id);
+
         $request->validate([
-            'employee_name' => 'required|string|max:255',
+            'employee_name' => 'required|string|max:255|unique:employee,employee_name,' . $id,
             'position' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
-            'department_name' => 'required|string',
+            'department_name' => 'required|string|max:255',
         ]);
 
-        $employee = Employee::findOrFail($id);
         $employee->update($request->only('employee_name', 'position', 'department_id', 'department_name'));
 
-        return response()->json(['message' => 'Employee updated']);
+        return response()->json($employee);
     }
+
 }

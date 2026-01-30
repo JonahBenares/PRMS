@@ -8,7 +8,6 @@
     import navigation from "@/components/layouts/navigation.vue";
     import modal from "@/components/modal.vue";
 
-
     const {
 		items,
 		search,
@@ -197,6 +196,7 @@
                         </tbody>
                     </table>
                 </div>
+                
                 <div class="border-t">
                     <pagination
                         :page="page"
@@ -209,7 +209,6 @@
                 </div>
             </div>
         </section>
-
 
         <modal v-model="showModal">
             <!-- Title -->
@@ -267,6 +266,5 @@
             </template>
         </modal>
 
-        
     </navigation>
 </template>

@@ -55,7 +55,7 @@ const visiblePages = computed(() => {
 		<select
 			:value="perPage"
 			@change="emit('update:perPage', Number($event.target.value))"
-			class="px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+			class="px-2 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
 		>
 			<option :value="5">5</option>
 			<option :value="10">10</option>
@@ -96,7 +96,7 @@ const visiblePages = computed(() => {
 			:class="[
 			'pagination-btn',
 			page === n
-				? 'bg-blue-600 text-white border-blue-600'
+				? 'bg-gray-400 text-white border-gray-400'
 				: 'bg-white text-gray-700 hover:bg-gray-100'
 			]"
 		>

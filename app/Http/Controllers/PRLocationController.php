@@ -7,7 +7,7 @@ use App\Models\PRLocation;
 
 class PRLocationController extends Controller
 {
-    // GET /api/pr-locations
+    // Get all locations
     public function index(Request $request)
     {
         $search  = $request->query('search');
@@ -19,45 +19,49 @@ class PRLocationController extends Controller
             $query->where('location', 'like', "%{$search}%");
         }
 
-        return $query->paginate($perPage);
+        return $query
+            ->orderBy('location', 'ASC')
+            ->paginate($perPage);
     }
 
-    // POST /api/pr-locations
+    // Store new location
     public function store(Request $request)
     {
         $request->validate([
-            'location' => 'required|string|max:255',
+            'location' => 'required|string|max:255|unique:pr_locations,location',
         ]);
 
-        $location = PRLocation::create([
-            'location' => $request->location,
-        ]);
+        $location = PRLocation::create(
+            $request->only('location')
+        );
 
-        return response()->json($location, 201);
+        return response()->json($location);
     }
 
-    // PUT /api/pr-locations/{id}
+    // Update location
     public function update(Request $request, $id)
     {
         $location = PRLocation::findOrFail($id);
 
         $request->validate([
-            'location' => 'required|string|max:255',
+            'location' => 'required|string|max:255|unique:pr_locations,location,' . $id,
         ]);
 
-        $location->update([
-            'location' => $request->location,
-        ]);
+        $location->update(
+            $request->only('location')
+        );
 
         return response()->json($location);
     }
 
-    // DELETE /api/pr-locations/{id}
+    // Delete
     public function destroy($id)
     {
         $location = PRLocation::findOrFail($id);
         $location->delete();
 
-        return response()->json(['message' => 'Deleted successfully']);
+        return response()->json([
+            'message' => 'Location deleted successfully'
+        ]);
     }
 }
