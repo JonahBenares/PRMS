@@ -1,12 +1,18 @@
 <script setup>
-	import { ref, reactive, onMounted, watch, computed } from "vue";
-	import { useTable } from '@/composables/useTable'
-	import searchbox from '@/composables/searchbox.vue';
-	import pagination from "@/composables/pagination.vue";
-	import navigation from "@/components/layouts/navigation.vue";
-	import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
+	import { ref, reactive, onMounted } from 'vue'
 	import axios from 'axios'
 
+	import { useTable } from '@/composables/useTable'
+	import searchbox from '@/composables/searchbox.vue'
+	import pagination from "@/composables/pagination.vue"
+	import navigation from "@/components/layouts/navigation.vue"
+	import modal from "@/components/modal.vue"
+
+	import { Bars3Icon, PencilSquareIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+
+	// -------------------
+	// TABLE
+	// -------------------
 	const {
 		items,
 		search,
@@ -19,301 +25,193 @@
 	} = useTable('/api/companies')
 
 	onMounted(fetchData)
-	const pageCount = computed(() => lastPage.value)
-	const totalItems = computed(() => total.value)
 
-	// Flatten categories + subcategories for table rows
-	const tableRows = computed(() => {
-		const rows = []
-		items.value.forEach(category => {
-			rows.push({
-			id: `c-${category.id}`,
-			name: category.category_name,
-			type: 'category',
-			raw: category
-			})
-			category.subcategories?.forEach(sub => {
-			rows.push({
-				id: `s-${sub.id}`,
-				name: `↳ ${sub.sub_cat_name}`,
-				type: 'subcategory',
-				raw: sub,
-				parent: category
-			})
-			})
-		})
-		return rows
+	// -------------------
+	// MODAL STATE
+	// -------------------
+	const showModal = ref(false)
+	const isSaving = ref(false)
+	const isEdit = ref(false)
+	const isSub = ref(false)
+
+	const parentCompany = ref(null)
+
+	const logoPreview = ref(null)
+
+	const modalItem = reactive({
+		id: null,
+		company_name: '',
+		company_code: '',
+		company_logo: null,
+		location: '',
+		address: '',
+		telephone: '',
+		telefax: ''
 	})
 
-	
-	const visiblePages = computed(() => {
-		const total = pageCount.value
-		const current = page.value
-		const delta = 2 // pages on each side
+	const errors = reactive({
+		company_name: '',
+		company_code: '',
+		location: ''
+	})
 
-		if (total <= 7) {
-			return Array.from({ length: total }, (_, i) => i + 1)
+	// -------------------
+	// LOGO UPLOAD
+	// -------------------
+	const handleLogoUpload = (e) => {
+		const file = e.target.files[0]
+		if (!file) return
+
+		modalItem.company_logo = file
+		logoPreview.value = URL.createObjectURL(file)
+	}
+
+	// -------------------
+	// MODAL ACTIONS
+	// -------------------
+	const openAddModal = (parent = null) => {
+		isEdit.value = false
+		isSub.value = !!parent
+		parentCompany.value = parent
+
+		Object.assign(modalItem, {
+			id: null,
+			company_name: '',
+			company_code: '',
+			company_logo: null,
+			location: '',
+			address: '',
+			telephone: '',
+			telefax: ''
+		})
+
+		logoPreview.value = null
+		clearErrors()
+		showModal.value = true
+	}
+
+	const openEditModal = (item, sub = false, parent = null) => {
+		isEdit.value = true
+		isSub.value = sub
+		parentCompany.value = parent
+
+		Object.assign(modalItem, { ...item })
+
+		if (!sub && item.company_logo) {
+			logoPreview.value = `/storage/logos/${item.company_logo}`
+		} else {
+			logoPreview.value = null
 		}
 
-		const pages = new Set()
+		clearErrors()
+		showModal.value = true
+	}
 
-		pages.add(1)
-		pages.add(total)
+	function clearErrors() {
+		errors.company_name = ''
+		errors.company_code = ''
+		errors.location = ''
+	}
 
-		for (let i = current - delta; i <= current + delta; i++) {
-			if (i > 1 && i < total) {
-			pages.add(i)
+	// -------------------
+	// SAVE
+	// -------------------
+	const saveItem = async () => {
+		if (isSaving.value) return
+		clearErrors()
+
+		// validation
+		if (!isSub.value) {
+			if (!modalItem.company_name.trim()) {
+				errors.company_name = "Company name is required"
+				return
+			}
+		} else {
+			if (!modalItem.location.trim()) {
+				errors.location = "Location is required"
+				return
 			}
 		}
 
-		return Array.from(pages).sort((a, b) => a - b)
-	})
+		try {
+			isSaving.value = true
 
-	const companies = ref([]);
-	const logoFile = ref(null);
-	const logoPreview = ref(null);
+			if (isSub.value) {
+				// LOCATION
+				const payload = {
+					company_id: parentCompany.value.id,
+					location: modalItem.location,
+					address: modalItem.address,
+					telephone: modalItem.telephone,
+					telefax: modalItem.telefax
+				}
 
-	// Fetch departments from API
-	
+				if (isEdit.value) {
+					await axios.put(`/api/company_locations/${modalItem.id}`, payload)
+				} else {
+					await axios.post(`/api/company_locations`, payload)
+				}
 
-	const handleLogoUpload = (e) => {
-	const file = e.target.files[0];
-	if (!file) return;
+			} else {
+				// COMPANY
+				const formData = new FormData()
+				formData.append("company_name", modalItem.company_name)
+				formData.append("company_code", modalItem.company_code)
 
-	modalItem.company_logo = file;
-	logoPreview.value = URL.createObjectURL(file);
-	};
+				if (modalItem.company_logo instanceof File) {
+					formData.append("company_logo", modalItem.company_logo)
+				}
 
-	onMounted(async () => {
-		fetchData()
-	})
+				const url = isEdit.value
+					? `/api/companies/${modalItem.id}?_method=PUT`
+					: `/api/companies`
 
-	// Modal States
-	const showModal = ref(false);
-	const showDeleteModal = ref(false);
-	const isEdit = ref(false);
-	const isSub = ref(false);
-	const parentCompany = ref(null);
+				await axios.post(url, formData, {
+					headers: { "Content-Type": "multipart/form-data" }
+				})
+			}
 
-	const modalItem = reactive({
-	id: null,
+			await fetchData()
+			showModal.value = false
 
-	company_name: "",
-	company_code: "",
-	company_logo: null,
-
-	location: "",
-	address: "",
-	telephone: "",
-	telefax: "",
-	});
-
-	const openAddModal = (parent = null) => {
-	isEdit.value = false;
-	isSub.value = !!parent;
-	parentCompany.value = parent;
-
-	Object.assign(modalItem, {
-		id: null,
-		company_name: "",
-		company_code: "",
-		company_logo: null,
-		location: "",
-		address: "",
-		telephone: "",
-		telefax: "",
-	});
-
-	showModal.value = true;
-	};
-
-	const openEditModal = (item, sub = false) => {
-	isEdit.value = true;
-	isSub.value = sub;
-
-	Object.assign(modalItem, { ...item });
-
-	// 👇 THIS IS THE FIX
-	if (!sub && item.company_logo) {
-		logoPreview.value = `/storage/logos/${item.company_logo}`;
-	} else {
-		logoPreview.value = null;
-	}
-
-	logoFile.value = null;
-	showModal.value = true;
-	};
-
-	// Save Company or Location
-	const saveCompany = async () => {
-	try {
-		if (isSub.value) {
-		// Save location
-		const payload = {
-			company_id: parentCompany.value.id,
-			location: modalItem.location,
-			address: modalItem.address,
-			telephone: modalItem.telephone,
-			telefax: modalItem.telefax
-		};
-
-		if (isEdit.value) {
-			await axios.put(`/api/company_locations/${modalItem.id}`, payload);
-		} else {
-			await axios.post("/api/company_locations", payload);
+		} catch (err) {
+			console.error(err.response?.data || err)
+		} finally {
+			isSaving.value = false
 		}
-
-		} else {
-		// Save company
-		const formData = new FormData();
-		formData.append("company_name", modalItem.company_name);
-		formData.append("company_code", modalItem.company_code);
-
-		// ✅ Only append logo if it's a File (new upload)
-		if (modalItem.company_logo instanceof File) {
-			formData.append("company_logo", modalItem.company_logo);
-		}
-
-		const url = isEdit.value 
-			? `/api/companies/${modalItem.id}?_method=PUT` 
-			: "/api/companies";
-
-		await axios.post(url, formData, {
-			headers: { "Content-Type": "multipart/form-data" }
-		});
-		}
-
-		showModal.value = false;
-		await fetchData();
-	} catch (err) {
-		console.error("Save failed:", err.response?.data || err);
 	}
-	}
-
-	const openDeleteModal = (item, sub = false, parent = null) => {
-		isSub.value = sub;
-		parentCompany.value = parent;
-		Object.assign(modalItem, { ...item });
-		showDeleteModal.value = true;
-	};
-
-	const deleteCompany = async () => {
-	try {
-		if (isSub.value) {
-		await axios.delete(`/api/company_locations/${modalItem.id}`);
-		} else {
-		await axios.delete(`/api/companies/${modalItem.id}`);
-		}
-
-		showDeleteModal.value = false;
-		await fetchData();
-	} catch (err) {
-		console.error("Delete failed:", err);
-	}
-	};
-
-	const closeModal = () => {
-		showModal.value = false;
-		logoFile.value = null;
-		logoPreview.value = null;
-	};
-
-	const closeDeleteModal = () => showDeleteModal.value = false;
 </script>
+
 <template>
 	<navigation>
-		<section class="items-center justify-center py-8">
-		<div class="bg-white rounded-lg shadow-lg max-w-6xl mx-auto">
+		<section class="items-center justify-center py-8 fade-up">
 
-			<!-- Header -->
-			<div class="px-6 py-4 flex justify-between items-center mb-4 bg-white border-b rounded-t-lg">
-			<h2 class="text-lg font-semibold">Company List</h2>
+			<div class="bg-white  rounded-2xl shadow-xl max-w-6xl mx-auto">
 
-			<button 
-				@click="openAddModal()"
-				class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-			>
-				<PlusIcon class="w-5 h-5 mr-1" />
-				Add Company
-			</button>
-			</div>
+				<!-- HEADER -->
+				<div class="px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+					<div>
+						<h2 class="text-2xl font-bold text-gray-700">Companies</h2>
+					</div>
 
-			<!-- SEARCH -->
-			<searchbox v-model="search" />
-			<!-- Table -->
-			<div class="overflow-auto">
-				<table
-					class="min-w-full text-sm text-left text-gray-700 border border-gray-200 rounded-lg overflow-hidden"
-					>
-					<thead class="bg-gray-100 text-gray-900 font-semibold">
-						<tr>
-						<td class="px-4 py-2 w-40">Company</td>
-						<td class="px-4 py-2 w-32">Code</td>
-						<td class="px-4 py-2 w-28">Logo</td>
-						<td class="px-4 py-2">Location</td>
-						<td class="px-4 py-2 w-40">Address</td>
-						<td class="px-4 py-2 w-32">Telephone</td>
-						<td class="px-4 py-2 w-32">Telefax</td>
-						<td class="px-4 py-2 w-20"></td>
-						</tr>
-					</thead>
+					<div class="flex gap-3 w-full sm:w-auto">
 
-					<tbody class="divide-y divide-gray-200">
-						<!-- COMPANY ROW -->
-						<template v-for="company in items" :key="company.id">
-						<tr class="bg-gray-50">
-							<td class="px-4 py-2 font-semibold">{{ company.company_name }}</td>
-							<td class="px-4 py-2">{{ company.company_code }}</td>
+						<div class="w-full sm:w-96">
+							<searchbox v-model="search" />
+						</div>
 
-							<!-- LOGO PREVIEW -->
-							<td class="px-4 py-2">
-							<img 
-								v-if="company.company_logo"
-								:src="`/storage/logos/${company.company_logo}`"
-								class="h-10 w-10 object-cover rounded"
-							/>
-							<span v-else class="text-gray-400 text-xs">No Logo</span>
-							</td>
+						<button
+							@click="openAddModal()"
+							class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+							<PlusIcon class="w-4 h-4"/>
+							Add Company
+						</button>
 
-							<!-- EMPTY FIELDS FOR SPAN -->
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
+					</div>
+				</div>
 
-							<td class="px-4 py-2 flex space-x-1">
-							<button @click="openEditModal(company, false)" class="px-1 py-1 bg-blue-500 text-white rounded hover:bg-blue-700">
-								<PencilSquareIcon class="w-4 h-4"/>
-							</button>
-							<button @click="openAddModal(company)" class="px-1 py-1 bg-green-500 text-white rounded hover:bg-green-700">
-								<PlusIcon class="w-4 h-4"></PlusIcon>
-							</button>
-							</td>
-						</tr>
-
-						<!-- LOCATION ROWS -->
-						<tr v-for="loc in company.companylocation" :key="loc.id">
-							<td></td>
-							<td></td>
-							<td></td>
-
-							<td class="px-4 py-2 text-gray-600">↳ {{ loc.location }}</td>
-							<td class="px-4 py-2">{{ loc.address }}</td>
-							<td class="px-4 py-2">{{ loc.telephone }}</td>
-							<td class="px-4 py-2">{{ loc.telefax }}</td>
-
-							<td class="px-4 py-2 flex space-x-1">
-							<button @click="openEditModal(loc, true)" class="px-1 py-1 bg-blue-500 text-white rounded hover:bg-blue-700">
-								<PencilSquareIcon class="w-4 h-4"/>
-							</button>
-							</td>
-						</tr>
-						</template>
-					</tbody>
-
-					</table>
-
-
+				<!-- TOP PAGINATION -->
+				<div class="border-b">
 				<pagination
 				:page="page"
 				:per-page="perPage"
@@ -321,26 +219,111 @@
 				:total="total"
 				@update:page="page = $event"
 				@update:perPage="perPage = $event"
-			/>
+				/>
+				</div>
+
+				<!-- TABLE -->
+				<div class="overflow-hidden">
+					<table class="min-w-full text-sm text-left">
+						<thead class="bg-gray-100 text-xs uppercase text-gray-600">
+							<tr>
+								<th class="px-6 py-3">Company</th>
+								<th class="px-6 py-3">Code</th>
+								<th class="px-6 py-3">Logo</th>
+								<th class="px-6 py-3 w-1 text-center">
+								<Bars3Icon class="size-4"/>
+								</th>
+							</tr>
+						</thead>
+
+						<tbody class="divide-y">
+
+							<template v-for="company in items" :key="company.id">
+
+								<!-- COMPANY -->
+								<tr class="hover:bg-gray-50 font-medium">
+									<td class="px-6 py-2">{{ company.company_name }}</td>
+									<td class="px-6 py-2">{{ company.company_code }}</td>
+
+									<td class="px-6 py-2">
+										<img v-if="company.company_logo"
+										:src="`/storage/logos/${company.company_logo}`"
+										class="h-10 w-10 object-cover rounded"/>
+									</td>
+
+									<td class="px-6 py-2 text-right">
+										<div class="flex justify-end gap-1">
+											<button @click="openEditModal(company)"
+											class="p-2 text-blue-600 hover:bg-blue-50 rounded">
+											<PencilSquareIcon class="w-4 h-4"/>
+											</button>
+
+											<button @click="openAddModal(company)"
+											class="p-2 text-green-600 hover:bg-green-50 rounded">
+											<PlusIcon class="w-4 h-4"/>
+											</button>
+										</div>
+									</td>
+								</tr>
+
+							<!-- LOCATIONS -->
+								<tr v-for="loc in company.companylocation"
+								:key="loc.id"
+								class="text-gray-600 hover:bg-gray-50">
+
+									<td colspan="3" class="px-6 py-2 pl-12">
+									↳ {{ loc.location }}
+										{{ loc.address }}
+										{{ loc.telephone }}
+										{{ loc.telefax }}
+									</td>
+
+									<td class="px-6 py-2 text-right">
+									<button @click="openEditModal(loc, true, company)"
+									class="p-2 text-blue-500 hover:bg-blue-50 rounded">
+									<PencilSquareIcon class="w-4 h-4"/>
+									</button>
+									</td>
+
+								</tr>
+
+							</template>
+
+						</tbody>
+					</table>
+				</div>
+
+				<!-- BOTTOM PAGINATION -->
+				<div class="border-t">
+				<pagination
+				:page="page"
+				:per-page="perPage"
+				:last-page="lastPage"
+				:total="total"
+				@update:page="page = $event"
+				@update:perPage="perPage = $event"
+				/>
+				</div>
+
 			</div>
-		</div>
+		</section>
 
-		<!-- Add/Edit Modal -->
-		<div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
-			<div class="bg-black/50 w-full h-full" @click="closeModal"></div>
+		<!-- MODAL -->
+		<modal v-model="showModal">
 
-			<div class="bg-white rounded-lg w-[600px] absolute top-32">
-			<div class="flex justify-between px-6 py-4 bg-gray-100 rounded-t-lg">
-				<h3 class="text-lg font-semibold">
-				{{ isEdit ? 'Edit ' + (isSub ? 'Location' : 'Company') : 'Add ' + (isSub ? 'Location' : 'Company') }}
-				</h3>
-				<button @click="closeModal"><XMarkIcon class="size-4" /></button>
-			</div>
+			<template #title>
+				{{ isEdit
+				? `Edit ${isSub ? 'Location' : 'Company'}`
+				: `Add ${isSub ? 'Location' : 'Company'}`
+				}}
+			</template>
 
-			<div class="flex flex-col gap-3 px-6 py-4">
+			<template #close-icon>
+				<XMarkIcon class="w-5 h-5"/>
+			</template>
 
-				<!-- COMPANY FIELDS -->
-				<div v-if="!isSub">
+			<!-- COMPANY -->
+			<div v-if="!isSub">
 				<label class="text-sm">Company Name</label>
 				<input v-model="modalItem.company_name" class="border px-3 py-2 rounded text-sm w-full"/>
 
@@ -366,11 +349,11 @@
 						@change="handleLogoUpload"
 						class="border px-3 py-2 rounded text-sm w-full"
 					/>
-					</div>
 				</div>
+			</div>
 
-				<!-- LOCATION FIELDS -->
-				<div v-if="isSub">
+			<!-- LOCATION -->
+			<div v-if="isSub">
 				<label class="text-sm">Location Name</label>
 				<input v-model="modalItem.location" class="border px-3 py-2 rounded text-sm w-full"/>
 
@@ -382,33 +365,23 @@
 
 				<label class="text-sm">Telefax</label>
 				<input v-model="modalItem.telefax" class="border px-3 py-2 rounded text-sm w-full"/>
-				</div>
 			</div>
 
-			<div class="flex justify-end gap-2 px-6 py-4">
-				<button @click="closeModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-400">Cancel</button>
-				<button @click="saveCompany" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-				{{ isEdit ? 'Update' : 'Add' }}
+			<template #footer>
+
+				<button @click="showModal=false"
+				class="px-4 py-2 bg-gray-100 rounded">
+				Cancel
 				</button>
-			</div>
-			</div>
-		</div>
 
-		<!-- Delete Modal -->
-		<div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-			<div class="bg-white rounded-2xl shadow-lg w-[600px] max-w-[90%] p-6 px-8 text-center">
-			<ExclamationTriangleIcon class="w-20 h-20 text-red-600 mx-auto"/>
-			<h3 class="text-xl font-bold text-gray-800 mb-4">Confirm Deletion</h3>
-			<p class="text-gray-600">
-				Are you sure you want to delete <b>{{ modalItem.company_name || modalItem.location_name }}</b>?
-			</p>
+				<button @click="saveItem"
+				class="px-4 py-2 bg-blue-600 text-white rounded"
+				:disabled="isSaving">
+				{{ isSaving ? 'Saving...' : 'Save' }}
+				</button>
 
-			<div class="flex justify-center gap-3 mt-6">
-				<button @click="closeDeleteModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-400">Cancel</button>
-				<button @click="deleteItem" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
-			</div>
-			</div>
-		</div>
-		</section>
+			</template>
+
+		</modal>
 	</navigation>
 </template>

@@ -29,20 +29,15 @@ class DepartmentController extends Controller
     // Add new department
     public function store(Request $request) {
         $request->validate([
-            'employee_name' => 'required|string|max:255|unique:employees,employee_name',
-            'position' => 'required|string|max:255',
-            'department_id' => 'required|exists:departments,id',
-            'department_name' => 'required|string|max:255',
+            'department_name' => 'required|string|max:255|unique:departments,department_name',
+            'department_code' => 'required|string|max:10|unique:departments,department_code',
         ]);
 
-        $employee = Employee::create($request->only(
-            'employee_name',
-            'position',
-            'department_id',
-            'department_name'
-        ));
+        $dept = Department::create(
+            $request->only('department_name', 'department_code')
+        );
 
-        return response()->json($employee);
+        return response()->json($dept, 201);
     }
 
     // Update department
