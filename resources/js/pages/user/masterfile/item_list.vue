@@ -128,10 +128,10 @@
 
 						<!-- VARIANTS (NESTED like subcategories) -->
 						<tr v-if="expanded[item.id]">
-							<td colspan="6" class="bg-gray-50">
+							<td colspan="6" class="bg-gray-50 p-4">
 
 								<table class="w-full text-sm">
-									<thead class="bg-gray-200 text-xs uppercase text-gray-600">
+									<thead class="bg-gray-200 text-xs  text-gray-400">
 										<tr>
 											<th class="px-12 py-2">Variant Code</th>
 											<th class="px-4 py-2">Brand</th>
