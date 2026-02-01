@@ -146,7 +146,7 @@
 				</thead>
 
 				<tbody class="divide-y">
-					<tr v-for="loc in items" :key="loc.id" class="hover:bg-gray-50">
+					<tr v-for="loc in items" :key="loc.id" class="">
 						<td class="px-6 py-2">{{ loc.location }}</td>
 						<td class="px-6 py-2 text-center">
 							<button @click="openEditModal(loc)" class="p-2 text-blue-600 hover:bg-blue-50 rounded">
@@ -192,14 +192,14 @@
 			</div>
 
 			<template #footer>
-				<button @click="showModal=false" class="px-4 py-2 bg-gray-100 rounded-lg">
+				<button @click="showModal=false" class="px-4 py-2 text-sm bg-gray-100 rounded-lg">
 					Cancel
 				</button>
 
 				<button
 					@click="saveLocation"
 					:disabled="isSaving"
-					class="px-4 py-2 bg-blue-600 text-white rounded-lg"
+					class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg"
 					>
 					{{ isSaving ? 'Saving...' : isEdit ? 'Update' : 'Add' }}
 				</button>

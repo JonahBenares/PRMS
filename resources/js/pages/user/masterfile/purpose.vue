@@ -210,7 +210,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y">
-                            <tr v-for="purpose in items" :key="purpose.id" class="hover:bg-gray-50 transition" >
+                            <tr v-for="purpose in items" :key="purpose.id" class="transition" >
                                 <td class="px-6 py-2 font-medium text-gray-800">
                                 {{ purpose.purpose_name }}
                                 </td>

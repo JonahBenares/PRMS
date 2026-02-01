@@ -12,11 +12,11 @@
 			</div>
 			<div class="mb-3">
 				<table class="w-full text-sm ">
-					<tbody>
+					<thead>
 						<tr>
 							<td class=" px-1">Company</td>
 							<td class=" w-[37.5%]">
-								<select v-model="selectedCompany" class="outline-none w-full py-1 border rounded-lg">
+								<select v-model="selectedCompany" class="outline-none w-full py-1 border rounded-lg px-2">
 								<option value="">Select Company</option>
 								<option value="ENERGREEN">ENERGREEN</option>
 								<option value="CENPRI">CENPRI</option>
@@ -25,7 +25,7 @@
 							</td>
 							<td class=" px-1">Department</td>
 							<td class=" w-[37.5%]">
-								<select v-model="selectedDepartment" class="outline-none w-full py-1 border rounded-lg">
+								<select v-model="selectedDepartment" class="outline-none w-full py-1 border rounded-lg px-2">
 								<option value="">Select Department</option>
 								<option v-for="dept in departments" :key="dept" :value="dept">
 									{{ dept }}
@@ -36,7 +36,7 @@
 						<tr>
 							<td class=" px-1">Location</td>
 							<td class=" w-[37.5%]">
-								<select v-model="selectedPurchase" class="outline-none w-full py-1 border rounded-lg">
+								<select v-model="selectedPurchase" class="outline-none w-full py-1 border rounded-lg px-2">
 									<option value="">Select Location</option>
 									<option v-for="req in purchaseRequests" :key="req" :value="req">
 									{{ req }}
@@ -45,17 +45,17 @@
 							</td>
 							<td class=" px-1">Department Code</td>
 							<td class=" w-[37.5%]">
-								<input type="text" class="outline-none w-full py-1 border rounded-lg px-1" v-model="departmentCode">
+								<input type="text" class="outline-none w-full py-1 border rounded-lg px-2 px-1" v-model="departmentCode">
 							</td>
 						</tr>
 						<tr>
 							<td class=" px-1">PR Number</td>
 							<td class=" w-[37.5%]">
-								<input type="text" class="outline-none w-full py-1 border rounded-lg px-1" :value="prNumber" readonly>
+								<input type="text" class="outline-none w-full py-1 border rounded-lg px-2 px-1" :value="prNumber" readonly>
 							</td>
 							<td class=" px-1" width="">Requestor</td>
 							<td class="" width="37.5%">
-								<select name="" class="outline-none w-full py-1 border rounded-lg px-1" id="">
+								<select name="" class="outline-none w-full py-1 border rounded-lg px-2 px-1" id="">
 									<option value=""></option>
 									<option value=""></option>
 									<option value=""></option>
@@ -64,10 +64,10 @@
 						</tr>
 						<tr>
 							<td class=" px-1" width="">Date Prepared</td>
-							<td class="" width="37.5%"><input type="date" class="outline-none w-full py-1 border rounded-lg px-1"></td>
+							<td class="" width="37.5%"><input type="date" class="outline-none w-full py-1 border rounded-lg px-2 px-1"></td>
 							<td class=" px-1" width="">Urgency</td>
 							<td class="" width="35%">
-								<select name="" class="outline-none w-full py-1 border rounded-lg px-1" id="">
+								<select name="" class="outline-none w-full py-1 border rounded-lg px-2 px-1" id="">
 									<option value="">A Week</option>
 									<option value="">Month</option>
 									<option value="">Quarter</option>
@@ -83,7 +83,7 @@
 						<tr>
 							<td class=" px-1" width="">Purpose</td>
 							<td class="" colspan="3">
-								<select name="" class="outline-none w-full py-1 border rounded-lg" id="">
+								<select name="" class="outline-none w-full py-1 border rounded-lg px-2" id="">
 									<option value=""></option>
 									<option value=""></option>
 									<option value=""></option>
@@ -93,14 +93,14 @@
 						<tr>
 							<td class=" px-1" width="">End-use</td>
 							<td class="" colspan="3">
-								<select name="" class="outline-none w-full py-1 border rounded-lg" id="">
+								<select name="" class="outline-none w-full py-1 border rounded-lg px-2" id="">
 									<option value=""></option>
 									<option value=""></option>
 									<option value=""></option>
 								</select>
 							</td>
 						</tr>
-					</tbody>
+					</thead>
 				</table>
 			</div>
 			<div class="border border-gray-200 rounded-xl overflow-hidden text-sm mb-3">
@@ -122,7 +122,7 @@
 						</tr>
 						</thead>
 
-						<tbody>
+						<thead>
 						<tr v-for="(row, index) in rows" :key="row.id">
 							<td class="align-top !border-x !border-b px-1 text-center">
 							{{ index + 1 }}
@@ -247,22 +247,22 @@
 								</button>
 							</td>
 						</tr>
-					</tbody>
+					</thead>
 				</table>
 			</div>
 			<table class="w-full text-sm !border-b border-x mt-1">
-				<tbody>
+				<thead>
 					<tr>
 						<td class="border p-0" colspan="2">
 							<span class="px-1 align-top">Notes</span>
 							<textarea name="" id="" class="m-0 w-full p-1 outline-none" rows="1"></textarea>
 						</td>
 					</tr>
-				</tbody>
+				</thead>
 			</table>
 			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bago'" class="border-b border-x px-16 py-5">
 				<table class="w-full  text-sm">
-					<tbody>
+					<thead>
 						<tr>
 							<td width="10%">Prepared By:</td>
 							<td class="border-b">
@@ -337,7 +337,7 @@
 							<td width=""></td>
 							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
 						</tr>
-					</tbody>
+					</thead>
 				</table>
 			</div>
 			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bacolod'" class="border-b border-x pl-4 pr-12 py-5">

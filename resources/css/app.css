@@ -94,4 +94,8 @@ input, select{
     }
 }
 
+tbody tr {
+  @apply hover:bg-yellow-50;
+}
+
 

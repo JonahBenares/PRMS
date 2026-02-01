@@ -88,7 +88,7 @@
 						<template v-for="item in items" :key="item.id">
 
 						<!-- MAIN ITEM ROW -->
-						<tr class="hover:bg-yellow-50 font-medium text-sm">
+						<tr class=" font-medium text-sm">
 							<td class="px-6 py-2 text-gray-800">
 								{{ item.item_code }}
 							</td>
@@ -140,7 +140,7 @@
 										</thead>
 										<tbody>
 											<tr v-for="v in item.item_Variants" :key="v.id"
-												class="hover:bg-gray-100 text-xs text-gray-600 border-t">
+												class=" text-xs text-gray-600 border-t">
 												<td class="px-2 py-2 w-32">{{ v.variant_item_code }}</td>
 												<td class="px-2 py-2">{{ v.brand }}asdas sadasd</td>
 												<td class="px-2 py-2">{{ v.model }}</td>

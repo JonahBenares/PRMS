@@ -175,7 +175,7 @@ const saveItem = async () => {
 						<tbody class="divide-y">
 							<template v-for="category in items" :key="category.id">
 								<!-- Category -->
-								<tr class="hover:bg-gray-50 font-medium">
+								<tr class="font-medium">
 									<td class="px-6 py-2 text-gray-800">
 										{{ category.category_name }}
 									</td>
@@ -201,7 +201,7 @@ const saveItem = async () => {
 								<!-- Subcategories -->
 								<tr v-for="sub in category.subcategories"
 								:key="sub.id"
-								class="hover:bg-gray-50 text-gray-600">
+								class="text-gray-600">
 									<td class="px-6 py-2 pl-12">
 									↳ {{ sub.sub_cat_name }}
 									</td>

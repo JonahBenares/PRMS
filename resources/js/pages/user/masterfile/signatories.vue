@@ -263,8 +263,8 @@
             <div class="flex justify-between w-full">
             <button v-if="isEdit" class="text-sm text-red-600 hover:underline">Delete</button>
             <div class="ml-auto flex gap-2">
-                <button @click="showModal=false" class="px-4 py-2 bg-gray-100 rounded-lg">Cancel</button>
-                <button @click="saveSignatory" class="px-4 py-2 bg-blue-600 text-white rounded-lg">{{ isEdit ? 'Update' : 'Add' }}</button>
+                <button @click="showModal=false" class="px-4 py-2 text-sm bg-gray-100 rounded-lg">Cancel</button>
+                <button @click="saveSignatory" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg">{{ isEdit ? 'Update' : 'Add' }}</button>
             </div>
             </div>
         </template>

@@ -241,7 +241,7 @@
 							<template v-for="company in items" :key="company.id">
 
 								<!-- COMPANY -->
-								<tr class="hover:bg-gray-50 font-medium">
+								<tr class="font-medium">
 									<td class="px-6 py-2">{{ company.company_name }}</td>
 									<td class="px-6 py-2">{{ company.company_code }}</td>
 
@@ -370,12 +370,12 @@
 			<template #footer>
 
 				<button @click="showModal=false"
-				class="px-4 py-2 bg-gray-100 rounded">
+				class="px-4 py-2 text-sm bg-gray-100 rounded">
 				Cancel
 				</button>
 
 				<button @click="saveItem"
-				class="px-4 py-2 bg-blue-600 text-white rounded"
+				class="px-4 py-2 text-sm bg-blue-600 text-white rounded"
 				:disabled="isSaving">
 				{{ isSaving ? 'Saving...' : 'Save' }}
 				</button>
