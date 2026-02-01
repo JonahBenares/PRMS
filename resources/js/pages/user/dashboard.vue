@@ -6,38 +6,26 @@
 				<div>
 					<h2 class="text-2xl font-bold mb-2">PR FORM</h2>
 				</div>
-				<div class="px-2 mt-1">
+				<!-- <div class="px-2 mt-1">
 					<span class="text-emerald-500 text-white font-semibold">Revise</span>
-				</div>
+				</div> -->
 			</div>
 			<div class="mb-3">
 				<table class="w-full text-sm ">
 					<tbody>
 						<tr>
-							<td class="border px-1">Company</td>
-							<td class="border w-[37.5%]">
-								<select v-model="selectedCompany" class="outline-none w-full">
+							<td class=" px-1">Company</td>
+							<td class=" w-[37.5%]">
+								<select v-model="selectedCompany" class="outline-none w-full py-1 border rounded-lg">
 								<option value="">Select Company</option>
 								<option value="ENERGREEN">ENERGREEN</option>
 								<option value="CENPRI">CENPRI</option>
 								<option value="CPGC">CPGC</option>
 								</select>
 							</td>
-							<td class="border " colspan="2"></td>
-						</tr>
-						<tr>
-							<td class="border px-1">Location</td>
-							<td class="border w-[37.5%]">
-								<select v-model="selectedPurchase" class="outline-none w-full">
-									<option value="">Select Location</option>
-									<option v-for="req in purchaseRequests" :key="req" :value="req">
-									{{ req }}
-									</option>
-								</select>
-							</td>
-							<td class="border px-1">Department</td>
-							<td class="border w-[37.5%]">
-								<select v-model="selectedDepartment" class="outline-none w-full">
+							<td class=" px-1">Department</td>
+							<td class=" w-[37.5%]">
+								<select v-model="selectedDepartment" class="outline-none w-full py-1 border rounded-lg">
 								<option value="">Select Department</option>
 								<option v-for="dept in departments" :key="dept" :value="dept">
 									{{ dept }}
@@ -46,21 +34,28 @@
 							</td>
 						</tr>
 						<tr>
-							<td class="border px-1">PR Number</td>
-							<td class="border w-[37.5%]">
-								<input type="text" class="outline-none w-full px-1" :value="prNumber" readonly>
+							<td class=" px-1">Location</td>
+							<td class=" w-[37.5%]">
+								<select v-model="selectedPurchase" class="outline-none w-full py-1 border rounded-lg">
+									<option value="">Select Location</option>
+									<option v-for="req in purchaseRequests" :key="req" :value="req">
+									{{ req }}
+									</option>
+								</select>
 							</td>
-							<td class="border px-1">Department Code</td>
-							<td class="border w-[37.5%]">
-								<input type="text" class="outline-none w-full px-1" v-model="departmentCode">
+							<td class=" px-1">Department Code</td>
+							<td class=" w-[37.5%]">
+								<input type="text" class="outline-none w-full py-1 border rounded-lg px-1" v-model="departmentCode">
 							</td>
 						</tr>
 						<tr>
-							<td class="border px-1" width="">Date Prepared</td>
-							<td class="border" width="37.5%"><input type="date" class="outline-none w-full px-1"></td>
-							<td class="border px-1" width="">Requestor</td>
-							<td class="border" width="37.5%">
-								<select name="" class="outline-none w-full px-1" id="">
+							<td class=" px-1">PR Number</td>
+							<td class=" w-[37.5%]">
+								<input type="text" class="outline-none w-full py-1 border rounded-lg px-1" :value="prNumber" readonly>
+							</td>
+							<td class=" px-1" width="">Requestor</td>
+							<td class="" width="37.5%">
+								<select name="" class="outline-none w-full py-1 border rounded-lg px-1" id="">
 									<option value=""></option>
 									<option value=""></option>
 									<option value=""></option>
@@ -68,11 +63,11 @@
 							</td>
 						</tr>
 						<tr>
-							<td class="border px-1" width=""></td>
-							<td class="border" width="37.5%"></td>
-							<td class="border px-1" width="">Urgency</td>
-							<td class="border" width="35%">
-								<select name="" class="outline-none w-full px-1" id="">
+							<td class=" px-1" width="">Date Prepared</td>
+							<td class="" width="37.5%"><input type="date" class="outline-none w-full py-1 border rounded-lg px-1"></td>
+							<td class=" px-1" width="">Urgency</td>
+							<td class="" width="35%">
+								<select name="" class="outline-none w-full py-1 border rounded-lg px-1" id="">
 									<option value="">A Week</option>
 									<option value="">Month</option>
 									<option value="">Quarter</option>
@@ -81,9 +76,14 @@
 							</td>
 						</tr>
 						<tr>
-							<td class="border px-1" width="">Purpose</td>
-							<td class="border" colspan="3">
-								<select name="" class="outline-none w-full" id="">
+							<td class=" px-1" width=""></td>
+							<td class="" width="37.5%"></td>
+							
+						</tr>
+						<tr>
+							<td class=" px-1" width="">Purpose</td>
+							<td class="" colspan="3">
+								<select name="" class="outline-none w-full py-1 border rounded-lg" id="">
 									<option value=""></option>
 									<option value=""></option>
 									<option value=""></option>
@@ -91,9 +91,9 @@
 							</td>
 						</tr>
 						<tr>
-							<td class="border px-1" width="">End-use</td>
-							<td class="border" colspan="3">
-								<select name="" class="outline-none w-full" id="">
+							<td class=" px-1" width="">End-use</td>
+							<td class="" colspan="3">
+								<select name="" class="outline-none w-full py-1 border rounded-lg" id="">
 									<option value=""></option>
 									<option value=""></option>
 									<option value=""></option>
@@ -340,71 +340,114 @@
 					</tbody>
 				</table>
 			</div>
-			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bacolod'" class="border-b border-x px-20 py-5">
-				<table class="w-full  text-sm">
-					<tbody>
-						<tr>
-							<td width="10%">Prepared By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-							<td width="5%"></td>
-							<td width="20%">Reviewed By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							<td></td>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-						</tr>
+			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bacolod'" class="border-b border-x pl-4 pr-12 py-5">
+				<div class="grid grid-cols-2 gap-x-6 gap-y-4 mt-0">
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Prepared By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+							<option>John Doe</option>
+							<option>Jane Smith</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
 
-						<tr>
-							<td width="10%">Recommending Approval By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-							<td width="5%"></td>
-							<td width="20%">Approved By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							<td></td>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-						</tr>
-					</tbody>
-				</table>
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Reviewed By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Reviewed By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Reviewed By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+					
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Reviewed and Checked By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Approved By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+				</div>
+				
 			</div>
 			
 			<div class="mt-4 flex justify-end flex-wrap gap-2">
 				<!-- Instead of <a>, we use buttons that trigger modal -->
-				<a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
+				<!-- <a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
 					Save as Draft
-				</a>
+				</a> -->
 				<a href="print_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50">
 					Proceed
 				</a>
@@ -556,6 +599,39 @@
 	const hideDropdown = () => {
 	setTimeout(() => (showDropdown.value = null), 150);
 	};
+
+	const signatories = ref([
+  {
+    id: 1,
+    name: "Prepared By",
+    employees: [
+      { id: 1, name: "John Doe" },
+      { id: 2, name: "Jane Smith" }
+    ],
+    selectedEmployee: null,
+    position: ""
+  },
+  {
+    id: 2,
+    name: "Reviewed By",
+    employees: [
+      { id: 3, name: "Mark Lee" },
+      { id: 4, name: "Anna Cruz" }
+    ],
+    selectedEmployee: null,
+    position: ""
+  },
+  {
+    id: 3,
+    name: "Approved By",
+    employees: [
+      { id: 5, name: "Paul Tan" },
+      { id: 6, name: "Lara Lim" }
+    ],
+    selectedEmployee: null,
+    position: ""
+  }
+])
 </script>
 
 <style scoped>

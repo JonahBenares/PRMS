@@ -51,6 +51,7 @@ const masterfileLinks = [
   { text: "Location PR", href: "/masterfile/location_pr" },
   { text: "Company", href: "/masterfile/company" },
   { text: "Qualifier", href: "/masterfile/qualifier" },
+  { text: "Signatories", href: "/masterfile/signatories" },
 ];
 
 function toggleMasterfile() {
@@ -124,7 +125,7 @@ const logout = async () => {
 						<div
 							v-if="masterfileOpen"
 							@click.stop
-							class="absolute left-0 mt-2 w-52 bg-white backdrop-blur-lg rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-fadeIn"
+							class="absolute left-0 mt-2 w-52 bg-white py-2 backdrop-blur-lg rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-fadeIn"
 						>
 							<template v-for="item in masterfileLinks" :key="item.text">
 							<a
@@ -166,7 +167,7 @@ const logout = async () => {
 						<div
 							v-if="profileOpen"
 							@click.stop
-							class="absolute right-0 mt-2 w-48 bg-white backdrop-blur-lg border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-fadeIn"
+							class="absolute right-0 mt-2 w-48 py-2 bg-white backdrop-blur-lg border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-fadeIn"
 						>
 							<a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-all">Settings</a>
 							<a href="/change_password/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-all">Change Password</a>
@@ -225,8 +226,8 @@ const logout = async () => {
 
 		<!-- Page Content -->
 		<main
-			class="pt-20 flex-1 relative overflow-hidden bg-gray-100
-					bg-[radial-gradient(circle,rgba(0,0,0,0.15)_1px,transparent_1px)]
+			class="pt-20 flex-1 relative overflow-hidden bg-gray-100 animated-bg
+					bg-[radial-gradient(circle,rgba(0,128,255,0.15)_1px,transparent_1px)]
 					bg-[size:24px_24px]"
 			>
 			<div class="relative z-10">
