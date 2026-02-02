@@ -13,6 +13,7 @@ use App\Http\Controllers\QualifierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PRLocationController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\PRController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,5 +94,19 @@ Route::get('/pr-locations', [PRLocationController::class, 'index']);
 Route::post('/pr-locations', [PRLocationController::class, 'store']);
 Route::put('/pr-locations/{id}', [PRLocationController::class, 'update']);
 Route::delete('/pr-locations/{id}', [PRLocationController::class, 'destroy']);
+
+Route::get('/prs', [PRController::class, 'index']);
+Route::get('/api/companies', [PRController::class, 'getCompaniesWithLocations']);
+Route::get('/api/departments', [PRController::class, 'getDepartments']);
+Route::get('/api/employees', [PRController::class, 'getEmployees']);
+Route::get('/urgencies', [PRController::class, 'getUrgencies']);
+Route::get('/purposes', [PRController::class, 'getPurposes']);
+Route::get('/enduses', [PRController::class, 'getEnduses']);
+Route::get('/items-search', [PRController::class, 'searchItems']);
+Route::get('/items/{item}', [PRController::class, 'show']);
+Route::get('/next-pr-series', [PRController::class, 'getNextPRSeries']);
+Route::middleware('auth:sanctum')->post('/pr/save', [PRController::class, 'savePR']);
+Route::get('/pr/{id}', [PRController::class, 'get_pr']);
+
 
 

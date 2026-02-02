@@ -17,7 +17,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $items = Items::with('item_Variants')->get();
+        $items = Items::with('item_variants')->get();
 
         // Transform to the structure Vue expects
         $result = $items->map(function ($item) {
@@ -27,7 +27,7 @@ class ItemController extends Controller
                 'item_description' => $item->item_description,
                 'category_name' => $item->category_name,
                 'sub_cat_name' => $item->sub_category_name, // adjust field name
-                'item_Variants' => $item->item_Variants->map(function ($v) {
+                'item_variants' => $item->item_Variants->map(function ($v) {
                     return [
                         'id' => $v->id,
                         'variant_item_code' => $v->variant_item_code,

@@ -92,7 +92,7 @@ onMounted(() => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="v in item.item_Variants" :key="v.id">
+                        <tr v-for="v in item.item_variants" :key="v.id">
                           <td class="px-2 py-1">{{ v.variant_item_code }}</td>
                           <td class="px-2 py-1">{{ v.brand }}</td>
                           <td class="px-2 py-1">{{ v.model }}</td>

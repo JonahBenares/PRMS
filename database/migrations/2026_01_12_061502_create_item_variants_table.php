@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('item_variants', function (Blueprint $table) {
             $table->id();
-            $table->integer('item_id');
-            $table->string('variant_item_code');
-            $table->string('brand');
-            $table->string('uom');
-            $table->string('type');
-            $table->string('model');
-            $table->string('part_no');
-            $table->string('size');
-            $table->string('color');
-            $table->string('material');
+            $table->integer('item_id')->default(0);
+            $table->string('variant_item_code')->nullable();
+            $table->string('brand')->nullable();
+            $table->string('uom')->nullable();
+            $table->string('type')->nullable();
+            $table->string('model')->nullable();
+            $table->string('part_no')->nullable();
+            $table->string('size')->nullable();
+            $table->string('color')->nullable();
+            $table->string('material')->nullable();
             $table->string('img1')->nullable();
             $table->string('img2')->nullable();
             $table->string('img3')->nullable();

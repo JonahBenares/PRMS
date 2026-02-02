@@ -1,3 +1,318 @@
+<script setup>
+import { ref, computed, onMounted, watch } from "vue";
+import { PlusIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import navigation from "@/components/layouts/navigation.vue";
+import pageCard from "@/components/card.vue";
+import axios from "axios";
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+const companies = ref([]);
+const locations = ref([]);
+const selectedCompany = ref("");
+const selectedCompanyId = ref(null);
+const selectedLocation = ref("");
+const departments = ref([]);
+const selectedDepartment = ref("");
+const departmentCode = ref("");
+const requestors = ref([]);
+const selectedRequestor = ref("");
+const urgencies = ref([]);
+const selectedUrgency = ref("");
+const purposes = ref([]);
+const selectedPurpose = ref("");
+const enduses = ref([]);
+const selectedEnduse = ref("");
+const prNumber = ref('');
+const datePrepared = ref('');
+const notes = ref('');
+
+const selectedPurchase = ref("");
+
+onMounted(async () => {
+    fetchCompanies();
+    fetchDepartments();
+    fetchEmployees();
+    fetchUrgencies();
+    fetchPurposes();
+    fetchEnduses();
+    fetchItems();
+	const today = new Date();
+    // format YYYY-MM-DD for date input
+    datePrepared.value = today.toISOString().split('T')[0];
+});
+
+watch([selectedCompany, selectedDepartment], async ([company, department]) => {
+    if (company) {
+        const res = await axios.get('/api/next-pr-series', {
+            params: { company_name: company, department_name: department }
+        });
+        prNumber.value = res.data.pr_number; // empty if department not selected yet
+    }
+});
+
+const fetchCompanies = async () => {
+    try {
+        const response = await axios.get("/api/companies");
+        companies.value = response.data;
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+watch(selectedCompany, (newVal) => {
+    selectedLocation.value = "";
+    locations.value = [];
+
+    if (!newVal) return;
+
+    const company = companies.value.find(
+        c => c.company_name === newVal
+    );
+
+    if (company) {
+        selectedCompanyId.value = company.id;
+        locations.value = company.companylocation ?? [];
+
+        // ✅ Auto select if only one location
+        if (locations.value.length === 1) {
+            selectedLocation.value = locations.value[0].location;
+        }
+    }
+});
+
+const fetchDepartments = async () => {
+    try {
+        const res = await axios.get("/api/departments");
+        departments.value = res.data;
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+watch(selectedDepartment, (newVal) => {
+    departmentCode.value = "";
+
+    if (!newVal) return;
+
+    const dept = departments.value.find(
+        d => d.department_name === newVal
+    );
+
+    if (dept) {
+        departmentCode.value = dept.department_code;
+    }
+});
+
+const fetchEmployees = async () => {
+    try {
+        const res = await axios.get("/api/employees");
+        requestors.value = res.data;
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+const fetchUrgencies = async () => {
+    try {
+        const res = await axios.get("/api/urgencies");
+        urgencies.value = res.data; // assuming your API returns the array directly
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+const fetchPurposes = async () => {
+    try {
+        const res = await axios.get("/api/purposes");
+        purposes.value = res.data;
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+const fetchEnduses = async () => {
+    try {
+        const res = await axios.get("/api/enduses");
+        enduses.value = res.data;
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+// ===== ITEM TABLE LOGIC =====
+const items = ref([]);
+const showDropdownIndex = ref(null);
+const filteredItems = ref([]);
+const noResults = ref(false);
+
+
+const newRow = () => ({
+  id: Date.now() + Math.random(),
+  qty: "",
+  uom: "",
+  searchQuery: "",
+  itemCode: "",
+  itemName: "",
+  pn: "",
+  category: "",
+  brand: "",
+  model: "",
+  size: "",
+  color: "",
+  material: "",
+  unit: "",
+  serial: "",
+  whStock: "",
+  dateNeeded: "",
+});
+
+const rows = ref([newRow()]);
+
+	const addRow = () => rows.value.push(newRow());
+	const removeRow = (index) => rows.value.splice(index, 1);
+
+  const fetchItems = async () => {
+      try {
+        const res = await axios.get("/api/items");
+        items.value = res.data;
+      } catch (err) {
+        console.error(err);
+      }
+    };
+// Filter items for dropdown based on search
+const filterItems = async (index) => {
+  const query = rows.value[index].searchQuery || "";
+
+  if (!query) {
+    filteredItems.value = [];
+    noResults.value = false;
+    return;
+  }
+
+  try {
+    const res = await axios.get("/api/items-search", {
+      params: { q: query }
+    });
+
+    filteredItems.value = res.data;
+    noResults.value = res.data.length === 0;
+  } catch (err) {
+    console.error(err);
+    filteredItems.value = [];
+    noResults.value = true;
+  }
+};
+
+const onSearchInput = (index) => {
+  const row = rows.value[index];
+
+  const currentCode = row.variant?.variant_item_code || "";
+
+  // If input is empty OR input no longer matches the selected variant → clear
+  if (!row.searchQuery || row.searchQuery !== currentCode) {
+    row.itemCode = "";
+    row.itemName = "";
+    row.pn = "";
+    row.uom = "";
+    row.brand = "";
+    row.model = "";
+    row.size = "";
+    row.color = "";
+    row.material = "";
+    row.type = "";
+    row.variant = null;
+  }
+
+  // Always call filterItems to show dropdown while typing
+  filterItems(index);
+};
+
+const selectItem = (rowIndex, item) => {
+  const variant = item.item_variants?.[0] || {};
+
+  rows.value[rowIndex] = {
+    ...rows.value[rowIndex],
+    itemCode: variant.variant_item_code || item.item_code,
+    itemName: item.item_description,
+    pn: variant.part_no || "",
+    uom: variant.uom || "", // ✅ get uom from variant
+    brand: variant.brand || "",
+    model: variant.model || "",
+    size: variant.size || "",
+    color: variant.color || "",
+    material: variant.material || "",
+    type: variant.type || "",
+    searchQuery: variant.variant_item_code || item.item_code,
+    variant: variant, // optional: store selected variant for future use
+  };
+
+  filteredItems.value = [];
+  showDropdownIndex.value = null;
+};
+
+
+const saveAndProceed  = async () => {
+    try {
+        const itemsData = rows.value.map(row => ({
+            qty: row.qty,
+            itemCode: row.itemCode,
+            item_variant_id: row.variant?.id,
+            uom: row.uom,
+            brand: row.brand,
+            model: row.model,
+            size: row.size,
+            color: row.color,
+            material: row.material,
+            type: row.type,
+            whStock: row.whStock,
+            dateNeeded: row.dateNeeded
+        }));
+
+        const payload = {
+            company_id: selectedCompanyId.value,
+            company_code: companies.value.find(c => c.company_name === selectedCompany.value)?.company_code,
+            company_name: selectedCompany.value,
+            pr_no: prNumber.value,
+            location_id: locations.value.find(l => l.location === selectedLocation.value)?.id ?? null,
+            location_name: selectedLocation.value,
+            date_prepared: datePrepared.value,
+            department_id: departments.value.find(d => d.department_name === selectedDepartment.value)?.id ?? null,
+            department_name: selectedDepartment.value,
+            department_code: departmentCode.value,
+            requestor_id: requestors.value.find(r => r.employee_name === selectedRequestor.value)?.id ?? null,
+            requestor_name: selectedRequestor.value,
+            urgency_id: urgencies.value.find(u => u.qualifier_name === selectedUrgency.value)?.id ?? null,
+            urgency_name: selectedUrgency.value,
+            purpose_id: purposes.value.find(p => p.purpose_name === selectedPurpose.value)?.id ?? null,
+            purpose_name: selectedPurpose.value,
+            enduse_id: enduses.value.find(e => e.enduse_name === selectedEnduse.value)?.id ?? null,
+            enduse_name: selectedEnduse.value,
+            notes: notes.value, // now it saves
+            status: 'Save',
+            items: itemsData
+        };
+
+        const token = localStorage.getItem('token'); // 🔑 get token
+
+        const res = await axios.post('/api/pr/save', payload, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (res.data.success) {
+            const prId = res.data.pr_id;
+
+            // Redirect to printing page with PR ID as query or param
+            router.push(`/print_pr/${prId}`);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Failed to save PR');
+    }
+};
+</script>
 <template> 
 	<navigation>
 		<pageCard>
@@ -16,33 +331,45 @@
 						<tr>
 							<td class="border px-1">Company</td>
 							<td class="border w-[37.5%]">
-								<select v-model="selectedCompany" class="outline-none w-full">
+							<select v-model="selectedCompany" class="outline-none w-full">
 								<option value="">Select Company</option>
-								<option value="ENERGREEN">ENERGREEN</option>
-								<option value="CENPRI">CENPRI</option>
-								<option value="CPGC">CPGC</option>
-								</select>
+								<option v-for="comp in companies" :key="comp.id" :value="comp.company_name">
+									{{ comp.company_name }}
+								</option>
+							</select>
 							</td>
 							<td class="border " colspan="2"></td>
 						</tr>
 						<tr>
-							<td class="border px-1">Location</td>
-							<td class="border w-[37.5%]">
-								<select v-model="selectedPurchase" class="outline-none w-full">
-									<option value="">Select Location</option>
-									<option v-for="req in purchaseRequests" :key="req" :value="req">
-									{{ req }}
-									</option>
-								</select>
-							</td>
+						<td class="border px-1">Location</td>
+						<td class="border w-[37.5%]">
+							<select
+								v-model="selectedLocation"
+								class="outline-none w-full"
+								:disabled="!selectedCompany"
+							>
+								<option value="">Select Location</option>
+								<option
+									v-for="loc in locations"
+									:key="loc.id"
+									:value="loc.location"
+								>
+									{{ loc.location }}
+								</option>
+							</select>
+						</td>
 							<td class="border px-1">Department</td>
 							<td class="border w-[37.5%]">
-								<select v-model="selectedDepartment" class="outline-none w-full">
+							<select v-model="selectedDepartment" class="outline-none w-full">
 								<option value="">Select Department</option>
-								<option v-for="dept in departments" :key="dept" :value="dept">
-									{{ dept }}
+								<option
+									v-for="dept in departments"
+									:key="dept.id"
+									:value="dept.department_name"
+								>
+									{{ dept.department_name }}
 								</option>
-								</select>
+							</select>
 							</td>
 						</tr>
 						<tr>
@@ -52,54 +379,71 @@
 							</td>
 							<td class="border px-1">Department Code</td>
 							<td class="border w-[37.5%]">
-								<input type="text" class="outline-none w-full px-1" v-model="departmentCode">
+								<input type="text" class="outline-none w-full px-1" v-model="departmentCode" readonly>
 							</td>
 						</tr>
 						<tr>
 							<td class="border px-1" width="">Date Prepared</td>
-							<td class="border" width="37.5%"><input type="date" class="outline-none w-full px-1"></td>
-							<td class="border px-1" width="">Requestor</td>
-							<td class="border" width="37.5%">
-								<select name="" class="outline-none w-full px-1" id="">
-									<option value=""></option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
+							<td class="border" width="37.5%"><input type="date" class="outline-none w-full px-1" v-model="datePrepared" readonly></td>
+							<td class="border px-1">Requestor</td>
+						<td class="border w-[37.5%]">
+							<select
+								v-model="selectedRequestor"
+								class="outline-none w-full px-1 disabled:bg-gray-100 disabled:cursor-not-allowed"
+							>
+								<option value="">Select Requestor</option>
+								<option
+									v-for="emp in requestors"
+									:key="emp.id"
+									:value="emp.employee_name"
+								>
+									{{ emp.employee_name }}
+								</option>
+							</select>
+						</td>
 						</tr>
 						<tr>
 							<td class="border px-1" width=""></td>
 							<td class="border" width="37.5%"></td>
-							<td class="border px-1" width="">Urgency</td>
-							<td class="border" width="35%">
-								<select name="" class="outline-none w-full px-1" id="">
-									<option value="">A Week</option>
-									<option value="">Month</option>
-									<option value="">Quarter</option>
-									<option value="">Year</option>
-								</select>
-							</td>
+							<td class="border px-1">Urgency</td>
+						<td class="border w-[37.5%]">
+							<select
+								v-model="selectedUrgency"
+								class="outline-none w-full px-1 disabled:bg-gray-100 disabled:cursor-not-allowed"
+							>
+								<option value="">Select Urgency</option>
+								<option
+									v-for="urgency in urgencies"
+									:key="urgency.id"
+									:value="urgency.qualifier_name"
+								>
+									{{ urgency.qualifier_name }}
+								</option>
+							</select>
+						</td>
 						</tr>
 						<tr>
-							<td class="border px-1" width="">Purpose</td>
-							<td class="border" colspan="3">
-								<select name="" class="outline-none w-full" id="">
-									<option value=""></option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td class="border px-1" width="">End-use</td>
-							<td class="border" colspan="3">
-								<select name="" class="outline-none w-full" id="">
-									<option value=""></option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-						</tr>
+						<td class="border px-1">Purpose</td>
+						<td class="border" colspan="3">
+							<select v-model="selectedPurpose" class="outline-none w-full px-1">
+								<option value="">Select Purpose</option>
+								<option v-for="purpose in purposes" :key="purpose.id" :value="purpose.purpose_name">
+									{{ purpose.purpose_name }}
+								</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="border px-1">End-use</td>
+						<td class="border" colspan="3">
+							<select v-model="selectedEnduse" class="outline-none w-full px-1">
+								<option value="">Select End-use</option>
+								<option v-for="enduse in enduses" :key="enduse.id" :value="enduse.enduse_name">
+									{{ enduse.enduse_name }}
+								</option>
+							</select>
+						</td>
+					</tr>
 					</tbody>
 				</table>
 			</div>
@@ -134,106 +478,90 @@
 								<div class="relative">
 									<input
 									v-model="row.searchQuery"
-									@input="filterItems(index)"
-									@focus="showDropdown = index"
-									@blur="hideDropdown"
-									class="outline-none w-full px-1"
-									placeholder="Search Item Code / Name / PN"
+									@input="onSearchInput(index)"
+									@focus="showDropdownIndex = index"
+									@blur="showDropdownIndex = null"
+									class="outline-none focus:outline-none border-none focus:ring-0 w-full px-1"
+									placeholder="Search Item Code / Name / Variant"
 									type="text"
-									ref="searchInput"
 									/>
 									<!-- Dropdown -->
-									<ul
-									v-if="showDropdown === index && filteredItems.length"
-									:style="dropdownStyle"
-									class="fixed z-50 bg-white border border-gray-300 w-64 max-h-40 overflow-y-auto shadow-lg rounded"
-									>
+									<ul v-if="showDropdownIndex === index" class="fixed z-50 bg-white border border-gray-300 w-64 max-h-40 overflow-y-auto shadow-lg rounded">
 									<li
-										v-for="item in filteredItems"
-										:key="item.code"
-										@mousedown.prevent="selectItem(index, item)"
-										class="px-2 py-1 hover:bg-blue-100 cursor-pointer text-sm"
+									v-for="(item, itemIndex) in filteredItems.filter(i =>
+										i.item_variants?.length &&
+										i.item_variants[0].variant_item_code?.trim()
+									)"
+									:key="item.id"
+									@mousedown.prevent="selectItem(index, item)"
+									class="px-2 py-1 hover:bg-blue-100 cursor-pointer text-sm"
 									>
-										<strong>{{ item.code }}</strong> — {{ item.name }} (PN: {{ item.pn }})
+									<strong>{{ item.item_variants[0].variant_item_code }}</strong> —
+									{{ item.item_description }}
+									(PN: {{ item.item_variants[0].part_no }})
 									</li>
+									  <!-- NO RESULTS -->
+										<li
+											v-if="noResults"
+											class="px-2 py-2 text-gray-400 italic text-sm"
+										>
+											No results found
+										</li>
 									</ul>
 								</div>
 							</td>
 							<td class="align-top !border-x !border-b">
 								<input v-model="row.uom" class="outline-none w-full text-center" readonly />
 							</td>
-							<!-- <td class="align-top !border-x !border-b">
-								<div class="flex flex-col px-1">
-									<div class="flex justify-start">
-									<span class="pr-2 w-20 text-gray-600">Item Name:</span>
-									<input v-model="row.itemName" class="outline-none w-full font-semibold" readonly />
-									</div>
-									<div class="flex justify-start mt-1">
-									<span class="pr-2 w-20 text-gray-600">PN:</span>
-									<input v-model="row.pn" class="outline-none w-full font-semibold" readonly />
-									</div>
-								</div>
-							</td> -->
-
-
 							<td class="align-top !border-x !border-b">
-								<div v-if="row.itemCode" class="space-y-1 px-2">
-									<div>
-										<input
-											:value="`${row.itemName || ''}${row.pn ? ' ' + row.pn : ''}`"
-											class="outline-none w-full font-semibold"
-											readonly
-										/>
-									</div>
-									<div v-if="row.category && row.category.trim() !== ''" class="flex justify-start">
-										<span class="pr-2 w-20">Category:</span>
-										<input v-model="row.category" type="text" class="outline-none w-full" />
-									</div>
+						<div v-if="row.itemCode" class="space-y-1 px-2 text-sm">
+						<!-- Item name + part number -->
+						<div class="font-semibold">
+							{{ row.itemName }}
+							<span v-if="row.pn" class="text-gray-600">
+							({{ row.pn }})
+							</span>
+						</div>
+						<div v-if="row.brand?.trim()" class="flex">
+							<span class="pr-2 w-20 text-gray-500">Brand:</span>
+							<span>{{ row.brand }}</span>
+						</div>
 
-									<div v-if="row.brand && row.brand.trim() !== ''" class="flex justify-start">
-										<span class="pr-2 w-20">Brand:</span>
-										<input v-model="row.brand" type="text" class="outline-none w-full" />
-									</div>
+						<div v-if="row.model?.trim()" class="flex">
+							<span class="pr-2 w-20 text-gray-500">Model:</span>
+							<span>{{ row.model }}</span>
+						</div>
 
-									<div v-if="row.model && row.model.trim() !== ''" class="flex justify-start">
-										<span class="pr-2 w-20">Model:</span>
-										<input v-model="row.model" type="text" class="outline-none w-full" />
-									</div>
+						<div v-if="row.size?.trim()" class="flex">
+							<span class="pr-2 w-20 text-gray-500">Size:</span>
+							<span>{{ row.size }}</span>
+						</div>
 
-									<div v-if="row.size && row.size.trim() !== ''" class="flex justify-start">
-										<span class="pr-2 w-20">Size:</span>
-										<input v-model="row.size" type="text" class="outline-none w-full" />
-									</div>
+						<div v-if="row.color?.trim()" class="flex">
+							<span class="pr-2 w-20 text-gray-500">Color:</span>
+							<span>{{ row.color }}</span>
+						</div>
 
-									<div v-if="row.color && row.color.trim() !== ''" class="flex justify-start">
-										<span class="pr-2 w-20">Color:</span>
-										<input v-model="row.color" type="text" class="outline-none w-full" />
-									</div>
+						<div v-if="row.material?.trim()" class="flex">
+							<span class="pr-2 w-20 text-gray-500">Material:</span>
+							<span>{{ row.material }}</span>
+						</div>
 
-									<div v-if="row.material && row.material.trim() !== ''" class="flex justify-start">
-										<span class="pr-2 w-20">Material:</span>
-										<input v-model="row.material" type="text" class="outline-none w-full" />
-									</div>
+						<div v-if="row.unit?.trim()" class="flex">
+							<span class="pr-2 w-20 text-gray-500">Unit:</span>
+							<span>{{ row.unit }}</span>
+						</div>
 
-									<div v-if="row.unit && row.unit.trim() !== ''" class="flex justify-start">
-										<span class="pr-2 w-20">Unit:</span>
-										<input v-model="row.unit" type="text" class="outline-none w-full" />
-									</div>
-
-									<div v-if="row.serial && row.serial.trim() !== ''" class="flex justify-start">
-										<span class="pr-2 w-20">Serial:</span>
-										<input v-model="row.serial" type="text" class="outline-none w-full" />
-									</div>
-
-								</div>
-
-								<!-- Default blank state (optional) -->
-								<div v-else class="text-gray-400 italic px-2 py-2">
-									Select an Item Code to view specs
-								</div>
-							</td>
-
-
+						<div v-if="row.type?.trim()" class="flex">
+							<span class="pr-2 w-20 text-gray-500">Type:</span>
+							<span>{{ row.type }}</span>
+						</div>
+						</div>
+						<!-- Default blank state -->
+						<div v-else class="text-gray-400 italic px-2 py-2">
+						Select an Item Code to view specs
+						</div>
+              </td>
 							<td class="align-top !border-x !border-b px-1">
 							<input v-model="row.whStock" type="text" class="outline-none w-full" placeholder="" />
 							</td>
@@ -255,7 +583,7 @@
 					<tr>
 						<td class="border p-0" colspan="2">
 							<span class="px-1 align-top">Notes</span>
-							<textarea name="" id="" class="m-0 w-full p-1 outline-none" rows="1"></textarea>
+							<textarea v-model="notes" class="m-0 w-full p-1 outline-none" rows="1"></textarea>
 						</td>
 					</tr>
 				</tbody>
@@ -405,158 +733,15 @@
 				<a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
 					Save as Draft
 				</a>
-				<a href="print_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50">
-					Proceed
-				</a>
+				<button
+					@click="saveAndProceed"
+					:disabled="rows.length === 0 || rows.every(row => !row.itemCode)" 
+					class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50"
+				>Proceed</button>
 			</div>
 		</pageCard>
 	</navigation>
 </template>
-
-<script setup>
-	import { ref, computed, onMounted } from "vue";
-	import { PlusIcon, XMarkIcon } from "@heroicons/vue/24/solid";
-	import navigation from "@/components/layouts/navigation.vue";
-	import pageCard from "@/components/card.vue";
-
-	// ===== COMPANY / DEPARTMENT LOGIC =====
-	const selectedCompany = ref("");
-	const selectedDepartment = ref("");
-	const selectedPurchase = ref("");
-
-	const purchaseOptions = {
-	ENERGREEN: ["Iloilo", "Cebu"],
-	CENPRI: ["Bacolod", "Bago"],
-	CPGC: ["Manila", "Quezon"],
-	};
-
-	const departmentOptions = {
-	ENERGREEN: ["Finance", "Operations"],
-	CENPRI: ["HR", "Logistics", "IT"],
-	CPGC: ["Admin", "Engineering"],
-	};
-
-	const departmentCodes = {
-	Finance: "FIN",
-	Operations: "OPS",
-	HR: "HR",
-	Logistics: "LOG",
-	IT: "IT",
-	Admin: "ADM",
-	Engineering: "ENG",
-	};
-
-	const companyCodes = {
-	ENERGREEN: "ENGR",
-	CENPRI: "CNPR",
-	CPGC: "CPGC",
-	};
-
-	const purchaseRequests = computed(() => purchaseOptions[selectedCompany.value] || []);
-	const departments = computed(() => departmentOptions[selectedCompany.value] || []);
-	const departmentCode = computed(() => departmentCodes[selectedDepartment.value] || "");
-
-	const runningNumber = ref(1001);
-	const year = new Date().getFullYear().toString().slice(-2);
-
-	const prNumber = computed(() => {
-	if (!selectedCompany.value || !selectedDepartment.value) return "";
-	const deptCode = departmentCode.value;
-	const companyCode = companyCodes[selectedCompany.value] || "XXXX";
-	return `PR${deptCode}${year}-${runningNumber.value}-${companyCode}`;
-	});
-
-	// ===== ITEM TABLE LOGIC =====
-	const showDropdown = ref(null);
-	const filteredItems = ref([]);
-
-	// Example dataset (can come from API)
-	const items = ref([
-		{ code: "10023", name: "Bolt", pn: "PN-233", uom: "pcs", size: "M6x40mm", color: "Silver", material: "Steel", unit: "Box", serial: "BOLT-10023" },
-		{ code: "10024", name: "Cotton Rug", pn: "PN-253", uom: "pcs", category: "Household", brand: "HomeTex", model: "R253", unit: "Pack", serial: "RUG-10024" },
-		{ code: "10025", name: "Hydraulic Pump", pn: "PN-345", uom: "set", category: "Mechanical", brand: "HydraPro", model: "H345", size: "M12", color: "Gray" },
-		{ code: "10026", name: "LED Bulb", pn: "PN-412", uom: "pcs", wattage: "9W", color: "Warm White", brand: "Philips", voltage: "220V", unit: "Box", serial: "LED-10026" },
-		{ code: "10027", name: "Laptop Stand", pn: "PN-578", uom: "pcs", category: "Office", brand: "ErgoLift", material: "Aluminum", color: "Black", unit: "Piece" },
-		{ code: "10028", name: "PVC Pipe", pn: "PN-612", uom: "mtr", size: "2-inch", color: "White", material: "PVC", category: "Plumbing", unit: "Bundle" },
-		{ code: "10029", name: "Safety Helmet", pn: "PN-789", uom: "pcs", color: "Yellow", brand: "3M", category: "Safety", unit: "Piece", serial: "HELM-10029" },
-		{ code: "10030", name: "Printer Ink", pn: "PN-845", uom: "bottle", color: "Black", brand: "Epson", capacity: "100ml", unit: "Box" },
-		{ code: "10031", name: "Wrench Set", pn: "PN-903", uom: "set", category: "Tools", brand: "Stanley", pieces: "12", material: "Chrome Vanadium", unit: "Case" },
-		{ code: "10032", name: "Air Filter", pn: "PN-950", uom: "pcs", category: "Automotive", brand: "Bosch", model: "AF950", size: "Medium", color: "White", unit: "Box" },
-		{ code: "10033", name: "Extension Cord", pn: "PN-1001", uom: "pcs", length: "5m", color: "White", voltage: "220V", brand: "Omni", unit: "Piece" },
-		{ code: "10034", name: "Ceramic Tile", pn: "PN-1102", uom: "box", size: "60x60cm", color: "Beige", brand: "Mariwasa", category: "Construction", unit: "Box" },
-		{ code: "10035", name: "Drill Machine", pn: "PN-1204", uom: "pcs", power: "600W", brand: "Makita", model: "D600", color: "Blue", unit: "Box" },
-		{ code: "10036", name: "Office Chair", pn: "PN-1345", uom: "pcs", category: "Furniture", brand: "ErgoFlex", color: "Black", material: "Mesh", unit: "Piece" },
-		{ code: "10037", name: "Copper Wire", pn: "PN-1452", uom: "roll", length: "100m", material: "Copper", gauge: "2.5mm²", color: "Red", unit: "Roll" },
-		{ code: "10038", name: "Battery Pack", pn: "PN-1560", uom: "pcs", capacity: "12V 7Ah", brand: "Panasonic", type: "Sealed Lead Acid", unit: "Piece" },
-		{ code: "10039", name: "Paint Thinner", pn: "PN-1661", uom: "ltr", brand: "Boysen", category: "Chemical", container: "Gallon", unit: "Can" },
-		{ code: "10040", name: "HDMI Cable", pn: "PN-1753", uom: "pcs", length: "2m", brand: "Belkin", color: "Black", category: "Electronics", unit: "Piece" },
-		{ code: "10041", name: "Electric Fan", pn: "PN-1855", uom: "pcs", brand: "Asahi", model: "EF16", size: "16-inch", color: "Gray", unit: "Box" },
-		{ code: "10042", name: "Paper Ream (A4)", pn: "PN-1900", uom: "ream", brand: "Double A", category: "Office", gsm: "80gsm", unit: "Box" },
-	]);
-
-	const rows = ref([
-	newRow()
-	]);
-
-	function newRow() {
-	return {
-		id: Date.now() + Math.random(),
-		qty: "",
-		uom: "",
-		searchQuery: "",
-		itemCode: "",
-		itemName: "",
-		pn: "",
-		category: "",
-		brand: "",
-		model: "",
-		size: "",
-		color: "",
-		material: "",
-		unit: "",
-		serial: "",
-		whStock: "",
-		dateNeeded: "",
-	};
-	}
-
-	const addRow = () => rows.value.push(newRow());
-	const removeRow = (index) => rows.value.splice(index, 1);
-
-	// Filter item list based on search input
-	const filterItems = (index) => {
-	const query = rows.value[index].searchQuery?.toLowerCase() || "";
-	filteredItems.value = items.value.filter(
-		(i) =>
-		i.code.toLowerCase().includes(query) ||
-		i.name.toLowerCase().includes(query) ||
-		i.pn.toLowerCase().includes(query)
-	);
-	};
-
-	// When item is selected from dropdown
-	const selectItem = (index, item) => {
-	const row = rows.value[index];
-	row.searchQuery = item.code; // show only item code
-	row.itemCode = item.code;
-	row.itemName = item.name;
-	row.pn = item.pn;
-	row.uom = item.uom;
-	row.category = item.category;
-	row.brand = item.brand;
-	row.model = item.model;
-	row.size = item.size;
-	row.color = item.color;
-	row.material = item.material;
-	row.unit = item.unit;
-	row.serial = item.serial;
-	showDropdown.value = null;
-	};
-
-	const hideDropdown = () => {
-	setTimeout(() => (showDropdown.value = null), 150);
-	};
-</script>
 
 <style scoped>
 /* Add component-specific styles here if needed */

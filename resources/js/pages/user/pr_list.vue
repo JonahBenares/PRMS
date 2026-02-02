@@ -1,3 +1,55 @@
+<script setup>
+import { ref, reactive, onMounted } from "vue";
+import $ from "jquery";
+import "datatables.net";
+import axios from "axios";
+import { TrashIcon, EyeIcon, PlusIcon, ArrowPathIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/solid';
+import navigation from "@/components/layouts/navigation.vue";
+
+const prs = ref([]);
+const showDeleteModal = ref(false);
+const modalItem = reactive({ id: null, pr_no: "" });
+
+// Fetch PRs from API
+const fetchPRs = async () => {
+  try {
+    const res = await axios.get("/api/prs");
+    prs.value = res.data;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const openDeleteModal = (pr) => {
+  Object.assign(modalItem, pr);
+  showDeleteModal.value = true;
+};
+
+const closeDeleteModal = () => showDeleteModal.value = false;
+
+const deletePR = async () => {
+  try {
+    await axios.delete(`/api/prs/${modalItem.id}`);
+    await fetchPRs();
+    showDeleteModal.value = false;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const openEditModal = (pr) => {
+  // Implement PR revision/edit logic
+  console.log("Edit PR", pr);
+};
+
+onMounted(async () => {
+  await fetchPRs();
+  $('#prTable').DataTable({
+    dom: "<'flex justify-between items-center mb-4'lf>t<'flex justify-end items-center mt-4'p>",
+    language: { search: "", searchPlaceholder: "Search PRs...", lengthMenu: "_MENU_ entries per page" },
+  });
+});
+</script>
 <template>
     <navigation>
 		<section class="items-center justify-center py-8">
@@ -22,6 +74,7 @@
 					>
 					<thead class="bg-gray-100 text-gray-900 font-semibold">
 						<tr>
+						<td class="px-4 py-2 cursor-pointer" width="10%">date_prepared</td>
 						<td class="px-4 py-2 cursor-pointer" width="10%">PR No</td>
 						<td class="px-4 py-2 cursor-pointer" width="15%">Department</td>
 						<td class="px-4 py-2 cursor-pointer" width="15%">Purpose</td>
@@ -30,25 +83,22 @@
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-gray-200">
-						<tr
-						v-for="item in items"
-						:key="item.id"
-						class="hover:bg-gray-50"
-						>
-						<td class="px-4 py-2 align-top">{{ item.prNo }}</td>
-						<td class="px-4 py-2 align-top">{{ item.department }}</td>
-						<td class="px-4 py-2 align-top">{{ item.purpose }}</td>
-						<td class="px-4 py-2 align-top">{{ item.enduse }}</td>
+						<tr v-for="pr in prs" :key="pr.id" class="hover:bg-gray-50">
+						<td class="px-4 py-2">{{ pr.date_prepared }}</td>
+						<td class="px-4 py-2">{{ pr.pr_no }}</td>
+						<td class="px-4 py-2">{{ pr.department_name }}</td>
+						<td class="px-4 py-2">{{ pr.purpose_name }}</td>
+						<td class="px-4 py-2">{{ pr.enduse_name }}</td>
 						<td class="px-4 py-2 align-top flex justify-end space-x-1">
-							<a href="print_pr" class="flex items-center justify-center px-1 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+							<a :href="`/print_pr/${pr.id}`" class="flex items-center justify-center px-1 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
 								<EyeIcon class="w-4 h-4" />
 							</a>
 							<button @click="openEditModal(item)" title="Revise PR" class="flex items-center justify-center px-1 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600" >
 								<ArrowPathIcon class="w-4 h-4" />
 							</button>
-							<button @click="openDeleteModal(item)" class="flex items-center justify-center px-1 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600" >
+							<!-- <button @click="openDeleteModal(item)" class="flex items-center justify-center px-1 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600" >
 								<TrashIcon class="w-4 h-4" />
-							</button>
+							</button> -->
 						</td>
 						</tr>
 					</tbody>
@@ -95,91 +145,3 @@
 		</section>
     </navigation>
 </template>
-
-<script setup>
-import { ref, onMounted, reactive } from "vue";
-import $ from "jquery";
-import "datatables.net";
-import { TrashIcon, EyeIcon, PlusIcon, ArrowPathIcon,  ExclamationTriangleIcon, XMarkIcon} from '@heroicons/vue/24/solid';
-import navigation from "@/components/layouts/navigation.vue";
-
-// Table data
-
-const items = ref([
-  { 
-    id: 1, 
-    prNo: "PR-001", 
-    department: "Finance", 
-    purpose: "To allocate additional budget for upcoming quarterly projects including vendor payments and operational expenses.", 
-    enduse: "For use in company-wide operational activities covering logistics, utilities, and essential supplies." 
-  },
-  { 
-    id: 2, 
-    prNo: "PR-002", 
-    department: "Human Resources", 
-    purpose: "To support the recruitment drive for filling multiple key positions in management and technical departments.", 
-    enduse: "For onboarding new employees, covering training, orientation, and initial workplace setup requirements." 
-  },
-  { 
-    id: 3, 
-    prNo: "PR-003", 
-    department: "Information Technology", 
-    purpose: "To upgrade the internal IT infrastructure including servers, cloud systems, and cybersecurity measures.", 
-    enduse: "For ensuring smooth company operations, data protection, and future scalability of IT resources." 
-  },
-]);
-
-// Modals
-const showModal = ref(false);
-const showDeleteModal = ref(false);
-const isEdit = ref(false);
-const modalItem = reactive({ id: null, code: "", name: "", category: "" });
-
-const openAddModal = () => {
-  isEdit.value = false;
-  Object.assign(modalItem, { id: null, code: "", name: "", category: "" });
-  showModal.value = true;
-};
-
-const openEditModal = (item) => {
-  isEdit.value = true;
-  Object.assign(modalItem, item);
-  showModal.value = true;
-};
-
-const closeModal = () => showModal.value = false;
-
-const saveItem = () => {
-  if (isEdit.value) {
-    const index = items.findIndex(i => i.id === modalItem.id);
-    if (index !== -1) items[index] = { ...modalItem };
-  } else {
-    items.push({ ...modalItem, id: Date.now() });
-  }
-  showModal.value = false;
-};
-
-const openDeleteModal = (item) => {
-  Object.assign(modalItem, item);
-  showDeleteModal.value = true;
-};
-
-const closeDeleteModal = () => showDeleteModal.value = false;
-
-const deleteItem = () => {
-  const index = items.findIndex(i => i.id === modalItem.id);
-  if (index !== -1) items.splice(index, 1);
-  showDeleteModal.value = false;
-};
-
-onMounted(() => {
-  $('#itemTable').DataTable({
-    dom: "<'flex justify-between items-center mb-4'lf>t<'flex justify-end items-center mt-4'p>",
-    language: {
-      search: "",
-      searchPlaceholder: "Search items...",
-      lengthMenu: "_MENU_ entries per page",
-    },
-  });
-});
-</script>
