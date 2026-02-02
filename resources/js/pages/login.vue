@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { ExclamationCircleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid';
 
@@ -15,104 +15,145 @@ let loading = ref(false);
 let showPassword = ref(false);
 
 const login = async () => {
-    loading.value = true;    // start loading
-    error.value = '';         // clear previous errors
+    loading.value = true;
+    error.value = '';
 
     try {
         let response = await axios.post('/api/login_process', form);
 
         if (response.data.success) {
-            localStorage.setItem('token', response.data.data.token); // save token
-            router.push('/create_pr'); // redirect
+            localStorage.setItem('token', response.data.data.token);
+            router.push('/create_pr');
         } else {
-            error.value = response.data.message; // show API error
+            error.value = response.data.message;
         }
     } catch (err) {
-        error.value = "An error occurred. Please try again."; // catch network/server errors
+        error.value = "An error occurred. Please try again.";
     } finally {
-        loading.value = false; // stop loading
+        loading.value = false;
     }
 };
 </script>
 
 <template>
-	<div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-		<div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-			<!-- Logo / Title -->
-			<div class="text-center mb-6">
-				<h1 class="text-2xl font-bold text-gray-800">Login</h1>
-				<p class="text-sm text-gray-500">Enter your credentials to access your account</p>
-			</div>
-			<hr class="my-4">
-			<div v-if="error" class="flex items-center p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
-                <ExclamationCircleIcon class="w-5 h-5 mr-2" />
-                <span>{{ error }}</span>
-            </div>
-			<!-- Login Form -->
-			<form @submit.prevent="login" class="space-y-4">
-				<!-- Email -->
-				<div>
-				<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-				<input
-					id="email"
-					v-model="form.email"
-					type="email"
-					required
-					class="mt-1 block w-full rounded-lg border px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
-				/>
-				</div>
-
-				<!-- Password -->
-				<div>
-					<label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-					<div class="relative">
-						<input
-							id="password"
-							v-model="form.password"
-							:type="showPassword ? 'text' : 'password'"
-							required
-							class="mt-1 block w-full rounded-lg border px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
-						/>
-
-						<button
-							type="button"
-							@click="showPassword = !showPassword"
-							class="absolute inset-y-0 right-3 flex items-center text-gray-500"
-						>
-							<EyeSlashIcon v-if="showPassword" class="w-5 h-5" />
-							<EyeIcon v-else class="w-5 h-5" />
-						</button>
-					</div>
-				</div>
-
-				<!-- Remember + Forgot -->
-				<!-- <div class="flex items-center justify-between">
-				<label class="flex items-center space-x-2 text-sm text-gray-600">
-					<input type="checkbox" v-model="remember" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-					<span>Remember me</span>
-				</label>
-				<a href="/forgot-password" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
-				</div> -->
-
-				<!-- Submit Button -->
-				<button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300 mt-2 mt-3" :disabled="loading">
-                    <span v-if="loading">Logging in...</span>
-                    <span v-else>Login</span>
-                </button>
-			</form>
-
-			<!-- Divider -->
-			<!-- <div class="flex items-center my-6">
-				<div class="flex-grow border-t border-gray-300"></div>
-				<span class="mx-3 text-sm text-gray-500">or</span>
-				<div class="flex-grow border-t border-gray-300"></div>
-			</div> -->
-
-			<!-- Register -->
-			<!-- <p class="text-center text-sm text-gray-600">
-				Don’t have an account?
-				<a href="/register" class="text-blue-600 font-medium hover:underline">Register</a>
-			</p> -->
-		</div>
+<div class="min-h-screen flex bg-gradient-to-br from-blue-950 to-blue-900">
+	<div
+		class="absolute inset-0 pt-20 overflow-hidden animated-bg
+			bg-[radial-gradient(circle,rgba(255,255,255,0.15)_1px,transparent_1px)]
+			bg-[size:24px_24px]">
 	</div>
+    <!-- Left Branding Panel -->
+    <div class="hidden lg:flex w-1/2 items-center justify-center text-white p-12">
+        <div class="max-w-md text-center">
+            <h1 class="text-4xl font-bold mb-4">Welcome Back</h1>
+            <p class="text-white/80 text-lg">
+                Sign in to securely access your purchasing and request system.
+            </p>
+        </div>
+    </div>
+
+    <!-- Right Login Panel -->
+    <div class="flex w-full lg:w-1/2 items-center justify-center p-6">
+        <div class="w-full max-w-md">
+
+            <div class="bg-white backdrop-blur rounded-2xl shadow-2xl p-8">
+
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800">Sign In</h2>
+                    <p class="text-gray-500 text-sm mt-2">
+                        Enter your account credentials
+                    </p>
+                </div>
+
+                <!-- Error Alert -->
+                <div v-if="error"
+                     class="flex items-start gap-3 p-4 mb-6 text-sm text-red-800 bg-red-50 border border-red-200 rounded-xl">
+                    <ExclamationCircleIcon class="w-5 h-5 mt-0.5" />
+                    <span>{{ error }}</span>
+                </div>
+
+                <!-- Form -->
+                <form @submit.prevent="login" class="space-y-5">
+
+                    <!-- Email -->
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">
+                            Email Address
+                        </label>
+                        <input
+                            v-model="form.email"
+                            type="email"
+                            required
+                            placeholder="you@example.com"
+                            class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-300
+                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                   outline-none transition"
+                        />
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="text-sm font-semibold text-gray-600">
+                            Password
+                        </label>
+
+                        <div class="relative mt-2">
+                            <input
+                                v-model="form.password"
+                                :type="showPassword ? 'text' : 'password'"
+                                required
+                                placeholder="Enter your password"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300
+                                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                       outline-none transition pr-12"
+                            />
+
+                            <button
+                                type="button"
+                                @click="showPassword = !showPassword"
+                                class="absolute inset-y-0 right-4 flex items-center text-gray-500 hover:text-gray-700"
+                            >
+                                <EyeSlashIcon v-if="showPassword" class="w-5 h-5"/>
+                                <EyeIcon v-else class="w-5 h-5"/>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button
+                        type="submit"
+                        :disabled="loading"
+                        class="w-full flex items-center justify-center gap-2
+                               bg-blue-600 hover:bg-blue-700
+                               disabled:bg-blue-400
+                               text-white font-semibold py-3 rounded-xl
+                               transition shadow-md"
+                    >
+                        <svg v-if="loading"
+                             class="animate-spin h-5 w-5"
+                             viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                    fill="none"
+                                    stroke-linecap="round"/>
+                        </svg>
+
+                        <span>{{ loading ? 'Signing in...' : 'Login' }}</span>
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- Footer -->
+            <p class="text-center text-white/80 text-sm mt-6">
+                © {{ new Date().getFullYear() }} CENPRI
+            </p>
+
+        </div>
+    </div>
+
+</div>
 </template>

@@ -8,19 +8,38 @@ use Illuminate\Http\Request;
 class DepartmentController extends Controller
 {
     // Get all departments
-    public function index() {
-        return response()->json(Department::all());
+    public function index(Request $request)
+    {
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = Department::query();
+
+        if ($search) {
+            $query->where('department_name', 'like', "%{$search}%")
+                ->orWhere('department_code', 'like', "%{$search}%");
+        }
+
+         // Order by newest first
+        $query->orderBy('id', 'desc'); // or created_at if you have timestamps
+
+        return $query->paginate($perPage);
     }
 
     // Add new department
     public function store(Request $request) {
         $request->validate([
-            'department_name' => 'required|string|max:255|unique:departments,department_name',
+            'department_name' => 'required|string|max:255',
             'department_code' => 'required|string|max:10|unique:departments,department_code',
+        ],[
+           'department_code.unique' => 'This department code already exists. Please enter a unique code.',
         ]);
 
-        $dept = Department::create($request->only('department_name', 'department_code'));
-        return response()->json($dept);
+        $dept = Department::create(
+            $request->only('department_name', 'department_code')
+        );
+
+        return response()->json($dept, 201);
     }
 
     // Update department
@@ -28,8 +47,10 @@ class DepartmentController extends Controller
         $dept = Department::findOrFail($id);
 
         $request->validate([
-            'department_name' => 'required|string|max:255|unique:departments,department_name,' . $id,
+            'department_name' => 'required|string|max:255,' . $id,
             'department_code' => 'required|string|max:10|unique:departments,department_code,' . $id,
+        ],[
+           'department_code.unique' => 'This department code already exists. Please enter a unique code.',
         ]);
 
         $dept->update($request->only('department_name', 'department_code'));

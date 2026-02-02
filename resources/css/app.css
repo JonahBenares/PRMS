@@ -2,62 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DataTables classic styling */
-@import "datatables.net-dt/css/jquery.dataTables.css";
-
-#itemTable{
-    @apply border-b;
-}
-/* DataTable Toolbar Container */
-.dt-toolbar {
-    @apply flex justify-between items-center mb-4;
+html, body{
+  font-family: poppins;
 }
 
-/* Entries per page dropdown */
-.dt-length select#dt-length-0 {
-    @apply px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300;
+
+
+.pagination-btn {
+  @apply px-3 py-1.5 text-sm border rounded-md transition
+         disabled:opacity-40 disabled:cursor-not-allowed;
 }
 
-.dt-length label[for="dt-length-0"] {
-    @apply ml-2 text-gray-700;
+.modal-enter-active,
+.modal-leave-active {
+    transition: all 0.25s ease;
+}
+.modal-enter-from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+}
+.modal-leave-to {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
 }
 
-/* Search input */
-.dt-search input#dt-search-0 {
-    @apply px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 w-80;
+.backdrop-enter-active,
+.backdrop-leave-active {
+    transition: opacity 0.25s ease;
+}
+.backdrop-enter-from,
+.backdrop-leave-to {
+    opacity: 0;
 }
 
-/* Optional: spacing between toolbar elements */
-.dt-length,
-.dt-search {
-    @apply flex items-center gap-2;
-}
-/* DataTable pagination buttons */
-.dt-paging-button {
-    @apply px-3 py-1 border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-100 transition;
-}
-
-.dt-paging-button.disabled {
-    @apply bg-gray-100 text-gray-400 cursor-not-allowed;
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.dt-paging-button.first,
-.dt-paging-button.previous,
-.dt-paging-button.next,
-.dt-paging-button.last {
-    @apply font-semibold;
+.fade-up {
+  animation: fadeUp 0.6s ease-out both;
 }
 
-.dt-paging-button.current {
-    @apply bg-blue-500 text-white border-blue-500;
+.form-label {
+  @apply text-xs font-semibold text-gray-600 mb-1 block;
 }
 
-/* Optional: spacing between buttons */
-nav[aria-label="pagination"] .dt-paging-button + .dt-paging-button {
-    @apply ml-1;
+.form-input {
+  @apply w-full border rounded-lg px-3 py-2 text-sm ;
 }
 
-/* Focus state */
-.dt-paging-button:focus {
-    @apply outline-none ring-2 ring-blue-300;
+.btn-primary {
+  @apply flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow;
 }
+
+.btn-success {
+  @apply bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow font-semibold;
+}
+
+.upload-tile {
+  @apply border-2 border-dashed rounded-lg h-32 flex items-center justify-center relative bg-gray-50 hover:bg-gray-100;
+}
+
+.upload-img {
+  @apply w-full h-full object-cover rounded-lg;
+}
+
+.upload-remove {
+  @apply absolute top-1 right-1 bg-black/70 text-white text-xs px-2 rounded-full;
+}
+.animated-bg {
+    animation: moveDots 20s linear infinite;
+}
+
+input, select{
+  @apply focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none
+}
+
+@keyframes moveDots {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 100px 100px; /* move diagonally */
+    }
+}
+
+tbody tr {
+  @apply hover:bg-yellow-50;
+}
+
+

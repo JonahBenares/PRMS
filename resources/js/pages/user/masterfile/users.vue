@@ -1,193 +1,326 @@
-<template>
-  <navigation>
-    <section class="items-center justify-center py-8">
-      <div class="bg-white rounded-lg shadow-lg max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="px-6 py-4 flex justify-between items-center mb-4 bg-white border-b rounded-t-lg">
-          <h2 class="text-lg font-semibold">User List</h2>
-          <button 
-            @click="openAddModal"
-            class="flex text-sm items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <PlusIcon class="w-5 h-5 mr-1" />
-            Add User
-          </button>
-        </div>
-
-        <!-- Table -->
-        <div class="px-6 pt-2 pb-6">
-          <table class="min-w-full text-sm text-left text-gray-700 border border-gray-200 rounded-lg overflow-hidden">
-            <thead class="bg-gray-100 text-gray-900 font-semibold">
-              <tr>
-                <td class="px-4 py-2">Name</td>
-                <td class="px-4 py-2">Email</td>
-                <td class="px-4 py-2">Role</td>
-                <td class="px-4 py-2" width="5%"></td>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr v-for="user in users" :key="user.id" class="hover:bg-gray-50">
-                <td class="px-4 py-2">{{ user.name }}</td>
-                <td class="px-4 py-2">{{ user.email }}</td>
-                <td class="px-4 py-2">{{ user.role || '-' }}</td>
-                <td class="px-4 py-2 flex items-center space-x-1">
-                  <button @click="openEditModal(user)" class="flex items-center justify-center px-1 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
-                    <PencilSquareIcon class="w-4 h-4" />
-                  </button>
-                  <button @click="openDeleteModal(user)" class="flex items-center justify-center px-1 py-1 bg-red-500 text-white rounded-lg hover:bg-red-700">
-                    <TrashIcon class="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-              <tr v-if="users.length === 0">
-                <td colspan="4" class="text-center py-4 text-gray-500">No users found.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Add/Edit Modal -->
-      <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
-        <div class="bg-black/50 w-full h-full" @click="closeModal"></div>
-        <div class="bg-white rounded-lg w-[600px] absolute top-32">
-          <div class="flex justify-between px-6 py-4 bg-gray-100 rounded-t-lg">
-            <h3 class="text-lg font-semibold">{{ isEdit ? 'Edit User' : 'Add User' }}</h3>
-            <button @click="closeModal">
-              <XMarkIcon class="w-5 h-5"/>
-            </button>
-          </div>
-
-          <div class="flex flex-col gap-3 px-6 py-4">
-            <div class="flex flex-col gap-1">
-              <label class="text-sm">Name</label>
-              <input v-model="modalItem.name" placeholder="Full Name" class="border px-3 py-2 rounded text-sm"/>
-              <span v-if="errors.name" class="text-red-500 text-xs">{{ errors.name }}</span>
-            </div>
-            <div class="flex flex-col gap-1">
-              <label class="text-sm">Email</label>
-              <input v-model="modalItem.email" placeholder="Email Address" class="border px-3 py-2 rounded text-sm"/>
-              <span v-if="errors.email" class="text-red-500 text-xs">{{ errors.email }}</span>
-            </div>
-            <div class="flex flex-col gap-1">
-              <label class="text-sm">Role</label>
-              <select v-model="modalItem.role" class="border px-3 py-2 rounded text-sm">
-                <option value="" disabled>Select Role</option>
-                <option value="Admin">Admin</option>
-                <option value="Enduser">Enduser</option>
-                <option value="Supervisor">Supervisor</option>
-              </select>
-              <span v-if="errors.role" class="text-red-500 text-xs">{{ errors.role }}</span>
-            </div>
-          </div>
-
-          <div class="flex justify-end gap-2 px-6 py-4">
-            <button @click="closeModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-400">Cancel</button>
-            <button @click="saveUser" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">{{ isEdit ? 'Update' : 'Add' }}</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Delete Modal -->
-      <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div class="bg-white rounded-2xl shadow-lg w-[600px] max-w-[90%] p-6 text-center absolute top-32">
-          <ExclamationTriangleIcon class="w-32 h-32 text-red-600 mx-auto mb-4" />
-          <h3 class="!text-2xl font-bold text-gray-800 mb-4">Confirm Deletion</h3>
-          <p class="text-gray-600 mb-6">
-            Are you sure you want to delete <span class="font-semibold">{{ modalItem.name }}</span>?
-          </p>
-          <div class="flex justify-center gap-3">
-            <button @click="closeDeleteModal" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
-            <button @click="deleteItem" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </navigation>
-</template>
-
 <script setup>
-import { ref, reactive, onMounted } from "vue";
-import axios from "axios";
-import { TrashIcon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
-import navigation from "@/components/layouts/navigation.vue";
+	import { ref, onMounted, reactive, computed } from "vue";
+	import { Bars3Icon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
+	import { useTable } from '@/composables/useTable'
+	import searchbox from '@/composables/searchbox.vue';
+	import pagination from "@/composables/pagination.vue";
+	import navigation from "@/components/layouts/navigation.vue";
+	import modal from "@/components/modal.vue";
+	import axios from "axios";
 
-// Users data
-const users = ref([]);
+	// table composable (same as employee)
+	const {
+		items,
+		search,
+		page,
+		perPage,
+		total,
+		lastPage,
+		loading,
+		fetchData
+	} = useTable('/api/users')
 
-// Modal states
-const showModal = ref(false);
-const showDeleteModal = ref(false);
-const isEdit = ref(false);
-const modalItem = reactive({ id: null, name: "", email: "", role: "" });
-const errors = reactive({ name: "", email: "", role: "" });
+	const isSaving = ref(false)
 
-// Fetch users from API
-const fetchUsers = async () => {
-  try {
-    const res = await axios.get("/api/users");
-    users.value = res.data;
-  } catch (err) {
-    console.error(err);
-  }
-};
+	onMounted(fetchData)
 
-// Add/Edit modal
-const openAddModal = () => {
-  isEdit.value = false;
-  Object.assign(modalItem, { id: null, name: "", email: "", role: "" });
-  Object.assign(errors, { name: "", email: "", role: "" });
-  showModal.value = true;
-};
+	const pageCount = computed(() => lastPage.value)
+	const totalItems = computed(() => total.value)
 
-const openEditModal = (user) => {
-  isEdit.value = true;
-  Object.assign(modalItem, user);
-  Object.assign(errors, { name: "", email: "", role: "" });
-  showModal.value = true;
-};
+	// modal states
+	const showModal = ref(false)
+	const showDeleteModal = ref(false)
+	const isEdit = ref(false)
 
-const closeModal = () => showModal.value = false;
+	// modal data
+	const modalItem = reactive({
+		id: null,
+		name: "",
+		email: "",
+		role: "",
+		password: ""
+	})
 
-// Save user
-const saveUser = async () => {
-  Object.assign(errors, { name: "", email: "", role: "" });
-  try {
-    if (isEdit.value) {
-      await axios.put(`/api/users/${modalItem.id}`, modalItem);
-    } else {
-      await axios.post("/api/users", modalItem);
-    }
-    await fetchUsers();
-    showModal.value = false;
-  } catch (err) {
-    if (err.response?.data?.errors) {
-      Object.assign(errors, err.response.data.errors);
-    }
-    console.error(err);
-  }
-};
+	// errors
+	const errors = reactive({
+		name: "",
+		email: "",
+		role: "",
+		password: ""
+	})
 
-// Delete modal
-const openDeleteModal = (user) => {
-  Object.assign(modalItem, user);
-  showDeleteModal.value = true;
-};
+	// open add
+	const openAddModal = () => {
+		isEdit.value = false
+		Object.assign(modalItem, {
+			id: null,
+			name: "",
+			email: "",
+			role: "",
+			password: ""
+		})
+		Object.assign(errors, {
+			name: "",
+			email: "",
+			role: "",
+			password: ""
+		})
+		showModal.value = true
+	}
 
-const closeDeleteModal = () => showDeleteModal.value = false;
+	// open edit
+	const openEditModal = (user) => {
+		isEdit.value = true
+		Object.assign(modalItem, {
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			role: user.role,
+			password: ""
+		})
+		Object.assign(errors, {
+			name: "",
+			email: "",
+			role: "",
+			password: ""
+		})
+		showModal.value = true
+	}
 
-const deleteItem = async () => {
-  try {
-    await axios.delete(`/api/users/${modalItem.id}`);
-    await fetchUsers();
-    showDeleteModal.value = false;
-  } catch (err) {
-    console.error(err);
-  }
-};
+	const closeModal = () => showModal.value = false
 
-// Initialize
-onMounted(() => {
-  fetchUsers();
-});
+	// save user (same flow as employee save)
+	const saveUser = async () => {
+		if (isSaving.value) return
+
+		Object.assign(errors, {
+			name: "",
+			email: "",
+			role: "",
+			password: ""
+		})
+
+		// frontend validation
+		if (!modalItem.name) {
+			errors.name = "Name is required"
+			return
+		}
+		if (!modalItem.email) {
+			errors.email = "Email is required"
+			return
+		}
+		if (!modalItem.role) {
+			errors.role = "Role is required"
+			return
+		}
+
+		try {
+			isSaving.value = true
+
+			if (isEdit.value) {
+				await axios.put(`/api/users/${modalItem.id}`, modalItem)
+			} else {
+				await axios.post("/api/users", modalItem)
+			}
+
+			await fetchData()
+			showModal.value = false
+
+		} catch (err) {
+			if (err.response?.data?.errors) {
+				Object.assign(errors, err.response.data.errors)
+			}
+			console.error(err)
+		} finally {
+			isSaving.value = false
+		}
+	}
+
+	// delete
+	const openDeleteModal = (item) => {
+		Object.assign(modalItem, item)
+		showDeleteModal.value = true
+	}
+
+	const closeDeleteModal = () => showDeleteModal.value = false
+
+	const deleteItem = async () => {
+		try {
+			await axios.delete(`/api/users/${modalItem.id}`)
+			await fetchData()
+			showDeleteModal.value = false
+		} catch (err) {
+			console.error(err)
+		}
+	}
 </script>
+
+<template>
+	<navigation>
+	<section class="items-center justify-center py-8 fade-up">
+		<div class="bg-white border border-white/20 rounded-2xl shadow-xl max-w-6xl mx-auto">
+			<!-- HEADER (same style as employee) -->
+			<div class="px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<div>
+					<h2 class="text-2xl font-bold text-gray-600">Users</h2>
+				</div>
+
+				<div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+					<div class="w-full sm:w-96">
+						<searchbox v-model="search" />
+					</div>
+
+					<button
+						@click="openAddModal"
+						class="inline-flex items-center justify-center gap-2
+						px-4 py-2 bg-blue-600 text-white text-sm font-medium
+						rounded-lg shadow hover:bg-blue-700 transition"
+					>
+						<PlusIcon class="w-4 h-4" />
+						Add User
+					</button>
+				</div>
+			</div>
+
+			<!-- pagination top -->
+			<div class="border-b">
+				<pagination
+					:page="page"
+					:per-page="perPage"
+					:last-page="lastPage"
+					:total="total"
+					@update:page="page = $event"
+					@update:perPage="perPage = $event"
+				/>
+			</div>
+
+			<!-- TABLE -->
+			<div class="overflow-hidden">
+				<table class="min-w-full text-sm text-left">
+					<thead class="bg-gray-100 sticky top-0 z-10">
+					<tr class="text-gray-600 uppercase text-xs tracking-wide">
+						<th class="px-6 py-3">Name</th>
+						<th class="px-6 py-3">Email</th>
+						<th class="px-6 py-3">Role</th>
+						<th class="px-6 py-3 w-1">
+							<div class="flex justify-center">
+								<Bars3Icon class="size-4" />
+							</div>
+						</th>
+					</tr>
+					</thead>
+
+					<tbody class="divide-y">
+					<tr v-for="user in items" :key="user.id" class="hover:bg-gray-50">
+						<td class="px-6 py-2 font-medium text-gray-800">{{ user.name }}</td>
+						<td class="px-6 py-2 text-gray-600">{{ user.email }}</td>
+						<td class="px-6 py-2 text-gray-600">{{ user.role }}</td>
+
+						<td class="px-6 py-2">
+							<div class="flex justify-center">
+								<button
+									@click="openEditModal(user)"
+									class="p-2 rounded-md text-blue-600 hover:bg-blue-50"
+								>
+									<PencilSquareIcon class="w-4 h-4" />
+								</button>
+							</div>
+						</td>
+					</tr>
+
+					<tr v-if="!loading && items.length === 0">
+						<td colspan="4" class="py-10 text-center text-gray-500">
+							No users found.
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!-- pagination bottom -->
+			<pagination
+				:page="page"
+				:per-page="perPage"
+				:last-page="lastPage"
+				:total="total"
+				@update:page="page = $event"
+				@update:perPage="perPage = $event"
+			/>
+
+		</div>
+	</section>
+
+	<!-- MODAL (same reusable modal component as employee) -->
+	<modal v-model="showModal">
+		<template #title>
+			{{ isEdit ? 'Edit User' : 'Add User' }}
+		</template>
+		<template #close-icon>
+			<XMarkIcon class="w-5 h-5 cursor-pointer" @click="showModal=false" />
+		</template>
+		<div class="flex flex-col gap-4">
+			<div>
+				<label class="text-sm font-medium">Name</label>
+				<input v-model="modalItem.name" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"/>
+				<span v-if="errors.name" class="text-red-500 text-xs">{{ errors.name }}</span>
+			</div>
+
+			<div>
+				<label class="text-sm font-medium">Email</label>
+				<input v-model="modalItem.email" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"/>
+				<span v-if="errors.email" class="text-red-500 text-xs">{{ errors.email }}</span>
+			</div>
+
+			<div>
+				<label class="text-sm font-medium">Role</label>
+				<select v-model="modalItem.role" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+					<option disabled value="">Select Role</option>
+					<option>Admin</option>
+					<option>Supervisor</option>
+					<option>Enduser</option>
+				</select>
+				<span v-if="errors.role" class="text-red-500 text-xs">{{ errors.role }}</span>
+			</div>
+		</div>
+
+		<template #footer>
+			<button @click="showModal=false" class="px-4 py-2 text-sm bg-gray-100 rounded-lg" :disabled="isSaving">
+				Cancel
+			</button>
+
+			<button
+				@click="saveUser"
+				class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg"
+				:disabled="isSaving"
+				>
+				{{ isSaving ? 'Saving...' : isEdit ? 'Update' : 'Add' }}
+			</button>
+		</template>
+
+	</modal>
+
+	<!-- DELETE MODAL -->
+	<div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+	<div class="bg-white rounded-2xl shadow-lg w-[600px] p-6 text-center absolute top-32">
+
+	<ExclamationTriangleIcon class="w-32 h-32 text-red-600 mx-auto" />
+
+	<h3 class="text-2xl font-bold mb-4">Confirm Deletion</h3>
+
+	<p>Delete <strong>{{ modalItem.name }}</strong> ?</p>
+
+	<div class="flex justify-center gap-3 mt-8">
+	<button @click="closeDeleteModal" class="px-4 py-2 bg-gray-200 rounded">
+	Cancel
+	</button>
+
+	<button @click="deleteItem" class="px-4 py-2 bg-red-600 text-white rounded">
+	Delete
+	</button>
+	</div>
+
+	</div>
+	</div>
+
+	</navigation>
+</template>

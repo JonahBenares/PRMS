@@ -15,6 +15,7 @@ class ItemController extends Controller
 /**
      * Return all items with variants
      */
+<<<<<<< HEAD
     public function index()
     {
         $items = Items::with('item_variants')->get();
@@ -45,10 +46,84 @@ class ItemController extends Controller
                     ];
                 }),
             ];
-        });
+=======
+    public function index(Request $request)
+{
+    $search  = $request->query('search');
+    $perPage = (int) $request->query('per_page', 10);
 
-        return response()->json($result);
+    $query = Items::query()
+        ->with('item_Variants');
+
+    // ------------------------
+    // SEARCH (items + variants)
+    // ------------------------
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+
+            // item fields
+            $q->where('item_code', 'like', "%$search%")
+              ->orWhere('item_description', 'like', "%$search%")
+              ->orWhere('category_name', 'like', "%$search%")
+              ->orWhere('sub_cat_name', 'like', "%$search%");
+
+            // variant fields
+            $q->orWhereHas('item_Variants', function ($v) use ($search) {
+                $v->where('variant_item_code', 'like', "%$search%")
+                  ->orWhere('brand', 'like', "%$search%")
+                  ->orWhere('model', 'like', "%$search%")
+                  ->orWhere('part_no', 'like', "%$search%")
+                  ->orWhere('size', 'like', "%$search%")
+                  ->orWhere('color', 'like', "%$search%")
+                  ->orWhere('material', 'like', "%$search%")
+                  ->orWhere('uom', 'like', "%$search%");
+            });
+
+>>>>>>> c1653a5eed8a9fd955b8b743cd5d81c5c65b6209
+        });
     }
+
+    // newest first (like your other masterfiles)
+    $query->orderByDesc('id');
+
+    // ------------------------
+    // PAGINATE
+    // ------------------------
+    $items = $query->paginate($perPage);
+
+    // ------------------------
+    // TRANSFORM (keep nested)
+    // ------------------------
+    $items->getCollection()->transform(function ($item) {
+        return [
+            'id' => $item->id,
+            'item_code' => $item->item_code,
+            'item_description' => $item->item_description,
+            'category_name' => $item->category_name,
+            'sub_cat_name' => $item->sub_cat_name,
+
+            'item_Variants' => $item->item_Variants->map(function ($v) {
+                return [
+                    'id' => $v->id,
+                    'variant_item_code' => $v->variant_item_code,
+                    'brand' => $v->brand,
+                    'type' => $v->type,
+                    'model' => $v->model,
+                    'part_no' => $v->part_no,
+                    'size' => $v->size,
+                    'color' => $v->color,
+                    'material' => $v->material,
+                    'uom' => $v->uom,
+                    'img1' => $v->img1,
+                    'img2' => $v->img2,
+                    'img3' => $v->img3,
+                ];
+            }),
+        ];
+    });
+
+    return response()->json($items);
+}
 
     
     /**

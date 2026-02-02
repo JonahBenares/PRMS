@@ -9,17 +9,34 @@ use Illuminate\Http\Request;
 class CompanyController extends Controller
 {
     // Get all Company
-    public function index()
+    public function index(Request $request)
     {
-        return Company::with('companylocation')->get();
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = Company::with('companylocation');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('company_name', 'like', "%{$search}%")
+                  ->orWhere('company_code', 'like', "%{$search}%")
+                  ->orWhereHas('companylocation', function ($lq) use ($search) {
+                      $lq->where('location', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function store_company(Request $request)
     {
         $data = $request->validate([
             'company_name' => 'required|string',
-            'company_code' => 'required|string',
+            'company_code' => 'required|string|unique:company,company_code',
             'company_logo' => 'nullable|image|max:2048'
+        ],[
+           'company_code.unique' => 'This company code already exists. Please enter a unique code.',
         ]);
 
         if ($request->hasFile('company_logo')) {
@@ -45,8 +62,10 @@ class CompanyController extends Controller
         // Validate only if logo is uploaded
         $data = $request->validate([
             'company_name' => 'required|string',
-            'company_code' => 'required|string',
+            'company_code' => 'required|string|unique:company,company_code',
             'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ],[
+           'company_code.unique' => 'This company code already exists. Please enter a unique code.',
         ]);
 
         // Check if a new logo file is uploaded

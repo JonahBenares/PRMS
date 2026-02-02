@@ -157,29 +157,37 @@ const saveItem = async () => {
 <template>
 <navigation>
   <pageCard>
-    <div class="flex justify-between items-center border-b pb-3 mb-4">
-      <h2 class="text-lg font-semibold">Add Item</h2>
-    </div>
-
-    <!-- ITEM CODE -->
-    <div class="mb-4">
-      <label class="text-sm text-gray-500">Item Code</label>
-      <input
-        type="text"
-        class="w-full border rounded px-2 py-2 text-sm bg-gray-100"
-        :value="itemCode"
-        readonly
-      />
-    </div>
-
-    <!-- SUB CATEGORY / CATEGORY -->
-    <div class="grid md:grid-cols-2 gap-4">
+    <!-- HEADER -->
+    <div class="flex items-center justify-between mb-6">
       <div>
-        <label class="text-sm text-gray-500">Sub Category</label>
-           <select
+        <h2 class="text-2xl font-bold text-gray-800">Add Item</h2>
+        <p class="text-sm text-gray-500">Create item and manage its variants</p>
+      </div>
+    </div>
+
+    <!-- ================= ITEM INFO ================= -->
+    <div class="bg-gray-50 border rounded-xl p-5 mb-6">
+      <h3 class="font-semibold text-gray-700 mb-4">Item Information</h3>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <!-- Item Code -->
+        <div>
+          <label class="form-label">Item Code</label>
+          <input
+            type="text"
+            :value="itemCode"
+            readonly
+            class="form-input bg-gray-100 font-semibold"
+          />
+        </div>
+
+        <!-- Sub Category -->
+        <div>
+          <label class="form-label">Sub Category</label>
+          <select
             v-model="selectedSubCategory"
             @change="onSubCategoryChange"
-            class="w-full border rounded px-2 py-2 text-sm"
+            class="form-input"
           >
             <option :value="null">Select Sub Category</option>
             <option
@@ -190,182 +198,162 @@ const saveItem = async () => {
               {{ sub.sub_cat_name }}
             </option>
           </select>
-      </div>
-
-      <div>
-        <label class="text-sm text-gray-500">Category</label>
-        <input
-            type="text"
-            class="w-full border rounded px-2 py-2 text-sm bg-gray-50"
-            :value="categoryName"
-            readonly
-            />
-      </div>
-    </div>
-
-    <!-- ITEM DESCRIPTION -->
-    <div class="mt-4">
-      <label class="text-sm text-gray-500">Item Description</label>
-      <input
-        v-model="itemDescription"
-        type="text"
-        class="w-full border rounded px-2 py-2 text-sm"
-      />
-    </div>
-
-    <!-- VARIANTS -->
-    <div class="mt-6">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="font-semibold">Variant Items</h3>
-        <button
-          @click="addVariant"
-          class="flex items-center bg-blue-600 text-white text-sm px-3 py-1.5 rounded"
-        >
-          <PlusIcon class="w-4 h-4 mr-1" /> Add Variant
-        </button>
-      </div>
-        <div
-          v-for="(variant, index) in variants"
-          :key="index"
-          class="border rounded-lg mb-4 p-4 bg-white"
-        >
-          <div class="grid md:grid-cols-3 gap-3 text-sm">
-
-  <!-- Variant Item Code -->
-  <div>
-    <label class="text-xs text-gray-500">Variant Item Code</label>
-    <input
-      type="text"
-      class="w-full border rounded px-2 py-1 bg-gray-100"
-      :value="variant.variant_item_code"
-      readonly
-    />
-  </div>
-
-  <div>
-    <label class="text-xs text-gray-500">Brand</label>
-    <input
-      v-model="variant.brand"
-      class="w-full border rounded px-2 py-1"
-      type="text"
-    />
-  </div>
-
-  <div>
-    <label class="text-xs text-gray-500">Part No</label>
-    <input
-      v-model="variant.partNo"
-      class="w-full border rounded px-2 py-1"
-      type="text"
-    />
-  </div>
-
-  <div>
-    <label class="text-xs text-gray-500">Type</label>
-    <input
-      v-model="variant.type"
-      class="w-full border rounded px-2 py-1"
-      type="text"
-    />
-  </div>
-
-  <div>
-    <label class="text-xs text-gray-500">Model</label>
-    <input
-      v-model="variant.model"
-      class="w-full border rounded px-2 py-1"
-      type="text"
-    />
-  </div>
-
-  <div>
-    <label class="text-xs text-gray-500">Size</label>
-    <input
-      v-model="variant.size"
-      class="w-full border rounded px-2 py-1"
-      type="text"
-    />
-  </div>
-
-  <div>
-    <label class="text-xs text-gray-500">Color</label>
-    <input
-      v-model="variant.color"
-      class="w-full border rounded px-2 py-1"
-      type="text"
-    />
-  </div>
-
-  <div>
-    <label class="text-xs text-gray-500">Material</label>
-    <input
-      v-model="variant.material"
-      class="w-full border rounded px-2 py-1"
-      type="text"
-    />
-  </div>
-
-  <div>
-    <label class="text-xs text-gray-500">Unit of Measure (UOM)</label>
-    <input
-      v-model="variant.uom"
-      class="w-full border rounded px-2 py-1"
-      type="text"
-    />
-  </div>
-</div>
-        <div class="grid grid-cols-3 gap-3 mt-4">
-          <div
-            v-for="(image, imgIndex) in variant.images"
-            :key="imgIndex"
-            class="border-2 border-dashed rounded-lg p-2 relative text-center"
-          >
-            <img
-              v-if="image.url"
-              :src="image.url"
-              class="w-full h-28 object-cover rounded"
-            />
-            <span v-else class="text-xs text-gray-400 block mt-6">
-              Image {{ imgIndex + 1 }}
-            </span>
-
-            <input
-              type="file"
-              accept="image/*"
-              class="absolute inset-0 opacity-0 cursor-pointer"
-              @change="handleFileUpload($event, variant, imgIndex)"
-            />
-
-            <button
-              v-if="image.url"
-              @click.stop="removeImage(variant, imgIndex)"
-              class="absolute top-1 right-1 bg-black/60 text-white rounded-full px-2"
-            >
-              ✕
-            </button>
-          </div>
         </div>
 
-        <div class="flex justify-end mt-3">
+        <!-- Category -->
+        <div>
+          <label class="form-label">Category</label>
+          <input
+            :value="categoryName"
+            readonly
+            class="form-input bg-gray-100"
+          />
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="mt-4">
+        <label class="form-label">Item Description</label>
+        <input
+          v-model="itemDescription"
+          class="form-input"
+          placeholder="Enter item description..."
+        />
+      </div>
+    </div>
+
+    <!-- ================= VARIANTS ================= -->
+    <div class="flex justify-between items-center mb-3">
+      <h3 class="text-lg font-semibold text-gray-800">Variants</h3>
+
+      <button
+        @click="addVariant"
+        class="btn-primary"
+      >
+        <PlusIcon class="w-4 h-4 mr-1"/>
+        Add Variant
+      </button>
+    </div>
+
+    <!-- Variant Cards -->
+    <div class="space-y-5">
+      <div
+        v-for="(variant, index) in variants"
+        :key="index"
+        class="bg-white border rounded-xl shadow-sm"
+      >
+        <!-- Variant Header -->
+        <div class="flex justify-between items-center bg-gray-100 px-4 py-3 rounded-t-xl">
+          <div class="font-semibold text-gray-700">
+            Variant {{ index + 1 }}
+            <span class="text-xs text-gray-500 ml-2">
+              {{ variant.variant_item_code }}
+            </span>
+          </div>
+
           <button
             v-if="canDeleteVariant(variant)"
             @click="deleteVariant(index)"
-            class="bg-red-500 text-white rounded p-1"
+            class="text-red-600 hover:bg-red-50 p-2 rounded"
           >
-            <TrashIcon class="w-4 h-4" />
+            <TrashIcon class="w-5 h-5"/>
           </button>
+        </div>
+
+        <!-- Variant Body -->
+        <div class="p-4 grid md:grid-cols-3 gap-4">
+
+          <div>
+            <label class="form-label">Brand</label>
+            <input v-model="variant.brand" class="form-input"/>
+          </div>
+
+          <div>
+            <label class="form-label">Part No</label>
+            <input v-model="variant.partNo" class="form-input"/>
+          </div>
+
+          <div>
+            <label class="form-label">Type</label>
+            <input v-model="variant.type" class="form-input"/>
+          </div>
+
+          <div>
+            <label class="form-label">Model</label>
+            <input v-model="variant.model" class="form-input"/>
+          </div>
+
+          <div>
+            <label class="form-label">Size</label>
+            <input v-model="variant.size" class="form-input"/>
+          </div>
+
+          <div>
+            <label class="form-label">Color</label>
+            <input v-model="variant.color" class="form-input"/>
+          </div>
+
+          <div>
+            <label class="form-label">Material</label>
+            <input v-model="variant.material" class="form-input"/>
+          </div>
+
+          <div>
+            <label class="form-label">UOM</label>
+            <input v-model="variant.uom" class="form-input"/>
+          </div>
+        </div>
+
+        <!-- Images -->
+        <div class="px-4 pb-5">
+          <label class="form-label mb-2 block">Images</label>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div
+              v-for="(image, imgIndex) in variant.images"
+              :key="imgIndex"
+              class="upload-tile"
+            >
+              <img
+                v-if="image.url"
+                :src="image.url"
+                class="upload-img"
+              />
+
+              <span v-else class="text-gray-400 text-xs">
+                Upload Image {{ imgIndex + 1 }}
+              </span>
+
+              <input
+                type="file"
+                accept="image/*"
+                class="absolute inset-0 opacity-0 cursor-pointer"
+                @change="handleFileUpload($event, variant, imgIndex)"
+              />
+
+              <button
+                v-if="image.url"
+                @click.stop="removeImage(variant, imgIndex)"
+                class="upload-remove"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="flex justify-end border-t pt-4">
+    <!-- ================= SAVE BAR ================= -->
+    <div class="sticky bottom-0 bg-white border-t mt-8 pt-4 flex justify-end">
       <button
         @click="saveItem"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
+        class="btn-success"
       >
         Save Item
       </button>
     </div>
+
   </pageCard>
 </navigation>
 </template>

@@ -321,13 +321,13 @@ const saveAndProceed  = async () => {
 				<div>
 					<h2 class="text-2xl font-bold mb-2">PR FORM</h2>
 				</div>
-				<div class="px-2 mt-1">
+				<!-- <div class="px-2 mt-1">
 					<span class="text-emerald-500 text-white font-semibold">Revise</span>
-				</div>
+				</div> -->
 			</div>
 			<div class="mb-3">
 				<table class="w-full text-sm ">
-					<tbody>
+					<thead>
 						<tr>
 							<td class="border px-1">Company</td>
 							<td class="border w-[37.5%]">
@@ -373,9 +373,14 @@ const saveAndProceed  = async () => {
 							</td>
 						</tr>
 						<tr>
-							<td class="border px-1">PR Number</td>
-							<td class="border w-[37.5%]">
-								<input type="text" class="outline-none w-full px-1" :value="prNumber" readonly>
+							<td class=" px-1">Location</td>
+							<td class=" w-[37.5%]">
+								<select v-model="selectedPurchase" class="outline-none w-full py-1 border rounded-lg px-2">
+									<option value="">Select Location</option>
+									<option v-for="req in purchaseRequests" :key="req" :value="req">
+									{{ req }}
+									</option>
+								</select>
 							</td>
 							<td class="border px-1">Department Code</td>
 							<td class="border w-[37.5%]">
@@ -466,7 +471,7 @@ const saveAndProceed  = async () => {
 						</tr>
 						</thead>
 
-						<tbody>
+						<thead>
 						<tr v-for="(row, index) in rows" :key="row.id">
 							<td class="align-top !border-x !border-b px-1 text-center">
 							{{ index + 1 }}
@@ -575,22 +580,22 @@ const saveAndProceed  = async () => {
 								</button>
 							</td>
 						</tr>
-					</tbody>
+					</thead>
 				</table>
 			</div>
 			<table class="w-full text-sm !border-b border-x mt-1">
-				<tbody>
+				<thead>
 					<tr>
 						<td class="border p-0" colspan="2">
 							<span class="px-1 align-top">Notes</span>
 							<textarea v-model="notes" class="m-0 w-full p-1 outline-none" rows="1"></textarea>
 						</td>
 					</tr>
-				</tbody>
+				</thead>
 			</table>
 			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bago'" class="border-b border-x px-16 py-5">
 				<table class="w-full  text-sm">
-					<tbody>
+					<thead>
 						<tr>
 							<td width="10%">Prepared By:</td>
 							<td class="border-b">
@@ -665,72 +670,115 @@ const saveAndProceed  = async () => {
 							<td width=""></td>
 							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
 						</tr>
-					</tbody>
+					</thead>
 				</table>
 			</div>
-			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bacolod'" class="border-b border-x px-20 py-5">
-				<table class="w-full  text-sm">
-					<tbody>
-						<tr>
-							<td width="10%">Prepared By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-							<td width="5%"></td>
-							<td width="20%">Reviewed By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							<td></td>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-						</tr>
+			<div v-if="selectedCompany === 'CENPRI' && selectedPurchase === 'Bacolod'" class="border-b border-x pl-4 pr-12 py-5">
+				<div class="grid grid-cols-2 gap-x-6 gap-y-4 mt-0">
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Prepared By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+							<option>John Doe</option>
+							<option>Jane Smith</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
 
-						<tr>
-							<td width="10%">Recommending Approval By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-							<td width="5%"></td>
-							<td width="20%">Approved By:</td>
-							<td class="border-b">
-								<select name="" class="outline-none w-full px-1 font-semibold" id="">
-									<option value="">Select Employee</option>
-									<option value=""></option>
-									<option value=""></option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-							<td></td>
-							<td width=""></td>
-							<td><input type="text" class="outline-none w-full mb-3 px-2" value="Position"></td>
-						</tr>
-					</tbody>
-				</table>
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Reviewed By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Reviewed By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Reviewed By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+					
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Reviewed and Checked By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+
+					<div class="flex items-start">
+						<div class="w-40 text-sm font-medium text-gray-700 pt-1 pr-4 text-right">
+						Approved By:
+						</div>
+						<div class="flex-1">
+						<select class="w-full text-sm border-b outline-none px-2 py-1">
+							<option value="">Select Employee</option>
+						</select>
+						<input
+							type="text"
+							placeholder="Position"
+							class="w-full mt-1 text-sm px-2 py-1 outline-none"
+						/>
+						</div>
+					</div>
+				</div>
+				
 			</div>
 			
 			<div class="mt-4 flex justify-end flex-wrap gap-2">
 				<!-- Instead of <a>, we use buttons that trigger modal -->
-				<a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
+				<!-- <a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
 					Save as Draft
 				</a>
 				<button

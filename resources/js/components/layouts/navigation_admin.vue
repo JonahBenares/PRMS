@@ -75,9 +75,17 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-64 p-6 bg-gray-50">
+    <main
+    class="pt-20 flex-1 relative overflow-hidden
+          bg-gray-100
+          bg-[linear-gradient(to_right,rgba(0,0,0,0.05)_1px,transparent_1px),
+              linear-gradient(to_bottom,rgba(0,0,0,0.05)_1px,transparent_1px)]
+          bg-[size:40px_40px]"
+  >
+    <div class="relative z-10">
       <slot />
-    </main>
+  </div>
+</main>
   </div>
 </template>
 

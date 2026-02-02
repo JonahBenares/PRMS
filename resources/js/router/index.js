@@ -22,6 +22,7 @@ import group_list from '../pages/user/masterfile/group.vue'
 import category_list from '../pages/user/masterfile/category.vue'
 import qualifier_list from '../pages/user/masterfile/qualifier.vue'
 import company_list from '../pages/user/masterfile/company.vue'
+import signatories from '../pages/user/masterfile/signatories.vue'
 
 
 const routes = [
@@ -112,6 +113,10 @@ const routes = [
     {
         path:'/masterfile/company',
         component: company_list,
+    },
+    {
+        path:'/masterfile/signatories',
+        component: signatories,
     },
     {
         path:'/:pathMatch(.*)*',

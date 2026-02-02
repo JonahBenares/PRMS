@@ -8,14 +8,27 @@ use App\Models\Enduse;
 class EnduseController extends Controller
 {
     // Get all enduses
-    public function index() {
-        return Enduse::all();
+    public function index(Request $request)
+    {
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
+
+        $query = Enduse::query();
+
+        if ($search) {
+            $query->where('enduse_name', 'like', "%{$search}%");
+        }
+
+        return $query->paginate($perPage);
     }
 
     // Store new enduse
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
-            'enduse_name' => 'required|string|max:255',
+            'enduse_name' => 'required|string|max:255|unique:enduses,enduse_name',
+        ],[
+           'enduse_name.unique' => 'This enduse already exists. Please enter a unique enduse.',
         ]);
 
         $enduse = Enduse::create([
@@ -26,12 +39,21 @@ class EnduseController extends Controller
     }
 
     // Update enduse
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
+        $enduse = Enduse::findOrFail($id);
+
         $request->validate([
-            'enduse_name' => 'required|string|max:255',
+            'enduse_name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('enduses', 'enduse_name')->ignore($enduse->id),
+            ],
+        ],[
+           'enduse_name.unique' => 'This enduse already exists. Please enter a unique enduse.',
         ]);
 
-        $enduse = Enduse::findOrFail($id);
         $enduse->update([
             'enduse_name' => $request->enduse_name,
         ]);
