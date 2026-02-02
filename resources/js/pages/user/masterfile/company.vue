@@ -122,12 +122,12 @@
 
 		// validation
 		if (!isSub.value) {
-			if (!modalItem.company_name.trim()) {
+			if (!modalItem.company_name) {
 				errors.company_name = "Company name is required"
 				return
 			}
 		} else {
-			if (!modalItem.location.trim()) {
+			if (!modalItem.location) {
 				errors.location = "Location is required"
 				return
 			}
@@ -323,13 +323,18 @@
 			</template>
 
 			<!-- COMPANY -->
-			<div v-if="!isSub">
-				<label class="text-sm">Company Name</label>
-				<input v-model="modalItem.company_name" class="border px-3 py-2 rounded text-sm w-full"/>
-
-				<label class="text-sm">Company Code</label>
-				<input v-model="modalItem.company_code" class="border px-3 py-2 rounded text-sm w-full"/>
-
+			<div v-if="!isSub"> 
+				<div>
+					<label class="text-sm">Company Name</label>
+					<input v-model="modalItem.company_name" class="border px-3 py-2 rounded text-sm w-full"/>
+					<span v-if="errors.company_name" class="text-red-500 text-xs">
+						{{ errors.company_name }}
+					</span>
+				</div>
+				<div>
+					<label class="text-sm">Company Code</label>
+					<input v-model="modalItem.company_code" class="border px-3 py-2 rounded text-sm w-full"/>
+				</div>
 				<label class="text-sm">Company Logo</label>
 				<div class="flex items-center gap-4">
 					<div

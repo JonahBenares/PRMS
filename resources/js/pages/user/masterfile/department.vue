@@ -57,10 +57,10 @@
         })
 
         // frontend validation (DO NOT start loading yet)
-        if (!modalItem.department_name) {
+       if (!modalItem.department_name) {
             errors.department_name = "Department name is required"
             return
-        }
+        } 
 
         if (!modalItem.department_code) {
             errors.department_code = "Department code is required"
