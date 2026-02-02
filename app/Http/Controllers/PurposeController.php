@@ -26,6 +26,8 @@ class PurposeController extends Controller
     public function store(Request $request) {
         $request->validate([
             'purpose_name' => 'required|string|max:255|unique:purposes,purpose_name',
+        ],[
+           'purpose_name.unique' => 'This purpose already exists. Please enter a unique purpose.',
         ]);
 
         $purpose = Purpose::create([

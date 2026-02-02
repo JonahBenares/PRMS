@@ -29,8 +29,10 @@ class DepartmentController extends Controller
     // Add new department
     public function store(Request $request) {
         $request->validate([
-            'department_name' => 'required|string|max:255|unique:departments,department_name',
+            'department_name' => 'required|string|max:255',
             'department_code' => 'required|string|max:10|unique:departments,department_code',
+        ],[
+           'department_code.unique' => 'This department code already exists. Please enter a unique code.',
         ]);
 
         $dept = Department::create(
@@ -45,8 +47,10 @@ class DepartmentController extends Controller
         $dept = Department::findOrFail($id);
 
         $request->validate([
-            'department_name' => 'required|string|max:255|unique:departments,department_name,' . $id,
+            'department_name' => 'required|string|max:255,' . $id,
             'department_code' => 'required|string|max:10|unique:departments,department_code,' . $id,
+        ],[
+           'department_code.unique' => 'This department code already exists. Please enter a unique code.',
         ]);
 
         $dept->update($request->only('department_name', 'department_code'));

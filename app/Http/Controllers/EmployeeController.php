@@ -39,6 +39,8 @@ class EmployeeController extends Controller
             'position' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
             'department_name' => 'required|string|max:255',
+        ],[
+           'employee_name.unique' => 'This employee name already exists. Please enter a unique name.',
         ]);
 
         $employee = Employee::create($request->only('employee_name', 'position', 'department_id', 'department_name'));
@@ -54,6 +56,8 @@ class EmployeeController extends Controller
             'position' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
             'department_name' => 'required|string|max:255',
+        ],[
+           'employee_name.unique' => 'This employee name already exists. Please enter a unique name.',
         ]);
 
         $employee->update($request->only('employee_name', 'position', 'department_id', 'department_name'));
