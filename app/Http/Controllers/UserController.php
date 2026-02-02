@@ -33,6 +33,8 @@ class UserController extends Controller
             'email'    => 'required|email|unique:users,email',
             'role'     => 'required|string|max:255',
             'password' => 'nullable|string|min:6',
+        ],[
+           'email.unique' => 'This email already exists. Please enter a unique email.',
         ]);
 
         $user = User::create([
@@ -54,6 +56,8 @@ class UserController extends Controller
             'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'role'  => 'required|string|max:255',
+        ],[
+           'email.unique' => 'This email already exists. Please enter a unique email.',
         ]);
 
         $data = $request->only('name', 'email', 'role');

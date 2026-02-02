@@ -29,6 +29,8 @@ class PRLocationController extends Controller
     {
         $request->validate([
             'location' => 'required|string|max:255|unique:pr_locations,location',
+        ],[
+           'location.unique' => 'This location already exists. Please enter a unique location.',
         ]);
 
         $location = PRLocation::create(
@@ -45,6 +47,8 @@ class PRLocationController extends Controller
 
         $request->validate([
             'location' => 'required|string|max:255|unique:pr_locations,location,' . $id,
+        ],[
+           'location.unique' => 'This location already exists. Please enter a unique location.',
         ]);
 
         $location->update(
