@@ -126,6 +126,10 @@
 				errors.company_name = "Company name is required"
 				return
 			}
+			if (!modalItem.company_code) {
+				errors.company_code = "Company code is required"
+				return
+			}
 		} else {
 			if (!modalItem.location) {
 				errors.location = "Location is required"
@@ -334,26 +338,31 @@
 				<div>
 					<label class="text-sm">Company Code</label>
 					<input v-model="modalItem.company_code" class="border px-3 py-2 rounded text-sm w-full"/>
+					<span v-if="errors.company_code" class="text-red-500 text-xs">
+						{{ errors.company_code }}
+					</span>
 				</div>
-				<label class="text-sm">Company Logo</label>
-				<div class="flex items-center gap-4">
-					<div
-						class="h-20 w-20 border rounded flex items-center justify-center overflow-hidden bg-gray-50"
-					>
-						<img
-						v-if="logoPreview"
-						:src="logoPreview"
-						class="h-full w-full object-cover"
-						/>
-						<span v-else class="text-xs text-gray-400">No Image</span>
-					</div>
+				<div>
+					<label class="text-sm">Company Logo</label>
+					<div class="flex items-center gap-4">
+						<div
+							class="h-20 w-20 border rounded flex items-center justify-center overflow-hidden bg-gray-50"
+						>
+							<img
+							v-if="logoPreview"
+							:src="logoPreview"
+							class="h-full w-full object-cover"
+							/>
+							<span v-else class="text-xs text-gray-400">No Image</span>
+						</div>
 
-					<input
-						type="file"
-						accept="image/*"
-						@change="handleLogoUpload"
-						class="border px-3 py-2 rounded text-sm w-full"
-					/>
+						<input
+							type="file"
+							accept="image/*"
+							@change="handleLogoUpload"
+							class="border px-3 py-2 rounded text-sm w-full"
+						/>
+					</div>
 				</div>
 			</div>
 
