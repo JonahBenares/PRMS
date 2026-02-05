@@ -102,7 +102,7 @@
 		} else {
 			logoPreview.value = null
 		}
-GIT S
+
 		clearErrors()
 		showModal.value = true
 	}
