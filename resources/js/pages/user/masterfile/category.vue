@@ -111,8 +111,22 @@ const saveItem = async () => {
         showModal.value = false
 
     } catch (err) {
-        console.error(err)
-    } finally {
+		if (err.response?.status === 422) {
+			const validationErrors = err.response.data.errors
+
+			// CATEGORY
+			if (validationErrors.category_name) {
+				errors.name = validationErrors.category_name[0]
+			}
+
+			// SUBCATEGORY (if you later add unique validation)
+			if (validationErrors.sub_cat_name) {
+				errors.name = validationErrors.sub_cat_name[0]
+			}
+		} else {
+			console.error(err)
+		}
+	} finally {
         isSaving.value = false
     }
 }
