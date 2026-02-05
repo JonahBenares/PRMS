@@ -32,7 +32,9 @@ class CategoryController extends Controller
     public function store_category(Request $request)
     {
         $request->validate([
-            'category_name' => 'required|string|max:255'
+            'category_name' => 'required|string|max:255|unique:category,category_name',
+        ], [
+            'category_name.unique' => 'This category name already exists. Please enter a unique name.',
         ]);
 
         $category = Category::create([
@@ -46,7 +48,9 @@ class CategoryController extends Controller
     public function update_category(Request $request, $id)
     {
         $request->validate([
-            'category_name' => 'required|string|max:255'
+            'category_name' => 'required|string|max:255|unique:category,category_name',
+        ],[
+           'category_name.unique' => 'This category name already exists. Please enter a unique name.',
         ]);
 
         $category = Category::findOrFail($id);
@@ -73,27 +77,31 @@ class CategoryController extends Controller
     //     return response()->json($sub, 201);
     // }
 
- public function store_subcategory(Request $request)
-{
-    try {
-        $validated = $request->validate([
-            'sub_cat_name' => 'required|string|max:255',
-            'category_id'  => 'required|exists:category,id',
-        ]);
+    public function store_subcategory(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'sub_cat_name' => 'required|string|max:255|unique:sub_category,sub_cat_name',
+                'category_id'  => 'required|exists:category,id',
+            ],[
+            'sub_cat_name.unique' => 'This subcategory name already exists. Please enter a unique name.',
+            ]);
 
-        SubCategory::create($validated);
+            SubCategory::create($validated);
 
-        return response()->json(['message' => 'Subcategory created'], 201);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Subcategory created'], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
-}
 
     // Update Subcategory
     public function update_subcategory(Request $request, $id)
     {
         $request->validate([
-            'sub_cat_name' => 'required|string|max:255'
+            'sub_cat_name' => 'required|string|max:255|unique:sub_category,sub_cat_name',
+        ],[
+           'sub_cat_name.unique' => 'This subcategory name already exists. Please enter a unique name.',
         ]);
 
         $sub = SubCategory::findOrFail($id);

@@ -151,7 +151,9 @@
 				}
 
 				if (isEdit.value) {
-					await axios.put(`/api/company_locations/${modalItem.id}`, payload)
+					await axios.put(`/api/companies/${modalItem.id}`, formData, {
+						headers: { "Content-Type": "multipart/form-data" }
+					})
 				} else {
 					await axios.post(`/api/company_locations`, payload)
 				}
@@ -179,7 +181,16 @@
 			showModal.value = false
 
 		} catch (err) {
-			console.error(err.response?.data || err)
+			if (err.response?.status === 422) {
+				const responseErrors = err.response.data.errors;
+				for (const key in responseErrors) {
+					if (errors[key] !== undefined) {
+						errors[key] = responseErrors[key][0];
+					}
+				}
+			} else {
+				console.error(err);
+			}
 		} finally {
 			isSaving.value = false
 		}
