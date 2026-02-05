@@ -87,57 +87,11 @@
 
 						<template v-for="item in items" :key="item.id">
 
-<<<<<<< HEAD
-                <!-- Collapsible variants row -->
-                <tr v-if="item.showVariants">
-                  <td colspan="5" class="bg-gray-50 px-4 py-2">
-                    <table class="w-full text-sm border rounded">
-                      <thead class="bg-gray-200 font-semibold">
-                        <tr>
-                          <th class="px-2 py-1">Variant Code</th>
-                          <th class="px-2 py-1">Brand</th>
-                          <th class="px-2 py-1">Model</th>
-                          <th class="px-2 py-1">Size</th>
-                          <th class="px-2 py-1">Color</th>
-                          <th class="px-2 py-1">UOM</th>
-                          <th class="px-2 py-1">Images</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="v in item.item_variants" :key="v.id">
-                          <td class="px-2 py-1">{{ v.variant_item_code }}</td>
-                          <td class="px-2 py-1">{{ v.brand }}</td>
-                          <td class="px-2 py-1">{{ v.model }}</td>
-                          <td class="px-2 py-1">{{ v.size }}</td>
-                          <td class="px-2 py-1">{{ v.color }}</td>
-                          <td class="px-2 py-1">{{ v.uom }}</td>
-                          <td class="px-2 py-1 flex gap-1">
-                            <template v-if="v.img1">
-                              <img :src="`/storage/items/${v.img1}`" class="w-6 h-6 object-cover rounded" />
-                            </template>
-                            <template v-if="v.img2">
-                              <img :src="`/storage/items/${v.img2}`" class="w-6 h-6 object-cover rounded" />
-                            </template>
-                            <template v-if="v.img3">
-                              <img :src="`/storage/items/${v.img3}`" class="w-6 h-6 object-cover rounded" />
-                            </template>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
-=======
 						<!-- MAIN ITEM ROW -->
 						<tr class=" font-medium text-sm">
 							<td class="px-6 py-2 text-gray-800">
 								{{ item.item_code }}
 							</td>
->>>>>>> c1653a5eed8a9fd955b8b743cd5d81c5c65b6209
 
 							<td class="px-6 py-2">
 								{{ item.item_description }}

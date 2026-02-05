@@ -15,38 +15,6 @@ class ItemController extends Controller
 /**
      * Return all items with variants
      */
-<<<<<<< HEAD
-    public function index()
-    {
-        $items = Items::with('item_variants')->get();
-
-        // Transform to the structure Vue expects
-        $result = $items->map(function ($item) {
-            return [
-                'id' => $item->id,
-                'item_code' => $item->item_code,
-                'item_description' => $item->item_description,
-                'category_name' => $item->category_name,
-                'sub_cat_name' => $item->sub_category_name, // adjust field name
-                'item_variants' => $item->item_Variants->map(function ($v) {
-                    return [
-                        'id' => $v->id,
-                        'variant_item_code' => $v->variant_item_code,
-                        'brand' => $v->brand,
-                        'type' => $v->type,
-                        'model' => $v->model,
-                        'part_no' => $v->part_no,
-                        'size' => $v->size,
-                        'color' => $v->color,
-                        'material' => $v->material,
-                        'uom' => $v->uom,
-                        'img1' => $v->img1,
-                        'img2' => $v->img2,
-                        'img3' => $v->img3,
-                    ];
-                }),
-            ];
-=======
     public function index(Request $request)
 {
     $search  = $request->query('search');
@@ -79,7 +47,6 @@ class ItemController extends Controller
                   ->orWhere('uom', 'like', "%$search%");
             });
 
->>>>>>> c1653a5eed8a9fd955b8b743cd5d81c5c65b6209
         });
     }
 

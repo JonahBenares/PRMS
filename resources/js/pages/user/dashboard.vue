@@ -51,14 +51,14 @@ watch([selectedCompany, selectedDepartment], async ([company, department]) => {
     }
 });
 
-const fetchCompanies = async () => {
-    try {
-        const response = await axios.get("/api/companies");
-        companies.value = response.data;
-    } catch (err) {
-        console.error(err);
-    }
-};
+	const fetchCompanies = async () => {
+	try {
+		const response = await axios.get('/api/companies');
+		companies.value = response.data.data;
+	} catch (err) {
+		console.error(err);
+	}
+	};
 
 watch(selectedCompany, (newVal) => {
     selectedLocation.value = "";
@@ -73,8 +73,6 @@ watch(selectedCompany, (newVal) => {
     if (company) {
         selectedCompanyId.value = company.id;
         locations.value = company.companylocation ?? [];
-
-        // ✅ Auto select if only one location
         if (locations.value.length === 1) {
             selectedLocation.value = locations.value[0].location;
         }
@@ -83,8 +81,8 @@ watch(selectedCompany, (newVal) => {
 
 const fetchDepartments = async () => {
     try {
-        const res = await axios.get("/api/departments");
-        departments.value = res.data;
+		const response = await axios.get('/api/departments');
+		departments.value = response.data.data;
     } catch (err) {
         console.error(err);
     }
@@ -106,8 +104,8 @@ watch(selectedDepartment, (newVal) => {
 
 const fetchEmployees = async () => {
     try {
-        const res = await axios.get("/api/employees");
-        requestors.value = res.data;
+        const response = await axios.get("/api/employees");
+        requestors.value = response.data.data;
     } catch (err) {
         console.error(err);
     }
@@ -373,15 +371,8 @@ const saveAndProceed  = async () => {
 							</td>
 						</tr>
 						<tr>
-							<td class=" px-1">Location</td>
-							<td class=" w-[37.5%]">
-								<select v-model="selectedPurchase" class="outline-none w-full py-1 border rounded-lg px-2">
-									<option value="">Select Location</option>
-									<option v-for="req in purchaseRequests" :key="req" :value="req">
-									{{ req }}
-									</option>
-								</select>
-							</td>
+							<td class=" px-1">PR No</td>
+							<td class=" w-[37.5%]">{{ prNumber }}</td>
 							<td class="border px-1">Department Code</td>
 							<td class="border w-[37.5%]">
 								<input type="text" class="outline-none w-full px-1" v-model="departmentCode" readonly>
@@ -449,7 +440,7 @@ const saveAndProceed  = async () => {
 							</select>
 						</td>
 					</tr>
-					</tbody>
+					</thead>
 				</table>
 			</div>
 			<div class="border border-gray-200 rounded-xl overflow-hidden text-sm mb-3">
@@ -778,7 +769,7 @@ const saveAndProceed  = async () => {
 			
 			<div class="mt-4 flex justify-end flex-wrap gap-2">
 				<!-- Instead of <a>, we use buttons that trigger modal -->
-				<!-- <a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
+				<a class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
 					Save as Draft
 				</a>
 				<button
