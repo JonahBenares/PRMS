@@ -251,49 +251,41 @@ public function addVariants(Request $request, $id)
         'variants.*.variant_item_code' => 'required|string',
     ]);
 
-    DB::transaction(function() use ($request, $item) {
+        DB::transaction(function () use ($request, $item) {
         foreach ($request->variants as $index => $variantData) {
 
-            if (!empty($variantData['isNew'])) {
-                $variantCode = $variantData['variant_item_code'];
+            $variantCode = $variantData['variant_item_code'];
 
-                $img1 = $img2 = $img3 = null;
+            $img1 = $img2 = $img3 = null;
 
-                // Handle 3 images
-                for ($i = 0; $i < 3; $i++) {
-                    if ($request->hasFile("variants.$index.images.$i")) {
-                        $file = $request->file("variants.$index.images.$i");
+            for ($i = 0; $i < 3; $i++) {
+                if ($request->hasFile("variants.$index.images.$i")) {
+                    $file = $request->file("variants.$index.images.$i");
 
-                        // Clean item description for filename
-                        $cleanName = preg_replace('/[^A-Za-z0-9\-]/', '_', $item->item_description);
+                    $cleanName = preg_replace('/[^A-Za-z0-9\-]/', '_', $item->item_description);
+                    $filename = $cleanName . '_' . $variantCode . '_' . ($i+1) . '.' . $file->getClientOriginalExtension();
 
-                        // Filename: itemDescription_variantCode_index
-                        $filename = $cleanName . '_' . $variantCode . '_' . ($i+1) . '.' . $file->getClientOriginalExtension();
+                    $file->storeAs('items', $filename, 'public');
 
-                        // Store in public/items
-                        $file->storeAs('items', $filename, 'public');
-
-                        ${'img'.($i+1)} = $filename;
-                    }
+                    ${'img'.($i+1)} = $filename;
                 }
-
-                // Save variant
-                ItemVariants::create([
-                    'item_id' => $item->id,
-                    'variant_item_code' => $variantCode,
-                    'brand' => $variantData['brand'] ?? null,
-                    'part_no' => $variantData['partNo'] ?? null,
-                    'type' => $variantData['type'] ?? null,
-                    'model' => $variantData['model'] ?? null,
-                    'size' => $variantData['size'] ?? null,
-                    'color' => $variantData['color'] ?? null,
-                    'material' => $variantData['material'] ?? null,
-                    'uom' => $variantData['uom'] ?? null,
-                    'img1' => $img1,
-                    'img2' => $img2,
-                    'img3' => $img3,
-                ]);
             }
+
+            ItemVariants::create([
+                'item_id' => $item->id,
+                'variant_item_code' => $variantCode,
+                'brand' => $variantData['brand'] ?? null,
+                'part_no' => $variantData['partNo'] ?? null,
+                'type' => $variantData['type'] ?? null,
+                'model' => $variantData['model'] ?? null,
+                'size' => $variantData['size'] ?? null,
+                'color' => $variantData['color'] ?? null,
+                'material' => $variantData['material'] ?? null,
+                'uom' => $variantData['uom'] ?? null,
+                'img1' => $img1,
+                'img2' => $img2,
+                'img3' => $img3,
+            ]);
         }
     });
 
