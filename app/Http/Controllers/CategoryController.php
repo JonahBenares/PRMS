@@ -102,7 +102,7 @@ class CategoryController extends Controller
             'sub_cat_name' => 'required|string|max:255|unique:sub_category,sub_cat_name',
         ],[
            'sub_cat_name.unique' => 'This subcategory name already exists. Please enter a unique name.',
-        ]);
+        ]);xa
 
         $sub = SubCategory::findOrFail($id);
         $sub->update([
