@@ -1,166 +1,128 @@
 <script setup>
-    import { ref, reactive, onMounted, computed } from "vue";
-    import axios from "axios";
-    import { Bars3Icon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
-    import { useTable } from '@/composables/useTable'
-	import searchbox from '@/composables/searchbox.vue';
-	import pagination from "@/composables/pagination.vue";
-    import navigation from "@/components/layouts/navigation.vue";
-    import modal from "@/components/modal.vue";
+import { ref, reactive, onMounted, watch } from "vue";
+import axios from "axios";
+import { Bars3Icon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
+import searchbox from '@/composables/searchbox.vue';
+import pagination from "@/composables/pagination.vue";
+import navigation from "@/components/layouts/navigation.vue";
+import modal from "@/components/modal.vue";
 
-    const {
-        items,
-        search,
-        page,
-        perPage,
-        total,
-        lastPage,
-        loading,
-        fetchData
-    } = useTable('/api/enduses')
-    
+// Table state
+const items = ref([])
+const search = ref('')
+const page = ref(1)
+const perPage = ref(10)
+const total = ref(0)
+const lastPage = ref(0)
+const loading = ref(false)
 
-    onMounted(fetchData)
-    const pageCount = computed(() => lastPage.value)
-    const totalItems = computed(() => total.value)
+// Modal state
+const isSaving = ref(false)
+const showModal = ref(false)
+const showDeleteModal = ref(false)
+const isEdit = ref(false)
+const modalItem = reactive({ id: null, enduse_name: "" })
+const errors = reactive({ enduse_name: "" })
 
-    // Flatten categories + subcategories for table rows
-    const tableRows = computed(() => {
-        const rows = []
-        items.value.forEach(category => {
-            rows.push({
-            id: `c-${category.id}`,
-            name: category.category_name,
-            type: 'category',
-            raw: category
-            })
-            category.subcategories?.forEach(sub => {
-            rows.push({
-                id: `s-${sub.id}`,
-                name: `↳ ${sub.sub_cat_name}`,
-                type: 'subcategory',
-                raw: sub,
-                parent: category
-            })
-            })
+// Fetch data
+const fetchData = async () => {
+    loading.value = true
+    try {
+        const response = await axios.get('/api/enduses', {
+            params: {
+                page: page.value,
+                per_page: perPage.value,
+                search: search.value.trim()
+            }
         })
-        return rows
-    })
 
-    const visiblePages = computed(() => {
-        const total = pageCount.value
-        const current = page.value
-        const delta = 2 // pages on each side
+        // Directly assign the array
+        items.value = response.data
 
-        if (total <= 7) {
-            return Array.from({ length: total }, (_, i) => i + 1)
+        // If you want pagination info
+        total.value = response.data.length
+        lastPage.value = 1  // since API doesn't return pages
+    } catch (err) {
+        console.error(err)
+        items.value = []
+        total.value = 0
+        lastPage.value = 0
+    } finally {
+        loading.value = false
+    }
+}
+
+// Watchers
+watch(search, () => { page.value = 1; fetchData() })
+watch(page, () => fetchData())
+watch(perPage, () => { page.value = 1; fetchData() })
+
+// Modals
+const openAddModal = () => {
+    isEdit.value = false
+    modalItem.id = null
+    modalItem.enduse_name = ""
+    errors.enduse_name = ""
+    showModal.value = true
+}
+
+const openEditModal = (enduse) => {
+    isEdit.value = true
+    modalItem.id = enduse.id
+    modalItem.enduse_name = enduse.enduse_name
+    errors.enduse_name = ""
+    showModal.value = true
+}
+
+const closeModal = () => showModal.value = false
+
+const saveEnduse = async () => {
+    errors.enduse_name = ""
+    if (!modalItem.enduse_name.trim()) {
+        errors.enduse_name = "Enduse name is required"
+        return
+    }
+    isSaving.value = true
+    try {
+        if (isEdit.value) {
+            await axios.put(`/api/enduses/${modalItem.id}`, { enduse_name: modalItem.enduse_name })
+        } else {
+            await axios.post('/api/enduses', { enduse_name: modalItem.enduse_name })
         }
-
-        const pages = new Set()
-
-        pages.add(1)
-        pages.add(total)
-
-        for (let i = current - delta; i <= current + delta; i++) {
-            if (i > 1 && i < total) {
-            pages.add(i)
-            }
+        await fetchData()
+        showModal.value = false
+    } catch (err) {
+        if (err.response?.data?.errors) {
+            Object.keys(err.response.data.errors).forEach(key => {
+                errors[key] = err.response.data.errors[key][0]
+            })
         }
+        console.error(err)
+    } finally { isSaving.value = false }
+}
 
-        return Array.from(pages).sort((a, b) => a - b)
-    })
+const openDeleteModal = (enduse) => {
+    modalItem.id = enduse.id
+    modalItem.enduse_name = enduse.enduse_name
+    showDeleteModal.value = true
+}
 
-    // Enduses data
-    const enduses = ref([]);
-    const isSaving = ref(false)
-    // Modal states
-    const showModal = ref(false);
-    const showDeleteModal = ref(false);
-    const isEdit = ref(false);
-    const modalItem = reactive({ id: null, enduse_name: "" });
-    const errors = reactive({ enduse_name: "" });
+const closeDeleteModal = () => showDeleteModal.value = false
 
-    // Add/Edit modal
-    const openAddModal = () => {
-        isEdit.value = false;
-        Object.assign(modalItem, { id: null, enduse_name: "" });
-        Object.assign(errors, { enduse_name: "" });
-        showModal.value = true;
-    };
+const deleteItem = async () => {
+    try {
+        await axios.delete(`/api/enduses/${modalItem.id}`)
+        await fetchData()
+        showDeleteModal.value = false
+    } catch (err) {
+        console.error(err)
+    }
+}
 
-    const openEditModal = (enduse) => {
-        isEdit.value = true;
-        Object.assign(modalItem, {
-            id: enduse.id,
-            enduse_name: enduse.enduse_name
-        });
-        Object.assign(errors, { enduse_name: "" });
-        showModal.value = true;
-    };
-
-    const closeModal = () => showModal.value = false;
-
-    // Save Enduse
-    const saveEnduse = async () => {
-        Object.assign(errors, { enduse_name: "" });
-
-        if (!modalItem.enduse_name) {
-            errors.enduse_name = "Enduse name is required";
-            return;
-        }
-
-        isSaving.value = true;
-
-        try {
-            if (isEdit.value) {
-                await axios.put(`/api/enduses/${modalItem.id}`, {
-                    enduse_name: modalItem.enduse_name,
-                });
-            } else {
-                await axios.post("/api/enduses", {
-                    enduse_name: modalItem.enduse_name,
-                });
-            }
-
-            await fetchData();
-            showModal.value = false;
-        } catch (err) {
-            if (err.response?.data?.errors) {
-                const backendErrors = err.response.data.errors
-
-                Object.keys(backendErrors).forEach(key => {
-                    errors[key] = backendErrors[key][0] // get FIRST message only
-                })
-            }
-            console.error(err)
-        } finally {
-            isSaving.value = false;
-        }
-    };
-
-    // Delete modal
-    const openDeleteModal = (enduse) => {
-        Object.assign(modalItem, enduse);
-        showDeleteModal.value = true;
-    };
-
-    const closeDeleteModal = () => showDeleteModal.value = false;
-
-    const deleteItem = async () => {
-        try {
-            await axios.delete(`/api/enduses/${modalItem.id}`);
-            await fetchData();
-            showDeleteModal.value = false;
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    // Initialize
-    onMounted(async () => {
-        await fetchData();
-    });
+// Initialize
+onMounted(fetchData)
 </script>
+
 
 <template>
     <navigation>
@@ -239,7 +201,7 @@
                                 </td>
                             </tr>
                             <!-- Empty state -->
-                            <tr v-if="!loading && items.length === 0">
+                            <tr v-if="!loading && items?.length === 0">
                                 <td colspan="2" class="py-10 text-center text-gray-500">
                                 No enduse found.
                                 </td>

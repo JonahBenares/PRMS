@@ -48,7 +48,7 @@ class EnduseController extends Controller
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('enduses', 'enduse_name')->ignore($enduse->id),
+                // Rule::unique('enduses', 'enduse_name')->ignore($enduse->id),
             ],
         ],[
            'enduse_name.unique' => 'This enduse already exists. Please enter a unique enduse.',
