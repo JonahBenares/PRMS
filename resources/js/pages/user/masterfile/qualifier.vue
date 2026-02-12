@@ -56,7 +56,7 @@
         Object.assign(errors, { qualifier_name: "" })
 
         if (!modalItem.qualifier_name) {
-            errors.qualifier_name = "Qualifier name is required"
+            errors.qualifier_name = "Qualifier name is required."
             return
         }
 
@@ -73,11 +73,15 @@
             showModal.value = false
 
         } catch (err) {
-            if (err.response?.data?.errors) {
-                Object.assign(errors, err.response.data.errors)
-            }
-            console.error(err)
-        } finally {
+            if (err.response?.data?.errors) {
+                const backendErrors = err.response.data.errors
+
+                Object.keys(backendErrors).forEach(key => {
+                    errors[key] = backendErrors[key][0] // get FIRST message only
+                })
+            }
+            console.error(err)
+        } finally {
             isSaving.value = false
         }
     }
