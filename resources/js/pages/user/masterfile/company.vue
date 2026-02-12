@@ -123,16 +123,16 @@
 		// validation
 		if (!isSub.value) {
 			if (!modalItem.company_name) {
-				errors.company_name = "Company name is required"
+				errors.company_name = "Company name is required."
 				return
 			}
 			if (!modalItem.company_code) {
-				errors.company_code = "Company code is required"
+				errors.company_code = "Company code is required."
 				return
 			}
 		} else {
 			if (!modalItem.location) {
-				errors.location = "Location is required"
+				errors.location = "Location is required."
 				return
 			}
 		}
