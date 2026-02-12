@@ -83,9 +83,11 @@ const saveItem = async () => {
 
     errors.name = ''
     if (!modalItem.name.trim()) {
-        errors.name = "Name is required"
-        return
-    }
+		errors.name = isSub.value
+			? "Subcategory name is required."
+			: "Category name is required."
+		return
+	}
 
     try {
         isSaving.value = true
