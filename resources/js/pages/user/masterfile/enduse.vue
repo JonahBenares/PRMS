@@ -79,7 +79,7 @@ const closeModal = () => showModal.value = false
 const saveEnduse = async () => {
     errors.enduse_name = ""
     if (!modalItem.enduse_name.trim()) {
-        errors.enduse_name = "Enduse name is required"
+        errors.enduse_name = "Enduse name is required."
         return
     }
     isSaving.value = true

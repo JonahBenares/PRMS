@@ -91,7 +91,7 @@ const closeModal = () => showModal.value = false
 const savePurpose = async () => {
     errors.purpose_name = ""
     if (!modalItem.purpose_name.trim()) {
-        errors.purpose_name = "Purpose name is required"
+        errors.purpose_name = "Purpose name is required."
         return
     }
 
@@ -107,8 +107,10 @@ const savePurpose = async () => {
         showModal.value = false
     } catch (err) {
         if (err.response?.data?.errors) {
-            Object.keys(err.response.data.errors).forEach(key => {
-                errors[key] = err.response.data.errors[key][0]
+            const backendErrors = err.response.data.errors
+
+            Object.keys(backendErrors).forEach(key => {
+                errors[key] = backendErrors[key][0] // get FIRST message only
             })
         }
         console.error(err)

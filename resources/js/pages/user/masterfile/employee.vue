@@ -116,15 +116,15 @@
 
 		// Frontend validation
 		if (!modalItem.employee_name) {
-			errors.employee_name = "Employee name is required";
+			errors.employee_name = "Employee name is required.";
 			return;
 		}
 		if (!modalItem.position) {
-			errors.position = "Position is required";
+			errors.position = "Position is required.";
 			return;
 		}
 		if (!modalItem.department_id) {
-			errors.department_id = "Department is required";
+			errors.department_id = "Department is required.";
 			return;
 		}
 
