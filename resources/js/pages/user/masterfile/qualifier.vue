@@ -73,15 +73,15 @@
             showModal.value = false
 
         } catch (err) {
-            if (err.response?.data?.errors) {
-                const backendErrors = err.response.data.errors
+           if (err.response?.data?.errors) {
+               const backendErrors = err.response.data.errors
 
-                Object.keys(backendErrors).forEach(key => {
-                    errors[key] = backendErrors[key][0] // get FIRST message only
-                })
-            }
-            console.error(err)
-        } finally {
+               Object.keys(backendErrors).forEach(key => {
+                   errors[key] = backendErrors[key][0] // get FIRST message only
+               })
+           }
+           console.error(err)
+        } finally {
             isSaving.value = false
         }
     }
