@@ -57,13 +57,13 @@
         })
 
         // frontend validation (DO NOT start loading yet)
-        if (!modalItem.department_name) {
-            errors.department_name = "Department name is required"
+       if (!modalItem.department_name) {
+            errors.department_name = "Department name is required."
             return
-        }
+        } 
 
         if (!modalItem.department_code) {
-            errors.department_code = "Department code is required"
+            errors.department_code = "Department code is required."
             return
         }
 
@@ -80,7 +80,11 @@
             showModal.value = false
         } catch (err) {
             if (err.response?.data?.errors) {
-                Object.assign(errors, err.response.data.errors)
+                const backendErrors = err.response.data.errors
+
+                Object.keys(backendErrors).forEach(key => {
+                    errors[key] = backendErrors[key][0] // get FIRST message only
+                })
             }
             console.error(err)
         } finally {

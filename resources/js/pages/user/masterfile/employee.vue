@@ -116,15 +116,15 @@
 
 		// Frontend validation
 		if (!modalItem.employee_name) {
-			errors.employee_name = "Employee name is required";
+			errors.employee_name = "Employee name is required.";
 			return;
 		}
 		if (!modalItem.position) {
-			errors.position = "Position is required";
+			errors.position = "Position is required.";
 			return;
 		}
 		if (!modalItem.department_id) {
-			errors.department_id = "Department is required";
+			errors.department_id = "Department is required.";
 			return;
 		}
 
@@ -144,11 +144,24 @@
 			await fetchData();
 			showModal.value = false;
 		} catch (err) {
-			if (err.response?.data?.errors) {
-				Object.assign(errors, err.response.data.errors);
-			}
-			console.error(err);
-		} finally {
+		if (err.response?.status === 422) {
+			const validationErrors = err.response.data.errors
+
+			errors.employee_name = validationErrors.employee_name
+				? validationErrors.employee_name[0]
+				: ""
+
+			errors.position = validationErrors.position
+				? validationErrors.position[0]
+				: ""
+
+			errors.department_id = validationErrors.department_id
+				? validationErrors.department_id[0]
+				: ""
+		} else {
+			console.error(err)
+		}
+	} finally {
 			isSaving.value = false;
 		}
 	};

@@ -122,13 +122,17 @@
 
 		// validation
 		if (!isSub.value) {
-			if (!modalItem.company_name.trim()) {
-				errors.company_name = "Company name is required"
+			if (!modalItem.company_name) {
+				errors.company_name = "Company name is required."
+				return
+			}
+			if (!modalItem.company_code) {
+				errors.company_code = "Company code is required."
 				return
 			}
 		} else {
-			if (!modalItem.location.trim()) {
-				errors.location = "Location is required"
+			if (!modalItem.location) {
+				errors.location = "Location is required."
 				return
 			}
 		}
@@ -147,7 +151,9 @@
 				}
 
 				if (isEdit.value) {
-					await axios.put(`/api/company_locations/${modalItem.id}`, payload)
+					await axios.put(`/api/companies/${modalItem.id}`, formData, {
+						headers: { "Content-Type": "multipart/form-data" }
+					})
 				} else {
 					await axios.post(`/api/company_locations`, payload)
 				}
@@ -175,7 +181,16 @@
 			showModal.value = false
 
 		} catch (err) {
-			console.error(err.response?.data || err)
+			if (err.response?.status === 422) {
+				const responseErrors = err.response.data.errors;
+				for (const key in responseErrors) {
+					if (errors[key] !== undefined) {
+						errors[key] = responseErrors[key][0];
+					}
+				}
+			} else {
+				console.error(err);
+			}
 		} finally {
 			isSaving.value = false
 		}
@@ -323,32 +338,42 @@
 			</template>
 
 			<!-- COMPANY -->
-			<div v-if="!isSub">
-				<label class="text-sm">Company Name</label>
-				<input v-model="modalItem.company_name" class="border px-3 py-2 rounded text-sm w-full"/>
+			<div v-if="!isSub"> 
+				<div>
+					<label class="text-sm">Company Name</label>
+					<input v-model="modalItem.company_name" class="border px-3 py-2 rounded text-sm w-full"/>
+					<span v-if="errors.company_name" class="text-red-500 text-xs">
+						{{ errors.company_name }}
+					</span>
+				</div>
+				<div>
+					<label class="text-sm">Company Code</label>
+					<input v-model="modalItem.company_code" class="border px-3 py-2 rounded text-sm w-full"/>
+					<span v-if="errors.company_code" class="text-red-500 text-xs">
+						{{ errors.company_code }}
+					</span>
+				</div>
+				<div>
+					<label class="text-sm">Company Logo</label>
+					<div class="flex items-center gap-4">
+						<div
+							class="h-20 w-20 border rounded flex items-center justify-center overflow-hidden bg-gray-50"
+						>
+							<img
+							v-if="logoPreview"
+							:src="logoPreview"
+							class="h-full w-full object-cover"
+							/>
+							<span v-else class="text-xs text-gray-400">No Image</span>
+						</div>
 
-				<label class="text-sm">Company Code</label>
-				<input v-model="modalItem.company_code" class="border px-3 py-2 rounded text-sm w-full"/>
-
-				<label class="text-sm">Company Logo</label>
-				<div class="flex items-center gap-4">
-					<div
-						class="h-20 w-20 border rounded flex items-center justify-center overflow-hidden bg-gray-50"
-					>
-						<img
-						v-if="logoPreview"
-						:src="logoPreview"
-						class="h-full w-full object-cover"
+						<input
+							type="file"
+							accept="image/*"
+							@change="handleLogoUpload"
+							class="border px-3 py-2 rounded text-sm w-full"
 						/>
-						<span v-else class="text-xs text-gray-400">No Image</span>
 					</div>
-
-					<input
-						type="file"
-						accept="image/*"
-						@change="handleLogoUpload"
-						class="border px-3 py-2 rounded text-sm w-full"
-					/>
 				</div>
 			</div>
 

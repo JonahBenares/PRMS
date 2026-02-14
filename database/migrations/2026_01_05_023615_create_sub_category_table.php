@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('sub_category', function (Blueprint $table) {
             $table->id();
-            $table->integer('category_id');
-            $table->string('sub_cat_name');
+            $table->integer('category_id')->default(0);
+            $table->string('sub_cat_name')->nullable();
             $table->timestamps();
         });
     }

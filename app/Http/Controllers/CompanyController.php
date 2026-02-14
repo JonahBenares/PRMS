@@ -33,8 +33,10 @@ class CompanyController extends Controller
     {
         $data = $request->validate([
             'company_name' => 'required|string',
-            'company_code' => 'required|string',
+            'company_code' => 'required|string|unique:company,company_code',
             'company_logo' => 'nullable|image|max:2048'
+        ],[
+           'company_code.unique' => 'This company code already exists. Please enter a unique code.',
         ]);
 
         if ($request->hasFile('company_logo')) {
@@ -60,8 +62,10 @@ class CompanyController extends Controller
         // Validate only if logo is uploaded
         $data = $request->validate([
             'company_name' => 'required|string',
-            'company_code' => 'required|string',
+            'company_code' => 'required|string|unique:company,company_code',
             'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ],[
+           'company_code.unique' => 'This company code already exists. Please enter a unique code.',
         ]);
 
         // Check if a new logo file is uploaded

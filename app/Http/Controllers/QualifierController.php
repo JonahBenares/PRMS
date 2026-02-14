@@ -30,6 +30,8 @@ class QualifierController extends Controller
     {
         $validated = $request->validate([
             'qualifier_name' => 'required|string|max:255|unique:qualifiers,qualifier_name',
+        ],[
+           'qualifier_name.unique' => 'This qualifier already exists. Please enter a unique qualifier.',
         ]);
 
         $qualifier = Qualifier::create($validated);
@@ -44,6 +46,8 @@ class QualifierController extends Controller
 
         $validated = $request->validate([
             'qualifier_name' => 'required|string|max:255|unique:qualifiers,qualifier_name,' . $id,
+        ],[
+           'qualifier_name.unique' => 'This qualifier already exists. Please enter a unique qualifier.',
         ]);
 
         $qualifier->update($validated);

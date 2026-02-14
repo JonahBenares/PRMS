@@ -59,9 +59,15 @@ const openAddModal = (parent = null) => {
     showModal.value = true
 }
 
-const openEditModal = (item, sub = false) => {
+const openEditModal = (item, sub = false, parent = null) => {
     isEdit.value = true
     isSub.value = sub
+
+    if (sub) {
+        parentCategory.value = parent   // ✅ THIS FIXES IT
+    } else {
+        parentCategory.value = null
+    }
 
     Object.assign(modalItem, {
         id: item.id,
@@ -77,9 +83,11 @@ const saveItem = async () => {
 
     errors.name = ''
     if (!modalItem.name.trim()) {
-        errors.name = "Name is required"
-        return
-    }
+		errors.name = isSub.value
+			? "Subcategory name is required."
+			: "Category name is required."
+		return
+	}
 
     try {
         isSaving.value = true
@@ -111,8 +119,22 @@ const saveItem = async () => {
         showModal.value = false
 
     } catch (err) {
-        console.error(err)
-    } finally {
+		if (err.response?.status === 422) {
+			const validationErrors = err.response.data.errors
+
+			// CATEGORY
+			if (validationErrors.category_name) {
+				errors.name = validationErrors.category_name[0]
+			}
+
+			// SUBCATEGORY (if you later add unique validation)
+			if (validationErrors.sub_cat_name) {
+				errors.name = validationErrors.sub_cat_name[0]
+			}
+		} else {
+			console.error(err)
+		}
+	} finally {
         isSaving.value = false
     }
 }
@@ -207,7 +229,7 @@ const saveItem = async () => {
 									</td>
 									<td class="px-6 py-2 text-right">
 										<button
-										@click="openEditModal(sub, true)"
+										@click="openEditModal(sub, true, category)"
 										class="p-2 rounded-md text-blue-500 hover:bg-blue-50">
 										<PencilSquareIcon class="w-4 h-4"/>
 										</button>

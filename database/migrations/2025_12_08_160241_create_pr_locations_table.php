@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('pr_locations', function (Blueprint $table) {
             $table->id();
-            $table->string('location');
+            $table->string('location')->nullable();
             $table->timestamps();
         });
     }

@@ -40,8 +40,9 @@ const routes = [
         }
     },
     {
-        path:'/print_pr',
+        path:'/print_pr/:id',
         component: print_pr,
+        props: true
     },
     {
         path:'/pr_list',

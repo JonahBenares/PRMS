@@ -27,6 +27,6 @@ class ItemVariants extends Model
     ];
 
     public function items(){
-        return $this->belongsTo(Items::class);
+        return $this->belongsTo(Items::class, 'item_id');
     }
 }

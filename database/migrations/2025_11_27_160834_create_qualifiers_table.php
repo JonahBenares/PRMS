@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('qualifiers', function (Blueprint $table) {
             $table->id();
-            $table->string('qualifier_name');
+            $table->string('qualifier_name')->nullable();
             $table->timestamps();
         });
     }

@@ -18,8 +18,8 @@ class Items extends Model
         'item_description',
     ];
 
-    public function item_Variants(){
-            return $this->hasMany(ItemVariants::class, 'item_id');
+    public function item_variants(){
+        return $this->hasMany(ItemVariants::class, 'item_id'); 
     }
 
 }

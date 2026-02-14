@@ -1,3 +1,59 @@
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
+
+const route = useRoute();
+const prId = route.params.id;
+
+const prData = ref({
+    location_name: '',
+    department_name: '',
+    department_code: '',
+    pr_no: '',
+    date_prepared: '',
+    requestor_name: '',
+    urgency_name: '',
+    purpose_name: '',
+    enduse_name: '',
+    notes: '',
+    pr_items: []
+});
+
+const company_addresses = ref([]);  // Array of addresses
+const first_telefax = ref('');      // First telefax
+
+const fetchPR = async () => {
+    try {
+        const res = await axios.get(`/api/pr/${prId}`);
+        console.log('API RESPONSE:', res.data);
+
+        if (res.data.success) {
+            // Assign main PR data
+            prData.value = res.data.data;
+
+            // Extract company addresses array
+            company_addresses.value = prData.value.company?.companylocations?.map(loc => loc.address) || [];
+
+            // Extract first telefax (if exists)
+            first_telefax.value = prData.value.company?.companylocations?.[0]?.telefax || '';
+        }
+    } catch (err) {
+        console.error('Failed to fetch PR:', err);
+    }
+};
+
+
+onMounted(fetchPR);
+
+const printPR = () => {
+    window.print();
+};
+</script>
+
+<style scoped>
+/* Add component-specific styles here if needed */
+</style>
 <template> 
 	<navigation>
 		<!-- Form Section -->
@@ -21,13 +77,21 @@
 			<div class="w-full bg-white shadow-lg rounded-xl p-8 max-w-6xl mx-auto">
 				<table class="border w-full">
 					<tbody>
-						<tr>
-							<td class="p-2">Logo</td>
+						 <tr>
 							<td class="p-2">
-								<span class="text-lg mt-1 font-bold" >CENTRAL NEGROS POWER RELIABILITY INC.</span>
-								<p class="leading-tight text-sm m-0 ">Office: 88 Corner Rizal-Mabini Sts., Bacolod City</p>
-								<p class="leading-tight text-sm m-0 ">Plant Site: Purok San Jose, Barangay Calumangan, Bago City</p>
-								<p class="leading-tight text-sm mb-0">Telefax: (034) 435-1932</p>
+							<img v-if="prData.company?.company_logo" :src="`/storage/${prData.company.company_logo}`" width="80">
+							</td>
+							<td class="p-2">
+							<span class="text-lg mt-1 font-bold">{{ prData.company?.company_name }}</span>
+
+							<!-- Company addresses loop -->
+							<div v-for="(address, index) in company_addresses" :key="index" class="leading-tight text-sm m-0">
+								{{ address }}
+							</div>
+
+							<div v-if="first_telefax" class="leading-tight text-sm mb-0">
+								Tel/Fax: {{ first_telefax }}
+							</div>
 							</td>
 							<td class="p-2 font-bold uppercase">Purchase Request</td>
 						</tr>
@@ -37,35 +101,35 @@
 					<tbody>
 						<tr>
 							<td class="border-x px-1" width="">Location</td>
-							<td class="border-x px-1" width="37.5%">Plant Site</td>
+							<td class="border-x px-1" width="37.5%">{{ prData.location_name }}</td>
 							<td class="border-x px-1" width="">Department</td>
-							<td class="border-x px-1" width="37.5%">Purchasing Department</td>
+							<td class="border-x px-1" width="37.5%">{{ prData.department_name }}</td>
 						</tr>
 						<tr>
 							<td class="border px-1" width="">Purchase Number</td>
-							<td class="border px-1" width="37.5%">PR-9892-CNPR-SITE</td>
+							<td class="border px-1" width="37.5%">{{ prData.pr_no }}</td>
 							<td class="border px-1" width="">Department Code</td>
-							<td class="border px-1" width="37.5%">PUR-1200</td>
+							<td class="border px-1" width="37.5%">{{ prData.department_code }}</td>
 						</tr>
 						<tr>
 							<td class="border px-1" width="">Date Prepared</td>
-							<td class="border px-1" width="37.5%">10/10/25</td>
+							<td class="border px-1" width="37.5%">{{ prData.date_prepared }}</td>
 							<td class="border px-1" width="">Requestor</td>
-							<td class="border px-1" width="37.5%">Hennelen Tantanan</td>
+							<td class="border px-1" width="37.5%">{{ prData.requestor_name }}</td>
 						</tr>
 						<tr>
 							<td class="border px-1" width=""></td>
 							<td class="border px-1" width="37.5%"></td>
 							<td class="border px-1" width="">Urgency</td>
-							<td class="border px-1" width="35%">1 - Week</td>
+							<td class="border px-1" width="35%">{{ prData.urgency_name }}</td>
 						</tr>
 						<tr>
 							<td class="border px-1" width="">Purpose</td>
-							<td class="border px-1" colspan="3">IT Requirements for the renovation on Guard House Post 1</td>
+							<td class="border px-1" colspan="3">{{ prData.purpose_name }}</td>
 						</tr>
 						<tr>
 							<td class="border px-1" width="">End-use</td>
-							<td class="border px-1" colspan="3">IT Site Department</td>
+							<td class="border px-1" colspan="3">{{ prData.enduse_name }}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -82,24 +146,23 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<td class="align-top !border-x !border-b px-1 text-center">01</td>
-							<td class="align-top !border-x !border-b px-1 text-center">25</td>
-							<td class="align-top !border-x !border-b px-1 text-center"> pc/s</td>
-							<td class="align-top !border-x !border-b px-1">55844-28823</td>
+						 <tr v-for="(item, index) in prData.pr_items" :key="item.id">
+							<td class="align-top !border-x !border-b px-1 text-center">{{ index + 1 }}</td>
+							<td class="align-top !border-x !border-b px-1 text-center">{{ item.qty }}</td>
+							<td class="align-top !border-x !border-b px-1 text-center"> {{ item.uom }}</td>
+							<td class="align-top !border-x !border-b px-1">{{ item.item_variant_code }}</td>
 							<td class="align-top !border-x !border-b px-1">
-								<span class="font-semibold">Sample item - PRT03399;</span>
-								<span class="">Category;Brand;Model;Size;Color;Material;Unit;Serial</span>
+								<span class="">{{ item.description }}</span>
 							</td>
-							<td class="align-top !border-x !border-b px-1"></td>
-							<td class="align-top !border-x !border-b px-1 text-center">10/10/25</td>
+							<td class="align-top !border-x !border-b px-1 text-center">{{ item.wh_stocks }}</td>
+							<td class="align-top !border-x !border-b px-1 text-center">{{ item.date_needed }}</td>
 						</tr>
 					</tbody>
 				</table>
 				<table class="w-full text-sm !border-b border-x">
 					<tbody>
 						<tr>
-							<td class="border px-1 align-top" colspan="3">Notes : Sample Notes Here</td>
+							<td class="border px-1 align-top" colspan="3">{{ prData.notes }}</td>
 							<!-- <td class="border pxs-1" colspan="2">
 								
 							</td> -->
@@ -160,42 +223,35 @@
 					</table>
 				</div>
 				<div class="mt-4 flex justify-between flex-wrap gap-2">
-					<div>
-						<a href="/create_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-emerald-600 text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50/">
-							Revise
-						</a>
-					</div>
-					<div class="flex justify-between flex-wrap gap-2">
-						<a href="/create_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg border border-blue-300 text-blue-900 hover:bg-blue-100">
-							Back
-						</a>
-						<a href="/print_pr" class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium text-lg shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600/50/">
-							Save & Export
-						</a>
-					</div>
+				<!-- Left side -->
+				<div class="flex gap-2">
+					<a href="/create_pr"
+					class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium shadow-sm bg-emerald-600 text-white hover:bg-emerald-700">
+						Revise
+					</a>
+
+					<a href="/create_pr"
+					class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium border border-blue-300 text-blue-900 hover:bg-blue-100">
+						Back
+					</a>
 				</div>
+
+				<!-- Right side -->
+				<div class="flex gap-2">
+					<button
+						@click="printPR"
+						class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium shadow-sm bg-blue-600 text-white hover:bg-blue-700">
+						Print
+					</button>
+
+					<a
+						:href="`/export_pr/${pr_id}`"
+						class="inline-flex items-center rounded-lg px-4 py-3 text-sm font-medium shadow-sm bg-indigo-600 text-white hover:bg-indigo-700">
+						Export
+					</a>
+				</div>
+			</div>
 			</div>
 		</section>
 	</navigation>
 </template>
-
-<script setup>
-import { reactive } from "vue";
-import { PlusIcon, XMarkIcon } from '@heroicons/vue/24/solid'
-import navigation from "@/components/layouts/navigation.vue";
-
-const form = reactive({
-	name: "",
-	email: "",
-	message: "",
-});
-
-const handleSubmit = () => {
-	console.log("Form submitted:", form);
-	alert(`Thanks ${form.name}, we received your message!`);
-};
-</script>
-
-<style scoped>
-/* Add component-specific styles here if needed */
-</style>

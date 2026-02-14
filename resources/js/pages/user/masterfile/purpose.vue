@@ -1,157 +1,150 @@
 <script setup>
-	import { ref, reactive, onMounted, nextTick, computed } from "vue";
-	import axios from "axios";
-	import { Bars3Icon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
-	import { useTable } from '@/composables/useTable'
-	import searchbox from '@/composables/searchbox.vue';
-	import pagination from "@/composables/pagination.vue";
-    import navigation from "@/components/layouts/navigation.vue";
-	import modal from "@/components/modal.vue";
+import { ref, reactive, onMounted, watch } from "vue";
+import axios from "axios";
+import { Bars3Icon, PlusIcon, ExclamationTriangleIcon, XMarkIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
+import searchbox from '@/composables/searchbox.vue';
+import pagination from "@/composables/pagination.vue";
+import navigation from "@/components/layouts/navigation.vue";
+import modal from "@/components/modal.vue";
 
-	const {
-		items,
-		search,
-		page,
-		perPage,
-		total,
-		lastPage,
-		loading,
-		fetchData
-	} = useTable('/api/purposes')
+// -------------------
+// Table state
+// -------------------
+const items = ref([])
+const search = ref('')
+const page = ref(1)
+const perPage = ref(10)
+const total = ref(0)
+const lastPage = ref(0)
+const loading = ref(false)
 
-	onMounted(fetchData)
-	const pageCount = computed(() => lastPage.value)
-	const totalItems = computed(() => total.value)
+// -------------------
+// Modal state
+// -------------------
+const isSaving = ref(false)
+const showModal = ref(false)
+const showDeleteModal = ref(false)
+const isEdit = ref(false)
+const modalItem = reactive({ id: null, purpose_name: "" })
+const errors = reactive({ purpose_name: "" })
 
-	// Flatten categories + subcategories for table rows
-	const tableRows = computed(() => {
-		const rows = []
-		items.value.forEach(category => {
-			rows.push({
-			id: `c-${category.id}`,
-			name: category.category_name,
-			type: 'category',
-			raw: category
-			})
-			category.subcategories?.forEach(sub => {
-			rows.push({
-				id: `s-${sub.id}`,
-				name: `↳ ${sub.sub_cat_name}`,
-				type: 'subcategory',
-				raw: sub,
-				parent: category
-			})
-			})
-		})
-		return rows
-	})
-
-	const visiblePages = computed(() => {
-		const total = pageCount.value
-		const current = page.value
-		const delta = 2 // pages on each side
-
-		if (total <= 7) {
-			return Array.from({ length: total }, (_, i) => i + 1)
-		}
-
-		const pages = new Set()
-
-		pages.add(1)
-		pages.add(total)
-
-		for (let i = current - delta; i <= current + delta; i++) {
-			if (i > 1 && i < total) {
-			pages.add(i)
-			}
-		}
-
-		return Array.from(pages).sort((a, b) => a - b)
-	})
-
-	const purposes = ref([]);
-	const isSaving = ref(false)
-	const showModal = ref(false);
-	const showDeleteModal = ref(false);
-	const isEdit = ref(false);
-	const modalItem = reactive({ id: null, purpose_name: "" });
-	const errors = reactive({ purpose_name: "" });
-
-	// Modals
-	const openAddModal = () => {
-		isEdit.value = false;
-		Object.assign(modalItem, { id: null, purpose_name: "" });
-		Object.assign(errors, { purpose_name: "" });
-		showModal.value = true;
-	};
-
-	const openEditModal = (item) => {
-		isEdit.value = true;
-		Object.assign(modalItem, item);
-		Object.assign(errors, { purpose_name: "" });
-		showModal.value = true;
-	};
-
-	const closeModal = () => showModal.value = false;
-
-
-	const savePurpose = async () => {
-        if (isSaving.value) return
-
-        // reset errors
-        Object.assign(errors, {
-            purpose_name: "",
+// -------------------
+// Fetch data
+// -------------------
+const fetchData = async () => {
+    loading.value = true
+    try {
+        const response = await axios.get('/api/purposes', {
+            params: {
+                page: page.value,
+                per_page: perPage.value,
+                search: search.value.trim()
+            }
         })
+        console.log("API Response:", response.data)
 
-        // frontend validation (DO NOT start loading yet)
-        if (!modalItem.purpose_name) {
-            errors.purpose_name = "Purpose name is required"
-            return
-        }
+        // Assign directly if API returns array
+        items.value = response.data
+        total.value = response.data.length
+        lastPage.value = 1
+    } catch (err) {
+        console.error(err)
+        items.value = []
+        total.value = 0
+        lastPage.value = 0
+    } finally {
+        loading.value = false
+    }
+}
 
+// -------------------
+// Watchers for search & pagination
+// -------------------
+watch(search, () => { page.value = 1; fetchData() })
+watch(page, () => fetchData())
+watch(perPage, () => { page.value = 1; fetchData() })
 
-        try {
-            isSaving.value = true
+// -------------------
+// Modals
+// -------------------
+const openAddModal = () => {
+    isEdit.value = false
+    modalItem.id = null
+    modalItem.purpose_name = ""
+    errors.purpose_name = ""
+    showModal.value = true
+}
 
-            if (isEdit.value) {
-                await axios.put(`/api/purposes/${modalItem.id}`, modalItem)
-            } else {
-                await axios.post("/api/purposes", modalItem)
-            }
+const openEditModal = (item) => {
+    isEdit.value = true
+    modalItem.id = item.id
+    modalItem.purpose_name = item.purpose_name
+    errors.purpose_name = ""
+    showModal.value = true
+}
 
-            await fetchData()
-            showModal.value = false
-        } catch (err) {
-            if (err.response?.data?.errors) {
-                Object.assign(errors, err.response.data.errors)
-            }
-            console.error(err)
-        } finally {
-            isSaving.value = false
-        }
+const closeModal = () => showModal.value = false
+
+// -------------------
+// Save
+// -------------------
+const savePurpose = async () => {
+    errors.purpose_name = ""
+    if (!modalItem.purpose_name.trim()) {
+        errors.purpose_name = "Purpose name is required."
+        return
     }
 
+    isSaving.value = true
+    try {
+        if (isEdit.value) {
+            await axios.put(`/api/purposes/${modalItem.id}`, { purpose_name: modalItem.purpose_name })
+        } else {
+            await axios.post('/api/purposes', { purpose_name: modalItem.purpose_name })
+        }
 
-	const openDeleteModal = (item) => {
-		Object.assign(modalItem, item);
-		showDeleteModal.value = true;
-	};
+        await fetchData()
+        showModal.value = false
+    } catch (err) {
+        if (err.response?.data?.errors) {
+            const backendErrors = err.response.data.errors
 
-	const closeDeleteModal = () => showDeleteModal.value = false;
+            Object.keys(backendErrors).forEach(key => {
+                errors[key] = backendErrors[key][0] // get FIRST message only
+            })
+        }
+        console.error(err)
+    } finally {
+        isSaving.value = false
+    }
+}
 
-	const deleteItem = async () => {
-		try {
-			await axios.delete(`/api/purposes/${modalItem.id}`);
-			await fetchData();
-			showDeleteModal.value = false;
-		} catch (err) {
-			console.error(err);
-		}
-	};
+// -------------------
+// Delete
+// -------------------
+const openDeleteModal = (item) => {
+    modalItem.id = item.id
+    modalItem.purpose_name = item.purpose_name
+    showDeleteModal.value = true
+}
 
-	onMounted(fetchData);
+const closeDeleteModal = () => showDeleteModal.value = false
+
+const deleteItem = async () => {
+    try {
+        await axios.delete(`/api/purposes/${modalItem.id}`)
+        await fetchData()
+        showDeleteModal.value = false
+    } catch (err) {
+        console.error(err)
+    }
+}
+
+// -------------------
+// Initialize
+// -------------------
+onMounted(fetchData)
 </script>
-
 <template>
 	<navigation>
 		<section class="items-center justify-center py-8 fade-up">
@@ -225,7 +218,7 @@
                                 </td>
                             </tr>
                             <!-- Empty state -->
-                            <tr v-if="!loading && items.length === 0">
+                            <tr v-if="!loading && items?.length === 0">
                                 <td colspan="2" class="py-10 text-center text-gray-500">
                                 	No purpose found.
                                 </td>

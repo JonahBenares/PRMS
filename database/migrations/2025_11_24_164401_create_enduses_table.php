@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('enduses', function (Blueprint $table) {
             $table->id();
-            $table->string('enduse_name')->unique();
+            $table->string('enduse_name')->nullable();
             $table->timestamps();
         });
     }

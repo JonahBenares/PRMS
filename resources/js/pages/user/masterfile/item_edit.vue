@@ -161,8 +161,11 @@ const saveNewVariants = async () => {
     { headers: { "Content-Type": "multipart/form-data" } }
   );
 
-  alert(res.data.message);
-  await loadItem(itemId.value);
+  // ✅ IMPORTANT PART
+  newVariants.forEach(v => {
+    v.isNew = false;
+    v.readonly = true;
+  });
 };
 </script>
 
