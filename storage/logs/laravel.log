@@ -27796,3 +27796,19 @@ Did you mean one of these?
 #58 E:\\Jason's Files\\Systems\\PRMS\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('E:\\\\Jason's File...')
 #59 {main}
 "} 
+[2026-02-02 03:57:09] local.ERROR: Command "storage:linl" is not defined.
+
+Did you mean one of these?
+    storage:link
+    storage:unlink {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"storage:linl\" is not defined.
+
+Did you mean one of these?
+    storage:link
+    storage:unlink at E:\\Jason's Files\\Systems\\PRMS\\vendor\\symfony\\console\\Application.php:737)
+[stacktrace]
+#0 E:\\Jason's Files\\Systems\\PRMS\\vendor\\symfony\\console\\Application.php(266): Symfony\\Component\\Console\\Application->find('storage:linl')
+#1 E:\\Jason's Files\\Systems\\PRMS\\vendor\\symfony\\console\\Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 E:\\Jason's Files\\Systems\\PRMS\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 E:\\Jason's Files\\Systems\\PRMS\\artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
