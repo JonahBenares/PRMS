@@ -231,7 +231,7 @@
                     <label class="text-sm font-medium">Department Name</label>
                     <input
                         v-model="modalItem.department_name"
-                        class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                        :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.department_name ? 'input-error' : '']"
                     />
                     <span v-if="errors.department_name" class="text-red-500 text-xs">
                         {{ errors.department_name }}
@@ -242,7 +242,7 @@
                     <label class="text-sm font-medium">Department Code</label>
                     <input
                         v-model="modalItem.department_code"
-                        class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                        :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.department_code ? 'input-error' : '']"
                     />
                     <span v-if="errors.department_code" class="text-red-500 text-xs">
                         {{ errors.department_code }}
