@@ -170,164 +170,221 @@ const saveNewVariants = async () => {
 </script>
 
 <template>
-<navigation>
-  <pageCard>
-    <h2 class="text-lg font-semibold border-b pb-3 mb-4">
-      View Item / Add Variants
-    </h2>
+	<navigation>
+		<pageCard>
 
-    <!-- ITEM INFO -->
-    <div class="grid md:grid-cols-2 gap-4 mb-4">
-      <div>
-        <label class="text-sm text-gray-500">Item Code</label>
-        <input class="w-full border rounded px-2 py-2 bg-gray-100" :value="itemCode" readonly />
-      </div>
+		<!-- HEADER -->
+		<div class="flex items-center justify-between mb-6">
+			<div>
+			<h2 class="text-2xl font-bold text-gray-800">
+				View Item / Add Variants
+			</h2>
+			<p class="text-sm text-gray-500">
+				Manage item details and add new variants
+			</p>
+			</div>
 
-      <div>
-        <label class="text-sm text-gray-500">Sub Category</label>
-        <input class="w-full border rounded px-2 py-2 bg-gray-50" :value="sub_cat_name" readonly />
-      </div>
+			<!-- Back Button -->
+			<button
+			@click="goBack"
+			class="flex items-center px-4 py-2 text-sm border rounded-lg hover:bg-gray-100 transition"
+			>
+			← Back to List
+			</button>
+		</div>
 
-      <div>
-        <label class="text-sm text-gray-500">Category</label>
-        <input class="w-full border rounded px-2 py-2 bg-gray-50" :value="categoryName" readonly />
-      </div>
+		<!-- ================= ITEM INFO ================= -->
+		<div class="bg-gray-50 border rounded-xl p-5 mb-6">
+			<h3 class="font-semibold text-gray-700 mb-4">Item Information</h3>
 
-      <div>
-        <label class="text-sm text-gray-500">Description</label>
-        <input class="w-full border rounded px-2 py-2 bg-gray-50" :value="itemDescription" readonly />
-      </div>
-    </div>
+			<div class="grid md:grid-cols-3 gap-4">
 
-    <!-- VARIANTS -->
-    <div class="mt-6">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="font-semibold">Variants</h3>
-        <button
-          @click="addVariant"
-          class="flex items-center bg-blue-600 text-white text-sm px-3 py-1.5 rounded"
-        >
-          <PlusIcon class="w-4 h-4 mr-1" /> Add Variant
-        </button>
-      </div>
+			<div>
+				<label class="form-label">Item Code</label>
+				<input class="form-input bg-gray-100" :value="itemCode" readonly />
+			</div>
 
-      <div
-        v-for="(variant, index) in variants"
-        :key="index"
-        class="border rounded-lg mb-4 p-4 bg-white"
-      >
-        <div class="grid md:grid-cols-3 gap-3 text-sm">
+			<div>
+				<label class="form-label">Sub Category</label>
+				<input class="form-input bg-gray-100" :value="sub_cat_name" readonly />
+			</div>
 
-          <div>
-            <label class="text-xs text-gray-500">Variant Item Code</label>
-            <input
-              class="w-full border rounded px-2 py-1 bg-gray-100"
-              :value="variant.variant_item_code"
-              readonly
-            />
-          </div>
+			<div>
+				<label class="form-label">Category</label>
+				<input class="form-input bg-gray-100" :value="categoryName" readonly />
+			</div>
 
-          <div>
-            <label class="text-xs text-gray-500">Brand</label>
-            <input v-model="variant.brand" class="w-full border rounded px-2 py-1"
-              :readonly="variant.readonly" />
-          </div>
+			</div>
 
-          <div>
-            <label class="text-xs text-gray-500">Part No</label>
-            <input v-model="variant.partNo" class="w-full border rounded px-2 py-1"
-              :readonly="variant.readonly" />
-          </div>
+			<div class="mt-4">
+			<label class="form-label">Item Description</label>
+			<input class="form-input bg-gray-100" :value="itemDescription" readonly />
+			</div>
+		</div>
 
-          <div>
-            <label class="text-xs text-gray-500">Type</label>
-            <input v-model="variant.type" class="w-full border rounded px-2 py-1"
-              :readonly="variant.readonly" />
-          </div>
+		<!-- ================= VARIANTS ================= -->
+		<div class="flex justify-between items-center mb-3">
+			<h3 class="text-lg font-semibold text-gray-800">Variants</h3>
 
-          <div>
-            <label class="text-xs text-gray-500">Model</label>
-            <input v-model="variant.model" class="w-full border rounded px-2 py-1"
-              :readonly="variant.readonly" />
-          </div>
+			<button
+			@click="addVariant"
+			class="btn-primary"
+			>
+			<PlusIcon class="w-4 h-4 mr-1"/>
+			Add Variant
+			</button>
+		</div>
 
-          <div>
-            <label class="text-xs text-gray-500">Size</label>
-            <input v-model="variant.size" class="w-full border rounded px-2 py-1"
-              :readonly="variant.readonly" />
-          </div>
+		<!-- Variant Cards -->
+		<div class="space-y-5">
+			<div
+			v-for="(variant, index) in variants"
+			:key="index"
+			class="bg-white border rounded-xl shadow-sm"
+			>
+			<!-- Variant Header -->
+			<div class="flex justify-between items-center bg-gray-100 px-4 py-3 rounded-t-xl">
+				<div class="font-semibold text-gray-700">
+				Variant {{ index + 1 }}
+				<span class="text-xs text-gray-500 ml-2">
+					{{ variant.variant_item_code }}
+				</span>
+				</div>
 
-          <div>
-            <label class="text-xs text-gray-500">Color</label>
-            <input v-model="variant.color" class="w-full border rounded px-2 py-1"
-              :readonly="variant.readonly" />
-          </div>
+				<button
+				v-if="variant.isNew"
+				@click="deleteVariant(index)"
+				class="text-red-600 hover:bg-red-50 p-2 rounded"
+				>
+				<TrashIcon class="w-5 h-5"/>
+				</button>
+			</div>
 
-          <div>
-            <label class="text-xs text-gray-500">Material</label>
-            <input v-model="variant.material" class="w-full border rounded px-2 py-1"
-              :readonly="variant.readonly" />
-          </div>
+			<!-- Variant Body -->
+			<div class="p-4 grid md:grid-cols-3 gap-4">
 
-          <div>
-            <label class="text-xs text-gray-500">UOM</label>
-            <input v-model="variant.uom" class="w-full border rounded px-2 py-1"
-              :readonly="variant.readonly" />
-          </div>
-        </div>
+				<div>
+				<label class="form-label">Brand</label>
+				<input v-model="variant.brand" class="form-input"
+					:readonly="variant.readonly"/>
+				</div>
 
-        <!-- Images -->
-        <div class="grid grid-cols-3 gap-3 mt-4">
-          <div
-            v-for="(image, imgIndex) in variant.images"
-            :key="imgIndex"
-            class="border-2 border-dashed rounded-lg p-2 relative text-center"
-          >
-            <img v-if="image.url" :src="image.url" class="w-full h-28 object-cover rounded" />
-            <span v-else class="text-xs text-gray-400 block mt-6">
-              Image {{ imgIndex + 1 }}
-            </span>
+				<div>
+				<label class="form-label">Part No</label>
+				<input v-model="variant.partNo" class="form-input"
+					:readonly="variant.readonly"/>
+				</div>
 
-            <input
-              type="file"
-              accept="image/*"
-              class="absolute inset-0 opacity-0 cursor-pointer"
-              :disabled="variant.readonly"
-              @change="handleFileUpload($event, variant, imgIndex)"
-            />
+				<div>
+				<label class="form-label">Type</label>
+				<input v-model="variant.type" class="form-input"
+					:readonly="variant.readonly"/>
+				</div>
 
-            <button
-              v-if="image.url && !variant.readonly"
-              @click.stop="removeImage(variant, imgIndex)"
-              class="absolute top-1 right-1 bg-black/60 text-white rounded-full px-2"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
+				<div>
+				<label class="form-label">Model</label>
+				<input v-model="variant.model" class="form-input"
+					:readonly="variant.readonly"/>
+				</div>
 
-        <!-- Delete -->
-        <div class="flex justify-end mt-3">
-          <button
-            v-if="variant.isNew"
-            @click="deleteVariant(index)"
-            class="bg-red-500 text-white rounded p-1"
-          >
-            <TrashIcon class="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </div>
+				<div>
+				<label class="form-label">Size</label>
+				<input v-model="variant.size" class="form-input"
+					:readonly="variant.readonly"/>
+				</div>
 
-    <!-- SAVE BUTTON -->
-    <div v-if="hasNewVariants" class="flex justify-end border-t pt-4">
-      <button
-        @click="saveNewVariants"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
-      >
-        Save New Variants
-      </button>
-    </div>
-  </pageCard>
-</navigation>
+				<div>
+				<label class="form-label">Color</label>
+				<input v-model="variant.color" class="form-input"
+					:readonly="variant.readonly"/>
+				</div>
+
+				<div>
+				<label class="form-label">Material</label>
+				<input v-model="variant.material" class="form-input"
+					:readonly="variant.readonly"/>
+				</div>
+
+				<div>
+				<label class="form-label">UOM</label>
+				<input v-model="variant.uom" class="form-input"
+					:readonly="variant.readonly"/>
+				</div>
+
+				<!-- NEW FIELDS -->
+				<div>
+				<label class="form-label">Rating</label>
+				<input class="form-input"
+					:readonly="variant.readonly"/>
+				</div>
+
+			</div>
+
+			<!-- Other Specs -->
+			<div class="px-4 pb-4">
+				<label class="form-label">Other Specs</label>
+				<textarea class="form-input"
+				rows="3"
+				:readonly="variant.readonly">
+				</textarea>
+			</div>
+
+			<!-- Images -->
+			<div class="px-4 pb-5">
+				<label class="form-label mb-2 block">Images</label>
+
+				<div class="grid grid-cols-3 gap-4">
+				<div
+					v-for="(image, imgIndex) in variant.images"
+					:key="imgIndex"
+					class="upload-tile"
+				>
+					<img
+					v-if="image.url"
+					:src="image.url"
+					class="upload-img"
+					/>
+
+					<span v-else class="text-gray-400 text-xs">
+					Upload Image {{ imgIndex + 1 }}
+					</span>
+
+					<input
+					type="file"
+					accept="image/*"
+					class="absolute inset-0 opacity-0 cursor-pointer"
+					:disabled="variant.readonly"
+					@change="handleFileUpload($event, variant, imgIndex)"
+					/>
+
+					<button
+					v-if="image.url && !variant.readonly"
+					@click.stop="removeImage(variant, imgIndex)"
+					class="upload-remove"
+					>
+					✕
+					</button>
+				</div>
+				</div>
+			</div>
+
+			</div>
+		</div>
+
+		<!-- SAVE BAR -->
+		<div
+			v-if="hasNewVariants"
+			class="sticky bottom-0 bg-white border-t mt-8 pt-4 flex justify-end"
+		>
+			<button
+			@click="saveNewVariants"
+			class="btn-success"
+			>
+			Save New Variants
+			</button>
+		</div>
+
+		</pageCard>
+	</navigation>
 </template>
+

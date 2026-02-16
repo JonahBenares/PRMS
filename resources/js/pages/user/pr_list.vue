@@ -1,109 +1,159 @@
 <script setup>
 import { ref, reactive, onMounted } from "vue";
-import $ from "jquery";
-import "datatables.net";
 import axios from "axios";
-import { TrashIcon, EyeIcon, PlusIcon, ArrowPathIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/solid';
+import { Bars3Icon, PlusIcon, ArrowPathIcon, EyeIcon, ExclamationTriangleIcon } from '@heroicons/vue/24/solid';
+import { useTable } from '@/composables/useTable'
+import searchbox from '@/composables/searchbox.vue';
+import pagination from "@/composables/pagination.vue";
 import navigation from "@/components/layouts/navigation.vue";
+import modal from "@/components/modal.vue";
 
-const prs = ref([]);
-const showDeleteModal = ref(false);
-const modalItem = reactive({ id: null, pr_no: "" });
+const {
+	items,
+	search,
+	page,
+	perPage,
+	total,
+	lastPage,
+	loading,
+	fetchData
+} = useTable('/api/prs')
 
-// Fetch PRs from API
-const fetchPRs = async () => {
-  try {
-    const res = await axios.get("/api/prs");
-    prs.value = res.data;
-  } catch (err) {
-    console.error(err);
-  }
-};
+onMounted(fetchData)
+
+// Delete Modal
+const showDeleteModal = ref(false)
+const modalItem = reactive({ id: null, pr_no: "" })
 
 const openDeleteModal = (pr) => {
-  Object.assign(modalItem, pr);
-  showDeleteModal.value = true;
-};
+	Object.assign(modalItem, pr)
+	showDeleteModal.value = true
+}
 
-const closeDeleteModal = () => showDeleteModal.value = false;
+const closeDeleteModal = () => showDeleteModal.value = false
 
-const deletePR = async () => {
-  try {
-    await axios.delete(`/api/prs/${modalItem.id}`);
-    await fetchPRs();
-    showDeleteModal.value = false;
-  } catch (err) {
-    console.error(err);
-  }
-};
+const deleteItem = async () => {
+	try {
+		await axios.delete(`/api/prs/${modalItem.id}`)
+		await fetchData()
+		showDeleteModal.value = false
+	} catch (err) {
+		console.error(err)
+	}
+}
 
 const openEditModal = (pr) => {
-  // Implement PR revision/edit logic
-  console.log("Edit PR", pr);
-};
-
-onMounted(async () => {
-  await fetchPRs();
-  $('#prTable').DataTable({
-    dom: "<'flex justify-between items-center mb-4'lf>t<'flex justify-end items-center mt-4'p>",
-    language: { search: "", searchPlaceholder: "Search PRs...", lengthMenu: "_MENU_ entries per page" },
-  });
-});
+	console.log("Edit PR", pr)
+}
 </script>
+
 <template>
     <navigation>
 		<section class="items-center justify-center py-8">
 			<div class="bg-white rounded-lg shadow-lg max-w-6xl mx-auto">
-				<!-- Header -->
-				<div class="px-6 py-4 flex justify-between items-center mb-4 bg-white border-b rounded-t-lg">
-					<h2 class="text-lg font-semibold">PR List</h2>
-					<a
-						href="/create_pr"
-						class="flex text-sm items-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+				<div class="px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    
+					<div>
+						<h2 class="text-2xl font-bold text-gray-600">PR List</h2>
+					</div>
+
+					<div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+						
+						<div class="flex-1 sm:flex-none w-full sm:w-96">
+							<searchbox v-model="search" />
+						</div>
+
+						<a
+							href="/create_pr"
+							class="inline-flex items-center gap-2
+									px-4 py-2 bg-blue-600 text-white text-sm font-medium
+									rounded-lg shadow hover:bg-blue-700 transition"
 						>
-						<PlusIcon class="w-5 h-5 mr-1" />
-						Create New
-					</a>
+							<PlusIcon class="w-4 h-4" />
+							Create PR
+						</a>
+					</div>
 				</div>
 
-				<!-- Table -->
-				<div class="px-6 pt-2 pb-6">
-					<table
-					id="itemTable"
-					class="min-w-full text-sm text-left text-gray-700 border border-gray-200 rounded-lg overflow-hidden"
-					>
-					<thead class="bg-gray-100 text-gray-900 font-semibold">
-						<tr>
-						<td class="px-4 py-2 cursor-pointer" width="10%">date_prepared</td>
-						<td class="px-4 py-2 cursor-pointer" width="10%">PR No</td>
-						<td class="px-4 py-2 cursor-pointer" width="15%">Department</td>
-						<td class="px-4 py-2 cursor-pointer" width="15%">Purpose</td>
-						<td class="px-4 py-2 cursor-pointer" width="15%">Enduse</td>
-						<td class="px-4 py-2 cursor-pointer" width="1%"></td>
-						</tr>
-					</thead>
-					<tbody class="divide-y divide-gray-200">
-						<tr v-for="pr in prs" :key="pr.id" class="hover:bg-gray-50">
-						<td class="px-4 py-2">{{ pr.date_prepared }}</td>
-						<td class="px-4 py-2">{{ pr.pr_no }}</td>
-						<td class="px-4 py-2">{{ pr.department_name }}</td>
-						<td class="px-4 py-2">{{ pr.purpose_name }}</td>
-						<td class="px-4 py-2">{{ pr.enduse_name }}</td>
-						<td class="px-4 py-2 align-top flex justify-end space-x-1">
-							<a :href="`/print_pr/${pr.id}`" class="flex items-center justify-center px-1 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-								<EyeIcon class="w-4 h-4" />
-							</a>
-							<button @click="openEditModal(item)" title="Revise PR" class="flex items-center justify-center px-1 py-1 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600" >
-								<ArrowPathIcon class="w-4 h-4" />
-							</button>
-							<!-- <button @click="openDeleteModal(item)" class="flex items-center justify-center px-1 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600" >
-								<TrashIcon class="w-4 h-4" />
-							</button> -->
-						</td>
-						</tr>
-					</tbody>
+				<div class="border-b">
+					<pagination
+						:page="page"
+						:per-page="perPage"
+						:last-page="lastPage"
+						:total="total"
+						@update:page="page = $event"
+						@update:perPage="perPage = $event"
+					/>
+				</div>
+
+				<div class="overflow-hidden">
+					<table class="min-w-full text-sm text-left">
+						<thead class="bg-gray-100 sticky top-0 z-10">
+							<tr class="text-gray-600 uppercase text-xs tracking-wide">
+								<th class="px-6 py-3">Date</th>
+								<th class="px-6 py-3">PR No</th>
+								<th class="px-6 py-3">Department</th>
+								<th class="px-6 py-3">Purpose</th>
+								<th class="px-6 py-3">End Use</th>
+								<th class="px-6 py-3 w-1">
+									<div class="flex justify-center">
+										<Bars3Icon class="size-4"></Bars3Icon>
+									</div>
+								</th>
+							</tr>
+						</thead>
+
+						<tbody class="divide-y">
+							<tr
+								v-for="pr in items"
+								:key="pr.id"
+								class="transition hover:bg-gray-50"
+							>
+								<td class="px-6 py-2">{{ pr.date_prepared }}</td>
+								<td class="px-6 py-2 font-medium">{{ pr.pr_no }}</td>
+								<td class="px-6 py-2">{{ pr.department_name }}</td>
+								<td class="px-6 py-2">{{ pr.purpose_name }}</td>
+								<td class="px-6 py-2">{{ pr.enduse_name }}</td>
+
+								<td class="px-6 py-2 text-right flex justify-end gap-2">
+									<a
+										:href="`/print_pr/${pr.id}`"
+										class="inline-flex items-center justify-center p-2 rounded-md text-blue-600 hover:bg-blue-50"
+										title="View"
+									>
+										<EyeIcon class="w-4 h-4" />
+									</a>
+
+									<button
+										@click="openEditModal(pr)"
+										class="inline-flex items-center justify-center p-2 rounded-md text-emerald-600 hover:bg-emerald-50"
+										title="Revise"
+									>
+										<ArrowPathIcon class="w-4 h-4" />
+									</button>
+								</td>
+							</tr>
+
+							<tr v-if="!loading && (!items || items.length === 0)">
+								<td colspan="6" class="py-10 text-center text-gray-500">
+									No PR records found.
+								</td>
+							</tr>
+						</tbody>
 					</table>
 				</div>
+
+				<div class="border-t">
+					<pagination
+						:page="page"
+						:per-page="perPage"
+						:last-page="lastPage"
+						:total="total"
+						@update:page="page = $event"
+						@update:perPage="perPage = $event"
+					/>
+				</div>
+
 			</div>
 
 

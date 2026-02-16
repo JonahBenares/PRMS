@@ -21,12 +21,28 @@ use Illuminate\Support\Facades\Auth;
 class PRController extends Controller
 {
 
-    public function index()
+   public function index(Request $request)
     {
-        $prs = PRHead::orderBy('date_prepared', 'desc')->get();
-        return response()->json($prs);
-    }
+        $search  = $request->query('search');
+        $perPage = (int) $request->query('per_page', 10);
 
+        $query = PRHead::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('pr_no', 'like', "%{$search}%")
+                ->orWhere('department_name', 'like', "%{$search}%")
+                ->orWhere('purpose_name', 'like', "%{$search}%")
+                ->orWhere('enduse_name', 'like', "%{$search}%")
+                ->orWhere('company_name', 'like', "%{$search}%")
+                ->orWhere('requestor_name', 'like', "%{$search}%");
+            });
+        }
+
+        $query->orderBy('date_prepared', 'desc');
+
+        return $query->paginate($perPage);
+    }
     public function getCompaniesWithLocations()
     {
         $companies = Company::with(['companylocation:id,company_id,location'])
