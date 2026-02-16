@@ -239,7 +239,7 @@ onMounted(fetchData)
                     <label class="text-sm font-medium">Enduse Name</label>
                     <input
                         v-model="modalItem.enduse_name"
-                        class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                        :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.enduse_name ? 'input-error' : '']"
                     />
                     <span v-if="errors.enduse_name" class="text-red-500 text-xs">
                         {{ errors.enduse_name }}
