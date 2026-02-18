@@ -314,7 +314,7 @@
 					<input
 						v-model="modalItem.employee_name"
 						placeholder="Enter employee name"
-						class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+						:class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.employee_name ? 'input-error' : '']"
 					/>
 					<span v-if="errors.employee_name" class="text-red-500 text-xs">
 						{{ errors.employee_name }}
@@ -327,7 +327,7 @@
 					<input
 						v-model="modalItem.position"
 						placeholder="Enter position"
-						class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+						:class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.position ? 'input-error' : '']"
 					/>
 					<span v-if="errors.position" class="text-red-500 text-xs">
 						{{ errors.position }}
@@ -339,7 +339,7 @@
 					<label class="text-sm font-medium">Department</label>
 					<select
 						v-model="modalItem.department_id"
-						class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+						:class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.department_id ? 'input-error' : '']"
 					>
 						<option value="" disabled>Select Department</option>
 						<option v-for="dept in listdepartment" :key="dept.id" :value="dept.id">

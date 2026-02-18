@@ -191,7 +191,7 @@
 
 			<div>
 				<label class="text-sm font-medium">Location</label>
-				<input v-model="modalItem.location" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"/>
+				<input v-model="modalItem.location" :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.location ? 'input-error' : '']"/>
 				<span v-if="errors.location" class="text-red-500 text-xs">{{ errors.location }}</span>
 			</div>
 
