@@ -188,7 +188,7 @@
             <label class="text-sm font-medium">Qualifier Name</label>
             <input
                 v-model="modalItem.qualifier_name"
-                class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.qualifier_name ? 'input-error' : '']"
             />
             <span v-if="errors.qualifier_name" class="text-red-500 text-xs">
             {{ errors.qualifier_name }}

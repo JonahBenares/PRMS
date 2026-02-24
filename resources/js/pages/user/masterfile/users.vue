@@ -127,11 +127,15 @@
 			showModal.value = false
 
 		} catch (err) {
-			if (err.response?.data?.errors) {
-				Object.assign(errors, err.response.data.errors)
-			}
-			console.error(err)
-		} finally {
+            if (err.response?.data?.errors) {
+                const backendErrors = err.response.data.errors
+
+                Object.keys(backendErrors).forEach(key => {
+                    errors[key] = backendErrors[key][0] // get FIRST message only
+                })
+            }
+            console.error(err)
+        } finally {
 			isSaving.value = false
 		}
 	}
@@ -261,19 +265,19 @@
 		<div class="flex flex-col gap-4">
 			<div>
 				<label class="text-sm font-medium">Name</label>
-				<input v-model="modalItem.name" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"/>
+				<input v-model="modalItem.name" :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.name ? 'input-error' : '']"/>
 				<span v-if="errors.name" class="text-red-500 text-xs">{{ errors.name }}</span>
 			</div>
 
 			<div>
 				<label class="text-sm font-medium">Email</label>
-				<input v-model="modalItem.email" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"/>
+				<input v-model="modalItem.email" :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.email ? 'input-error' : '']"/>
 				<span v-if="errors.email" class="text-red-500 text-xs">{{ errors.email }}</span>
 			</div>
 
 			<div>
 				<label class="text-sm font-medium">Role</label>
-				<select v-model="modalItem.role" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm">
+				<select v-model="modalItem.role" :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.role ? 'input-error' : '']"">
 					<option disabled value="">Select Role</option>
 					<option>Admin</option>
 					<option>Supervisor</option>

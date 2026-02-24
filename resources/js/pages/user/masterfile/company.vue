@@ -341,14 +341,14 @@
 			<div v-if="!isSub"> 
 				<div>
 					<label class="text-sm">Company Name</label>
-					<input v-model="modalItem.company_name" class="border px-3 py-2 rounded text-sm w-full"/>
+					<input v-model="modalItem.company_name" :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.company_name ? 'input-error' : '']"/>
 					<span v-if="errors.company_name" class="text-red-500 text-xs">
 						{{ errors.company_name }}
 					</span>
 				</div>
 				<div>
 					<label class="text-sm">Company Code</label>
-					<input v-model="modalItem.company_code" class="border px-3 py-2 rounded text-sm w-full"/>
+					<input v-model="modalItem.company_code" :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.company_code ? 'input-error' : '']"/>
 					<span v-if="errors.company_code" class="text-red-500 text-xs">
 						{{ errors.company_code }}
 					</span>
@@ -379,17 +379,25 @@
 
 			<!-- LOCATION -->
 			<div v-if="isSub">
-				<label class="text-sm">Location Name</label>
-				<input v-model="modalItem.location" class="border px-3 py-2 rounded text-sm w-full"/>
-
-				<label class="text-sm">Address</label>
-				<input v-model="modalItem.address" class="border px-3 py-2 rounded text-sm w-full"/>
-
-				<label class="text-sm">Telephone Number</label>
-				<input v-model="modalItem.telephone" class="border px-3 py-2 rounded text-sm w-full"/>
-
-				<label class="text-sm">Telefax</label>
-				<input v-model="modalItem.telefax" class="border px-3 py-2 rounded text-sm w-full"/>
+				<div>
+					<label class="text-sm">Location Name</label>
+					<input v-model="modalItem.location" :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.location ? 'input-error' : '']"/>
+					<span v-if="errors.location" class="text-red-500 text-xs">
+						{{ errors.location }}
+					</span>
+				</div>
+				<div>
+					<label class="text-sm">Address</label>
+					<input v-model="modalItem.address" class="border px-3 py-2 rounded text-sm w-full"/>
+				</div>
+				<div>
+					<label class="text-sm">Telephone Number</label>
+					<input v-model="modalItem.telephone" class="border px-3 py-2 rounded text-sm w-full"/>
+				</div>
+				<div>
+					<label class="text-sm">Telefax</label>
+					<input v-model="modalItem.telefax" class="border px-3 py-2 rounded text-sm w-full"/>
+				</div>
 			</div>
 
 			<template #footer>

@@ -32,10 +32,11 @@ class CompanyController extends Controller
     public function store_company(Request $request)
     {
         $data = $request->validate([
-            'company_name' => 'required|string',
+            'company_name' => 'required|string|unique:company,company_name',
             'company_code' => 'required|string|unique:company,company_code',
             'company_logo' => 'nullable|image|max:2048'
         ],[
+           'company_name.unique' => 'This company name already exists. Please enter a unique name.',
            'company_code.unique' => 'This company code already exists. Please enter a unique code.',
         ]);
 
@@ -61,7 +62,7 @@ class CompanyController extends Controller
 
         // Validate only if logo is uploaded
         $data = $request->validate([
-            'company_name' => 'required|string',
+            'company_name' => 'required|string|unique:company,company_name',
             'company_code' => 'required|string|unique:company,company_code',
             'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ],[

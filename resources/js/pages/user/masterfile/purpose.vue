@@ -258,7 +258,7 @@ onMounted(fetchData)
                     <label class="text-sm font-medium">Purpose Name</label>
                     <input
                         v-model="modalItem.purpose_name"
-                        class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                        :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.purpose_name ? 'input-error' : '']"
                     />
                     <span v-if="errors.purpose_name" class="text-red-500 text-xs">
                         {{ errors.purpose_name }}
