@@ -83,9 +83,11 @@ const saveItem = async () => {
 
     errors.name = ''
     if (!modalItem.name.trim()) {
-        errors.name = "Name is required"
-        return
-    }
+		errors.name = isSub.value
+			? "Subcategory name is required."
+			: "Category name is required."
+		return
+	}
 
     try {
         isSaving.value = true
@@ -288,7 +290,7 @@ const saveItem = async () => {
 				</label>
 				<input
 				v-model="modalItem.name"
-				class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+				:class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.name ? 'input-error' : '']"
 				placeholder="Enter name"
 				/>
 				<span v-if="errors.name" class="text-red-500 text-xs">

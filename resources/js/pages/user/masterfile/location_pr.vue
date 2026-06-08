@@ -59,7 +59,7 @@
 		errors.location = ""
 
 		if (!modalItem.location) {
-			errors.location = "Location is required"
+			errors.location = "Location is required."
 			return
 		}
 
@@ -76,11 +76,15 @@
 			showModal.value = false
 
 		} catch (err) {
-			if (err.response?.data?.errors) {
-				Object.assign(errors, err.response.data.errors)
-			}
-			console.error(err)
-		} finally {
+            if (err.response?.data?.errors) {
+                const backendErrors = err.response.data.errors
+
+                Object.keys(backendErrors).forEach(key => {
+                    errors[key] = backendErrors[key][0] // get FIRST message only
+                })
+            }
+            console.error(err)
+        } finally {
 			isSaving.value = false
 		}
 	}
@@ -187,7 +191,7 @@
 
 			<div>
 				<label class="text-sm font-medium">Location</label>
-				<input v-model="modalItem.location" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"/>
+				<input v-model="modalItem.location" :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.location ? 'input-error' : '']"/>
 				<span v-if="errors.location" class="text-red-500 text-xs">{{ errors.location }}</span>
 			</div>
 

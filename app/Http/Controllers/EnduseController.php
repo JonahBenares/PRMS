@@ -44,12 +44,7 @@ class EnduseController extends Controller
         $enduse = Enduse::findOrFail($id);
 
         $request->validate([
-            'enduse_name' => [
-                'required',
-                'string',
-                'max:255',
-                // Rule::unique('enduses', 'enduse_name')->ignore($enduse->id),
-            ],
+            'enduse_name' => 'required|string|max:255|unique:enduses,enduse_name',
         ],[
            'enduse_name.unique' => 'This enduse already exists. Please enter a unique enduse.',
         ]);

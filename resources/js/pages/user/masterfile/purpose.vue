@@ -91,7 +91,7 @@ const closeModal = () => showModal.value = false
 const savePurpose = async () => {
     errors.purpose_name = ""
     if (!modalItem.purpose_name.trim()) {
-        errors.purpose_name = "Purpose name is required"
+        errors.purpose_name = "Purpose name is required."
         return
     }
 
@@ -107,8 +107,10 @@ const savePurpose = async () => {
         showModal.value = false
     } catch (err) {
         if (err.response?.data?.errors) {
-            Object.keys(err.response.data.errors).forEach(key => {
-                errors[key] = err.response.data.errors[key][0]
+            const backendErrors = err.response.data.errors
+
+            Object.keys(backendErrors).forEach(key => {
+                errors[key] = backendErrors[key][0] // get FIRST message only
             })
         }
         console.error(err)
@@ -256,7 +258,7 @@ onMounted(fetchData)
                     <label class="text-sm font-medium">Purpose Name</label>
                     <input
                         v-model="modalItem.purpose_name"
-                        class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                        :class="['mt-1 w-full border rounded-lg px-3 py-2 text-sm', errors.purpose_name ? 'input-error' : '']"
                     />
                     <span v-if="errors.purpose_name" class="text-red-500 text-xs">
                         {{ errors.purpose_name }}

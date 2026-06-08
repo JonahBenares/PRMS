@@ -32,18 +32,19 @@ class EmployeeController extends Controller
         return $query->paginate($perPage);
     }
 
-
-    public function store(Request $request) {
+    public function store(Request $request){
         $request->validate([
             'employee_name' => 'required|string|max:255|unique:employee,employee_name',
             'position' => 'required|string|max:255',
             'department_id' => 'required|exists:departments,id',
             'department_name' => 'required|string|max:255',
-        ],[
-           'employee_name.unique' => 'This employee name already exists. Please enter a unique name.',
+        ], [
+            'employee_name.unique' => 'This employee name already exists. Please enter a unique name.',
         ]);
 
-        $employee = Employee::create($request->only('employee_name', 'position', 'department_id', 'department_name'));
+        $employee = Employee::create(
+            $request->only('employee_name', 'position', 'department_id', 'department_name')
+        );
 
         return response()->json($employee);
     }

@@ -98,4 +98,8 @@ tbody tr {
   @apply hover:bg-yellow-50;
 }
 
+.input-error {
+    border: 2px solid red;
+}
+
 

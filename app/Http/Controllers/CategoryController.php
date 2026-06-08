@@ -77,22 +77,17 @@ class CategoryController extends Controller
     //     return response()->json($sub, 201);
     // }
 
-    public function store_subcategory(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'sub_cat_name' => 'required|string|max:255|unique:sub_category,sub_cat_name',
-                'category_id'  => 'required|exists:category,id',
-            ],[
+    public function store_subcategory(Request $request){
+        $validated = $request->validate([
+            'sub_cat_name' => 'required|string|max:255|unique:sub_category,sub_cat_name',
+            'category_id'  => 'required|exists:category,id',
+        ], [
             'sub_cat_name.unique' => 'This subcategory name already exists. Please enter a unique name.',
-            ]);
+        ]);
 
-            SubCategory::create($validated);
+        SubCategory::create($validated);
 
-            return response()->json(['message' => 'Subcategory created'], 201);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        return response()->json(['message' => 'Subcategory created'], 201);
     }
 
     // Update Subcategory
